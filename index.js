@@ -5,47 +5,59 @@ const universe = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+  [1, 0, 0, 0, 1, 1, 0, 0, 0, 1],
+  [0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-];
+].flat();
+console.table(reshape(universe));
 
-console.table(universe);
+function step(universe) {
+  let newUniverse = [];
 
-function step() {
-  const newUniverse = universe.map((arr, rowIndex) => {
-    return arr.map((cell, columnIndex) => {
-      const y0 = rowIndex === 0 ? size - 1 : rowIndex - 1;
-      const y1 = rowIndex;
-      const y2 = rowIndex === size - 1 ? 0 : rowIndex + 1;
-      const x0 = columnIndex === 0 ? size - 1 : columnIndex - 1;
-      const x1 = columnIndex;
-      const x2 = columnIndex === size - 1 ? 0 : columnIndex + 1;
+  for (let row = 0; row < size; row++) {
+    const rowPrev = row === 0 ? size - 1 : row - 1;
+    const rowNext = row === size - 1 ? 0 : row + 1;
+
+    for (let col = 0; col < size; col++) {
+      const colPrev = col === 0 ? size - 1 : col - 1;
+      const colNext = col === size - 1 ? 0 : col + 1;
 
       const neighborCount =
-        universe[y0][x0] +
-        universe[y0][x1] +
-        universe[y0][x2] +
-        universe[y1][x0] +
-        universe[y1][x2] +
-        universe[y2][x0] +
-        universe[y2][x1] +
-        universe[y2][x2];
+        universe[size * rowPrev + colPrev] +
+        universe[size * rowPrev + col] +
+        universe[size * rowPrev + colNext] +
+        universe[size * row + colPrev] +
+        universe[size * row + colNext] +
+        universe[size * rowNext + colPrev] +
+        universe[size * rowNext + col] +
+        universe[size * rowNext + colNext];
+
+      const index = row * size + col;
 
       switch (neighborCount) {
         case 2:
-          return cell;
+          newUniverse[index] = universe[index];
+          break;
         case 3:
-          return 1;
+          newUniverse[index] = 1;
+          break;
         default:
-          return 0;
+          newUniverse[index] = 0;
+          break;
       }
-    });
-  });
-  console.table(newUniverse);
+    }
+  }
+  console.table(reshape(newUniverse));
 }
 
-step();
+function reshape(arr) {
+  const oldArr = [...arr];
+  const newArr = [];
+  while (oldArr.length) newArr.push(oldArr.splice(0, 10));
+  return newArr;
+}
+
+step(universe);
