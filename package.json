@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "parcel index.html"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,15 @@
   "bugs": {
     "url": "https://github.com/aperance/life/issues"
   },
-  "homepage": "https://github.com/aperance/life#readme"
+  "homepage": "https://github.com/aperance/life#readme",
+  "dependencies": {
+    "react": "^16.10.1",
+    "react-dom": "^16.10.1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "parcel-bundler": "^1.12.3"
+  }
 }
