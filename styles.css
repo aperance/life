@@ -1,0 +1,18 @@
+.row {
+  display: flex;
+}
+
+.cell {
+  height: 20px;
+  width: 20px;
+  border-style: solid;
+  border-width: thin;
+}
+
+.alive {
+  background-color: black;
+}
+
+.dead {
+  background-color: white;
+}
