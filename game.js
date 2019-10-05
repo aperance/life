@@ -12,27 +12,33 @@ function* gameGenerator(size, startingUniverse) {
         const colPrev = col === 0 ? size - 1 : col - 1;
         const colNext = col === size - 1 ? 0 : col + 1;
 
-        const neighborCount =
-          currentUniverse[size * rowPrev + colPrev] +
-          currentUniverse[size * rowPrev + col] +
-          currentUniverse[size * rowPrev + colNext] +
-          currentUniverse[size * row + colPrev] +
-          currentUniverse[size * row + colNext] +
-          currentUniverse[size * rowNext + colPrev] +
-          currentUniverse[size * rowNext + col] +
-          currentUniverse[size * rowNext + colNext];
+        const selfIndex = size * row + col;
+        const neighborIndecies = [
+          size * rowPrev + colPrev,
+          size * rowPrev + col,
+          size * rowPrev + colNext,
+          size * row + colPrev,
+          size * row + colNext,
+          size * rowNext + colPrev,
+          size * rowNext + col,
+          size * rowNext + colNext
+        ];
 
-        const index = row * size + col;
+        let aliveNeighborCount = 0;
 
-        switch (neighborCount) {
+        neighborIndecies.forEach(i => {
+          if (currentUniverse[i]) aliveNeighborCount++;
+        });
+
+        switch (aliveNeighborCount) {
           case 2:
-            newUniverse[index] = currentUniverse[index];
+            newUniverse[selfIndex] = currentUniverse[selfIndex];
             break;
           case 3:
-            newUniverse[index] = 1;
+            newUniverse[selfIndex] = 1;
             break;
           default:
-            newUniverse[index] = 0;
+            newUniverse[selfIndex] = 0;
             break;
         }
       }
