@@ -1,18 +1,31 @@
-.row {
-  display: flex;
+html {
+  font-family: sans-serif;
+  font-size: 12px;
+}
+
+.grid {
+  border: 1px solid #d9dddd;
 }
 
 .cell {
-  height: 20px;
-  width: 20px;
-  border-style: solid;
-  border-width: thin;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0.25px solid #d9dddd;
 }
 
 .alive {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0.25px solid #d9dddd;
   background-color: black;
 }
 
 .dead {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0.25px solid #d9dddd;
   background-color: white;
 }
