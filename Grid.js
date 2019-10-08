@@ -1,17 +1,13 @@
 import React, { useRef, useEffect } from "react";
-import { useGame } from "./useGame";
 
-const size = 50;
-const cellSize = 10;
+const cellSize = 5;
 const gridWidth = 500;
 const gridHeight = 500;
 
-const Grid = () => {
-  const [universe, toggleCell] = useGame(size);
+const Grid = ({ universe, size, toggleCell }) => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    console.log(universe);
     let canvas = canvasRef.current;
     let ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, gridHeight, gridWidth);

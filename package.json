@@ -21,9 +21,11 @@
     "react-dom": "^16.10.1"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
+    "@babel/core": "^7.6.2",
+    "@babel/preset-react": "^7.0.0",
     "parcel-bundler": "^1.12.3"
-  }
+  },
+  "browserslist": [
+    "Chrome > 75"
+  ]
 }

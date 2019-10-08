@@ -1,11 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./styles.css";
-import { Grid } from "./Grid";
+import { GameContainer } from "./GameContainer";
 
 class HelloMessage extends React.Component {
   render() {
-    return <Grid />;
+    return <GameContainer />;
   }
 }
 
