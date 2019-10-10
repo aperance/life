@@ -8,6 +8,7 @@
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
     },
+    "parser": "babel-eslint",
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
@@ -19,5 +20,8 @@
         "react"
     ],
     "rules": {
+        "react/jsx-uses-react": 1,
+        "react/jsx-uses-vars": 1,
+        "require-atomic-updates": 0
     }
 }

@@ -12,7 +12,7 @@ const GameContainer = () => {
     if (isRunning) {
       const game = gameEngine(size, universe);
       setUniverse(game.next().value);
-      setInterval(() => {
+      const interval = setInterval(() => {
         setUniverse(game.next().value);
       }, 10);
       return () => clearInterval(interval);
