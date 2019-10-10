@@ -1,38 +1,34 @@
-import React, { useState, useEffect } from "react";
-import { Grid } from "./Grid";
-import { gameEngine } from "./gameEngine";
+import React, { useState, useEffect, useRef } from "react";
+import { GameEngine } from "./gameEngine";
 
 const size = 100;
+const cycleTime = 1;
+
+const gridWidth = 500;
+const gridHeight = 500;
 
 const GameContainer = () => {
-  const [universe, setUniverse] = useState(new Uint8Array(size * size));
   const [isRunning, setRunning] = useState(false);
+  const canvasRef = useRef(null);
+  const engineRef = useRef(null);
+
+  useEffect(() => {
+    engineRef.current = new GameEngine(size, canvasRef.current);
+    engineRef.current.drawUniverse();
+  }, [canvasRef]);
 
   useEffect(() => {
     if (isRunning) {
-      const game = gameEngine(size, universe);
-      setUniverse(game.next().value);
-      const interval = setInterval(() => {
-        setUniverse(game.next().value);
-      }, 10);
-      return () => clearInterval(interval);
+      engineRef.current.play(cycleTime);
     }
   }, [isRunning]);
-
-  const toggleCell = i => {
-    if (!isRunning) {
-      const newUniverse = new Uint8Array(universe);
-      newUniverse[i] = newUniverse[i] ? 0 : 1;
-      setUniverse(newUniverse);
-    }
-  };
 
   return (
     <div>
       <div>
         <button onClick={() => setRunning(true)}>Start</button>
       </div>
-      <Grid universe={universe} size={size} toggleCell={toggleCell} />
+      <canvas ref={canvasRef} width={gridWidth} height={gridHeight} />
     </div>
   );
 };
