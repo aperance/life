@@ -1,12 +1,8 @@
-const cellSize = 10;
-const yOffset = 205;
-const xOffset = 205;
-
 class GameEngine {
-  constructor(size, canvas) {
-    this.size = size;
-    this.universe = new Uint8Array(size * size);
-    //this.universe[1275] = 1;
+  constructor(cellCount, canvas) {
+    this.cellCount = cellCount;
+    this.universe = new Uint8Array(cellCount * cellCount);
+    // this.universe[1275] = 1;
     this.canvas = canvas;
     this.canvas.addEventListener("mousedown", this.clickHandler.bind(this));
   }
@@ -14,15 +10,19 @@ class GameEngine {
   clickHandler(e) {
     console.log(e);
     const rect = this.canvas.getBoundingClientRect();
-    const row = Math.floor((e.clientY - rect.top) / cellSize);
-    const col = Math.floor((e.clientX - rect.left) / cellSize);
-    const index = this.size * row + col;
+    const row = Math.floor(
+      (this.viewOriginX + e.clientY - rect.top) / this.cellSize
+    );
+    const col = Math.floor(
+      (this.viewOriginY + e.clientX - rect.left) / this.cellSize
+    );
+    const index = this.cellCount * row + col;
     this.universe[index] = this.universe[index] === 0 ? 1 : 0;
     this.drawUniverse();
   }
 
   play(cycleTime) {
-    this.game = this.generator(this.size, this.universe);
+    this.game = this.generator(this.cellCount, this.universe);
     this.interval = setInterval(() => {
       const { newUniverse } = this.game.next().value;
       this.universe = newUniverse;
@@ -34,59 +34,60 @@ class GameEngine {
     let ctx = this.canvas.getContext("2d");
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    const xOffsetAllowed = Math.max(
-      this.size * cellSize - this.canvas.width,
-      0
-    );
-    const yOffsetAllowed = Math.max(
-      this.size * cellSize - this.canvas.height,
-      0
-    );
-
-    const xOffsetAdjusted = Math.min(xOffset, xOffsetAllowed);
-    const yOffsetAdjusted = Math.min(yOffset, yOffsetAllowed);
-
-    console.log(xOffsetAdjusted);
-
-    const xOffsetRemainder = xOffsetAdjusted % cellSize;
-    const yOffsetRemainder = yOffsetAdjusted % cellSize;
-
-    console.log(xOffsetRemainder);
-
-    const colOffset = Math.floor(xOffsetAdjusted / cellSize);
-    const rowOffset = Math.floor(yOffsetAdjusted / cellSize);
-
-    const colCount = Math.min(
-      this.size,
-      Math.ceil((this.canvas.width + xOffsetRemainder) / cellSize)
-    );
-    const rowCount = Math.min(
-      this.size,
-      Math.ceil((this.canvas.height + yOffsetRemainder) / cellSize)
-    );
-
-    for (let row = 0; row < rowCount; row++) {
-      for (let col = 0; col < colCount; col++) {
+    for (let row = 0; row < this.visibleRowCount; row++) {
+      for (let col = 0; col < this.visibleColumnCount; col++) {
         ctx.strokeStyle = "lightgrey";
         ctx.lineWidth = ".25";
         ctx.strokeRect(
-          col * cellSize - xOffsetRemainder,
-          row * cellSize - yOffsetRemainder,
-          cellSize,
-          cellSize
+          col * this.cellSize - this.viewOffsetX,
+          row * this.cellSize - this.viewOffsetY,
+          this.cellSize,
+          this.cellSize
         );
-        if (
-          this.universe[this.size * (row + rowOffset) + col + colOffset] === 1
-        ) {
+        const cellIndex =
+          this.cellCount * (this.firstVisibleRow + row) +
+          (this.firstVisibleColumn + col);
+        if (this.universe[cellIndex] === 1) {
           ctx.fillRect(
-            col * cellSize - xOffsetRemainder,
-            row * cellSize - yOffsetRemainder,
-            cellSize,
-            cellSize
+            col * this.cellSize - this.viewOffsetX,
+            row * this.cellSize - this.viewOffsetY,
+            this.cellSize,
+            this.cellSize
           );
         }
       }
     }
+  }
+
+  setView(x, y, cellSize) {
+    const viewOverflowX = Math.max(
+      this.cellCount * cellSize - this.canvas.width,
+      0
+    );
+    const viewOverflowY = Math.max(
+      this.cellCount * cellSize - this.canvas.height,
+      0
+    );
+
+    this.viewOriginX = Math.min(x, viewOverflowX);
+    this.viewOriginY = Math.min(y, viewOverflowY);
+
+    this.viewOffsetX = this.viewOriginX % cellSize;
+    this.viewOffsetY = this.viewOriginY % cellSize;
+
+    this.visibleColumnCount = Math.min(
+      this.cellCount,
+      Math.ceil((this.canvas.width + this.viewOffsetX) / cellSize)
+    );
+    this.visibleRowCount = Math.min(
+      this.cellCount,
+      Math.ceil((this.canvas.height + this.viewOffsetY) / cellSize)
+    );
+
+    this.firstVisibleColumn = Math.floor(this.viewOriginX / cellSize);
+    this.firstVisibleRow = Math.floor(this.viewOriginY / cellSize);
+
+    this.cellSize = cellSize;
   }
 
   *generator(size, startingUniverse) {

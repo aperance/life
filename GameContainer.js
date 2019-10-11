@@ -14,6 +14,7 @@ const GameContainer = () => {
 
   useEffect(() => {
     engineRef.current = new GameEngine(size, canvasRef.current);
+    engineRef.current.setView(205, 205, 10);
     engineRef.current.drawUniverse();
   }, [canvasRef]);
 
