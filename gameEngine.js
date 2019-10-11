@@ -1,9 +1,12 @@
-const cellSize = 5;
+const cellSize = 10;
+const yOffset = 205;
+const xOffset = 205;
 
 class GameEngine {
   constructor(size, canvas) {
     this.size = size;
     this.universe = new Uint8Array(size * size);
+    //this.universe[1275] = 1;
     this.canvas = canvas;
     this.canvas.addEventListener("mousedown", this.clickHandler.bind(this));
   }
@@ -31,13 +34,56 @@ class GameEngine {
     let ctx = this.canvas.getContext("2d");
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    for (let row = 0; row < this.size; row++) {
-      for (let col = 0; col < this.size; col++) {
+    const xOffsetAllowed = Math.max(
+      this.size * cellSize - this.canvas.width,
+      0
+    );
+    const yOffsetAllowed = Math.max(
+      this.size * cellSize - this.canvas.height,
+      0
+    );
+
+    const xOffsetAdjusted = Math.min(xOffset, xOffsetAllowed);
+    const yOffsetAdjusted = Math.min(yOffset, yOffsetAllowed);
+
+    console.log(xOffsetAdjusted);
+
+    const xOffsetRemainder = xOffsetAdjusted % cellSize;
+    const yOffsetRemainder = yOffsetAdjusted % cellSize;
+
+    console.log(xOffsetRemainder);
+
+    const colOffset = Math.floor(xOffsetAdjusted / cellSize);
+    const rowOffset = Math.floor(yOffsetAdjusted / cellSize);
+
+    const colCount = Math.min(
+      this.size,
+      Math.ceil((this.canvas.width + xOffsetRemainder) / cellSize)
+    );
+    const rowCount = Math.min(
+      this.size,
+      Math.ceil((this.canvas.height + yOffsetRemainder) / cellSize)
+    );
+
+    for (let row = 0; row < rowCount; row++) {
+      for (let col = 0; col < colCount; col++) {
         ctx.strokeStyle = "lightgrey";
         ctx.lineWidth = ".25";
-        ctx.strokeRect(col * cellSize, row * cellSize, cellSize, cellSize);
-        if (this.universe[this.size * row + col] === 1) {
-          ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+        ctx.strokeRect(
+          col * cellSize - xOffsetRemainder,
+          row * cellSize - yOffsetRemainder,
+          cellSize,
+          cellSize
+        );
+        if (
+          this.universe[this.size * (row + rowOffset) + col + colOffset] === 1
+        ) {
+          ctx.fillRect(
+            col * cellSize - xOffsetRemainder,
+            row * cellSize - yOffsetRemainder,
+            cellSize,
+            cellSize
+          );
         }
       }
     }
