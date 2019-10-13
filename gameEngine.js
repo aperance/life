@@ -1,21 +1,11 @@
 class GameEngine {
   constructor(cellCount, canvas) {
     this.cellCount = cellCount;
-    this.universe = new Uint8Array(cellCount * cellCount);
-    // this.universe[1275] = 1;
     this.canvas = canvas;
-    this.canvas.addEventListener("mousedown", this.clickHandler.bind(this));
+    this.universe = new Uint8Array(cellCount * cellCount);
   }
 
-  clickHandler(e) {
-    console.log(e);
-    const rect = this.canvas.getBoundingClientRect();
-    const row = Math.floor(
-      (this.viewOriginX + e.clientY - rect.top) / this.cellSize
-    );
-    const col = Math.floor(
-      (this.viewOriginY + e.clientX - rect.left) / this.cellSize
-    );
+  toggleCell(row, col) {
     const index = this.cellCount * row + col;
     this.universe[index] = this.universe[index] === 0 ? 1 : 0;
     this.drawUniverse();
@@ -59,18 +49,10 @@ class GameEngine {
     }
   }
 
-  setView(x, y, cellSize) {
-    const viewOverflowX = Math.max(
-      this.cellCount * cellSize - this.canvas.width,
-      0
-    );
-    const viewOverflowY = Math.max(
-      this.cellCount * cellSize - this.canvas.height,
-      0
-    );
-
-    this.viewOriginX = Math.min(x, viewOverflowX);
-    this.viewOriginY = Math.min(y, viewOverflowY);
+  setView(orginX, orginY, cellSize) {
+    this.viewOriginX = orginX;
+    this.viewOriginY = orginY;
+    this.cellSize = cellSize;
 
     this.viewOffsetX = this.viewOriginX % cellSize;
     this.viewOffsetY = this.viewOriginY % cellSize;
@@ -86,8 +68,6 @@ class GameEngine {
 
     this.firstVisibleColumn = Math.floor(this.viewOriginX / cellSize);
     this.firstVisibleRow = Math.floor(this.viewOriginY / cellSize);
-
-    this.cellSize = cellSize;
   }
 
   *generator(size, startingUniverse) {
