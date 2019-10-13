@@ -9,18 +9,23 @@ const GameContainer = () => {
   const [cyclesPerSecond, setCyclesPerSecond] = useState(1);
   const [view, setView] = useState({ orginX: 0, orginY: 0, scale: 10 });
   const [isRunning, setRunning] = useState(false);
-  const canvasRef = useRef(null);
+  const gridCanvasRef = useRef(null);
+  const cellCanvasRef = useRef(null);
   const engineRef = useRef(null);
 
   useEffect(() => {
-    engineRef.current = new GameEngine(cellCount, canvasRef.current);
-    engineRef.current.setView(view.orginX, view.orginY, view.scale);
-    engineRef.current.drawUniverse();
-  }, [canvasRef]);
+    if (gridCanvasRef && cellCanvasRef) {
+      engineRef.current = new GameEngine(
+        cellCount,
+        gridCanvasRef.current,
+        cellCanvasRef.current
+      );
+      engineRef.current.setView(view.orginX, view.orginY, view.scale);
+    }
+  }, [gridCanvasRef, cellCanvasRef]);
 
   useEffect(() => {
     engineRef.current.setView(view.orginX, view.orginY, view.scale);
-    engineRef.current.drawUniverse();
   }, [view]);
 
   useEffect(() => {
@@ -64,7 +69,7 @@ const GameContainer = () => {
             view={view.orginX}
             onChange={e => {
               const limit = Math.max(
-                cellCount * view.scale - canvasRef.current.width,
+                cellCount * view.scale - cellCanvasRef.current.width,
                 0
               );
               console.log(limit);
@@ -79,7 +84,7 @@ const GameContainer = () => {
             view={view.orginY}
             onChange={e => {
               const limit = Math.max(
-                cellCount * view.scale - canvasRef.current.height,
+                cellCount * view.scale - cellCanvasRef.current.height,
                 0
               );
               console.log(limit);
@@ -90,21 +95,32 @@ const GameContainer = () => {
         <br />
         <button onClick={() => setRunning(true)}>Start</button>
       </div>
-      <canvas
-        ref={canvasRef}
-        width={gridWidth}
-        height={gridHeight}
-        onMouseDown={e => {
-          const rect = canvasRef.current.getBoundingClientRect();
-          const row = Math.floor(
-            (view.orginY + e.clientY - rect.top) / view.scale
-          );
-          const col = Math.floor(
-            (view.orginX + e.clientX - rect.left) / view.scale
-          );
-          engineRef.current.toggleCell(row, col);
-        }}
-      />
+      <div style={{ position: "relative" }}>
+        <canvas
+          id="gridCanvas"
+          ref={gridCanvasRef}
+          width={gridWidth}
+          height={gridHeight}
+          style={{ position: "absolute", left: 0, top: 0, zIndex: 0 }}
+        />
+        <canvas
+          id="cellCanvas"
+          ref={cellCanvasRef}
+          width={gridWidth}
+          height={gridHeight}
+          style={{ position: "absolute", left: 0, top: 0, zIndex: 1 }}
+          onMouseDown={e => {
+            const rect = cellCanvasRef.current.getBoundingClientRect();
+            const row = Math.floor(
+              (view.orginY + e.clientY - rect.top) / view.scale
+            );
+            const col = Math.floor(
+              (view.orginX + e.clientX - rect.left) / view.scale
+            );
+            engineRef.current.toggleCell(row, col);
+          }}
+        />
+      </div>
     </div>
   );
 };

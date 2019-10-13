@@ -1,52 +1,9 @@
 class GameEngine {
-  constructor(cellCount, canvas) {
+  constructor(cellCount, gridCanvas, cellCanvas) {
     this.cellCount = cellCount;
-    this.canvas = canvas;
+    this.gridCanvas = gridCanvas;
+    this.cellCanvas = cellCanvas;
     this.universe = new Uint8Array(cellCount * cellCount);
-  }
-
-  toggleCell(row, col) {
-    const index = this.cellCount * row + col;
-    this.universe[index] = this.universe[index] === 0 ? 1 : 0;
-    this.drawUniverse();
-  }
-
-  play(cycleTime) {
-    this.game = this.generator(this.cellCount, this.universe);
-    this.interval = setInterval(() => {
-      const { newUniverse } = this.game.next().value;
-      this.universe = newUniverse;
-      this.drawUniverse();
-    }, cycleTime);
-  }
-
-  drawUniverse() {
-    let ctx = this.canvas.getContext("2d");
-    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-    for (let row = 0; row < this.visibleRowCount; row++) {
-      for (let col = 0; col < this.visibleColumnCount; col++) {
-        ctx.strokeStyle = "lightgrey";
-        ctx.lineWidth = ".25";
-        ctx.strokeRect(
-          col * this.cellSize - this.viewOffsetX,
-          row * this.cellSize - this.viewOffsetY,
-          this.cellSize,
-          this.cellSize
-        );
-        const cellIndex =
-          this.cellCount * (this.firstVisibleRow + row) +
-          (this.firstVisibleColumn + col);
-        if (this.universe[cellIndex] === 1) {
-          ctx.fillRect(
-            col * this.cellSize - this.viewOffsetX,
-            row * this.cellSize - this.viewOffsetY,
-            this.cellSize,
-            this.cellSize
-          );
-        }
-      }
-    }
   }
 
   setView(orginX, orginY, cellSize) {
@@ -59,15 +16,33 @@ class GameEngine {
 
     this.visibleColumnCount = Math.min(
       this.cellCount,
-      Math.ceil((this.canvas.width + this.viewOffsetX) / cellSize)
+      Math.ceil((this.cellCanvas.width + this.viewOffsetX) / cellSize)
     );
     this.visibleRowCount = Math.min(
       this.cellCount,
-      Math.ceil((this.canvas.height + this.viewOffsetY) / cellSize)
+      Math.ceil((this.cellCanvas.height + this.viewOffsetY) / cellSize)
     );
 
     this.firstVisibleColumn = Math.floor(this.viewOriginX / cellSize);
     this.firstVisibleRow = Math.floor(this.viewOriginY / cellSize);
+
+    this.renderGrid();
+    this.renderCells();
+  }
+
+  toggleCell(row, col) {
+    const index = this.cellCount * row + col;
+    this.universe[index] = this.universe[index] === 0 ? 1 : 0;
+    this.renderCells();
+  }
+
+  play(cycleTime) {
+    this.game = this.generator(this.cellCount, this.universe);
+    this.interval = setInterval(() => {
+      const { newUniverse } = this.game.next().value;
+      this.universe = newUniverse;
+      this.renderCells();
+    }, cycleTime);
   }
 
   *generator(size, startingUniverse) {
@@ -122,6 +97,58 @@ class GameEngine {
 
       yield { newUniverse, born, died };
     }
+  }
+
+  /*** Canvas Rendering Methods ***/
+
+  renderGrid() {
+    let ctx = this.gridCanvas.getContext("2d");
+    ctx.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
+    ctx.strokeStyle = "lightgrey";
+    ctx.lineWidth = ".25";
+    for (let row = 0; row < this.visibleRowCount; row++) {
+      for (let col = 0; col < this.visibleColumnCount; col++) {
+        ctx.strokeRect(
+          col * this.cellSize - this.viewOffsetX,
+          row * this.cellSize - this.viewOffsetY,
+          this.cellSize,
+          this.cellSize
+        );
+      }
+    }
+  }
+
+  renderCells() {
+    let ctx = this.cellCanvas.getContext("2d");
+    ctx.clearRect(0, 0, this.cellCanvas.width, this.cellCanvas.height);
+    for (let row = 0; row < this.visibleRowCount; row++) {
+      for (let col = 0; col < this.visibleColumnCount; col++) {
+        const cellIndex =
+          this.cellCount * (this.firstVisibleRow + row) +
+          (this.firstVisibleColumn + col);
+        if (this.universe[cellIndex] === 1) this.fillCell(row, col);
+      }
+    }
+  }
+
+  fillCell(row, col) {
+    let ctx = this.cellCanvas.getContext("2d");
+    ctx.fillRect(
+      col * this.cellSize - this.viewOffsetX,
+      row * this.cellSize - this.viewOffsetY,
+      this.cellSize,
+      this.cellSize
+    );
+  }
+
+  clearCell(row, col) {
+    let ctx = this.cellCanvas.getContext("2d");
+    ctx.clearRect(
+      col * this.cellSize - this.viewOffsetX,
+      row * this.cellSize - this.viewOffsetY,
+      this.cellSize,
+      this.cellSize
+    );
   }
 }
 
