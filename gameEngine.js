@@ -1,8 +1,11 @@
 class GameEngine {
-  constructor(cellCount, gridCanvas, cellCanvas) {
-    this.cellCount = cellCount;
+  constructor(gridCanvas, cellCanvas) {
     this.gridCanvas = gridCanvas;
     this.cellCanvas = cellCanvas;
+  }
+
+  initializeUniverse(cellCount) {
+    this.cellCount = cellCount;
     this.universe = new Uint8Array(cellCount * cellCount);
   }
 
@@ -104,6 +107,9 @@ class GameEngine {
   renderGrid() {
     let ctx = this.gridCanvas.getContext("2d");
     ctx.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = "1";
+    ctx.strokeRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
     ctx.strokeStyle = "lightgrey";
     ctx.lineWidth = ".25";
     for (let row = 0; row < this.visibleRowCount; row++) {

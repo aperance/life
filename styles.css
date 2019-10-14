@@ -1,31 +1,35 @@
 html {
+  height: 100%;
   font-family: sans-serif;
   font-size: 12px;
 }
 
-.grid {
-  border: 1px solid #d9dddd;
+body {
+  height: 100%;
 }
 
-.cell {
+body > div {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 0.25px solid #d9dddd;
+  flex-direction: column;
+  height: calc(100vh - 16px);
 }
 
-.alive {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 0.25px solid #d9dddd;
-  background-color: black;
+#canvas-container {
+  position: relative;
+  flex-grow: 1;
 }
 
-.dead {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 0.25px solid #d9dddd;
-  background-color: white;
+#grid-canvas,
+#cell-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+#grid-canvas {
+  z-index: 0;
+}
+
+#cell-canvas {
+  z-index: 1;
 }

@@ -1,37 +1,43 @@
 import React, { useState, useEffect, useRef } from "react";
 import { GameEngine } from "./gameEngine";
 
-const gridWidth = 500;
-const gridHeight = 500;
-
 const GameContainer = () => {
   const [cellCount, setCellCount] = useState(25);
-  const [cyclesPerSecond, setCyclesPerSecond] = useState(1);
-  const [view, setView] = useState({ orginX: 0, orginY: 0, scale: 10 });
+  const [speed, setSpeed] = useState(1);
+  const [canvasSize, setCanvasSize] = useState({ width: 490, height: 490 });
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
   const [isRunning, setRunning] = useState(false);
-  const gridCanvasRef = useRef(null);
-  const cellCanvasRef = useRef(null);
+  const canvasRef = useRef(null);
   const engineRef = useRef(null);
 
-  useEffect(() => {
-    if (gridCanvasRef && cellCanvasRef) {
-      engineRef.current = new GameEngine(
-        cellCount,
-        gridCanvasRef.current,
-        cellCanvasRef.current
-      );
-      engineRef.current.setView(view.orginX, view.orginY, view.scale);
-    }
-  }, [gridCanvasRef, cellCanvasRef]);
+  const minimumZoom = Math.ceil(
+    Math.max(canvasSize.width, canvasSize.height) / cellCount
+  );
+  const maximumPanX = cellCount * zoom - canvasSize.width;
+  const maximumPanY = cellCount * zoom - canvasSize.height;
 
   useEffect(() => {
-    engineRef.current.setView(view.orginX, view.orginY, view.scale);
-  }, [view]);
+    engineRef.current = new GameEngine(
+      canvasRef.current.querySelector("#grid-canvas"),
+      canvasRef.current.querySelector("#cell-canvas")
+    );
+  }, [canvasRef]);
 
   useEffect(() => {
-    if (isRunning) {
-      engineRef.current.play(cyclesPerSecond);
-    }
+    engineRef.current.initializeUniverse(cellCount);
+  }, [canvasRef, cellCount]);
+
+  useEffect(() => {
+    engineRef.current.setView(pan.x, pan.y, zoom);
+  }, [canvasRef, pan, zoom]);
+
+  useEffect(() => {
+    setZoom(minimumZoom);
+  }, [canvasSize, cellCount]);
+
+  useEffect(() => {
+    isRunning && engineRef.current.play(speed);
   }, [isRunning]);
 
   return (
@@ -49,31 +55,29 @@ const GameContainer = () => {
           Cycles / Sec:
           <input
             type="number"
-            value={cyclesPerSecond}
-            onChange={e => setCyclesPerSecond(e.target.value)}
+            value={speed}
+            onChange={e => setSpeed(e.target.value)}
           />
         </label>
         <br />
         <label>
-          Scale:
+          Zoom:
           <input
             type="number"
-            value={view.scale}
-            onChange={e => setView({ ...view, scale: e.target.value })}
+            value={zoom}
+            onChange={e => setZoom(Math.max(e.target.value, minimumZoom))}
           />
         </label>
         <label>
           X Orgin:
           <input
             type="number"
-            view={view.orginX}
+            value={pan.x}
             onChange={e => {
-              const limit = Math.max(
-                cellCount * view.scale - cellCanvasRef.current.width,
-                0
-              );
-              console.log(limit);
-              setView({ ...view, orginX: Math.min(e.target.value, limit) });
+              setPan({
+                ...pan,
+                x: Math.max(0, Math.min(e.target.value, maximumPanX))
+              });
             }}
           />
         </label>
@@ -81,42 +85,32 @@ const GameContainer = () => {
           Y Orgin:
           <input
             type="number"
-            view={view.orginY}
+            value={pan.y}
             onChange={e => {
-              const limit = Math.max(
-                cellCount * view.scale - cellCanvasRef.current.height,
-                0
-              );
-              console.log(limit);
-              setView({ ...view, orginY: Math.min(e.target.value, limit) });
+              setPan({
+                ...pan,
+                y: Math.max(0, Math.min(e.target.value, maximumPanY))
+              });
             }}
           />
         </label>
         <br />
         <button onClick={() => setRunning(true)}>Start</button>
       </div>
-      <div style={{ position: "relative" }}>
+      <div id="canvas-container" ref={canvasRef}>
         <canvas
-          id="gridCanvas"
-          ref={gridCanvasRef}
-          width={gridWidth}
-          height={gridHeight}
-          style={{ position: "absolute", left: 0, top: 0, zIndex: 0 }}
+          id="grid-canvas"
+          width={canvasSize.width}
+          height={canvasSize.height}
         />
         <canvas
-          id="cellCanvas"
-          ref={cellCanvasRef}
-          width={gridWidth}
-          height={gridHeight}
-          style={{ position: "absolute", left: 0, top: 0, zIndex: 1 }}
+          id="cell-canvas"
+          width={canvasSize.width}
+          height={canvasSize.height}
           onMouseDown={e => {
-            const rect = cellCanvasRef.current.getBoundingClientRect();
-            const row = Math.floor(
-              (view.orginY + e.clientY - rect.top) / view.scale
-            );
-            const col = Math.floor(
-              (view.orginX + e.clientX - rect.left) / view.scale
-            );
+            const rect = canvasRef.current.getBoundingClientRect();
+            const row = Math.floor((pan.y + e.clientY - rect.top) / zoom);
+            const col = Math.floor((pan.x + e.clientX - rect.left) / zoom);
             engineRef.current.toggleCell(row, col);
           }}
         />
