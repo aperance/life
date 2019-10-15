@@ -1,29 +1,82 @@
 class GameEngine {
-  constructor(gridCanvas, cellCanvas) {
-    this.gridCanvas = gridCanvas;
-    this.cellCanvas = cellCanvas;
-  }
+  constructor() {
+    this.container = document.getElementById("canvas-container");
+    this.gridCanvas = this.container.querySelector("#grid-canvas");
+    this.cellCanvas = this.container.querySelector("#cell-canvas");
+    this.cellCount = 25;
+    this.universe = new Uint8Array(this.cellCount * this.cellCount);
+    this.setView(0, 0, 1);
+    this.mouseDown = { x: null, y: null };
+    this.dragging = false;
 
-  initializeUniverse(cellCount) {
-    this.cellCount = cellCount;
-    this.universe = new Uint8Array(cellCount * cellCount);
+    this.container.onmousedown = e => {
+      this.mouseDown = { x: e.clientX, y: e.clientY };
+    };
+
+    this.container.onmouseleave = () => {
+      this.dragging = false;
+      this.mouseDown = { x: null, y: null };
+    };
+
+    this.container.onmousemove = e => {
+      if (!this.mouseDown.x || !this.mouseDown.y) return;
+
+      const movementX = this.mouseDown.x - e.clientX;
+      const movementY = this.mouseDown.y - e.clientY;
+
+      if (Math.abs(movementX) > 5 || Math.abs(movementY) > 5) {
+        this.dragging = true;
+      }
+    };
+
+    this.container.onmouseup = e => {
+      if (!this.dragging) {
+        const { top, left } = this.container.getBoundingClientRect();
+        const row = Math.floor(
+          (this.viewOriginY + e.clientY - top) / this.cellSize
+        );
+        const col = Math.floor(
+          (this.viewOriginX + e.clientX - left) / this.cellSize
+        );
+        this.toggleCell(row, col);
+      }
+      this.dragging = false;
+      this.mouseDown = { x: null, y: null };
+    };
   }
 
   setView(orginX, orginY, cellSize) {
-    this.viewOriginX = orginX;
-    this.viewOriginY = orginY;
-    this.cellSize = cellSize;
+    const height = this.container.clientHeight;
+    const width = this.container.clientWidth;
+
+    this.gridCanvas.setAttribute("height", height);
+    this.gridCanvas.setAttribute("width", width);
+    this.cellCanvas.setAttribute("height", height);
+    this.cellCanvas.setAttribute("width", width);
+
+    this.cellSize = Math.max(
+      Math.ceil(Math.max(width, height) / this.cellCount),
+      cellSize
+    );
+    this.viewOriginX = Math.min(
+      Math.max(0, orginX),
+      this.cellCount * this.cellSize - width
+    );
+    this.viewOriginY = Math.min(
+      Math.max(0, orginY),
+      this.cellCount * this.cellSize - height
+    );
 
     this.viewOffsetX = this.viewOriginX % cellSize;
     this.viewOffsetY = this.viewOriginY % cellSize;
 
     this.visibleColumnCount = Math.min(
       this.cellCount,
-      Math.ceil((this.cellCanvas.width + this.viewOffsetX) / cellSize)
+      Math.ceil((width + this.viewOffsetX) / cellSize)
     );
     this.visibleRowCount = Math.min(
       this.cellCount,
-      Math.ceil((this.cellCanvas.height + this.viewOffsetY) / cellSize)
+      Math.ceil((height + this.viewOffsetY) / cellSize)
     );
 
     this.firstVisibleColumn = Math.floor(this.viewOriginX / cellSize);
