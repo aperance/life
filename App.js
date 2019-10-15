@@ -15,9 +15,9 @@ const App = () => {
       Math.ceil(Math.max(canvasSize.width, canvasSize.height) / cellCount),
       zoomInput
     );
-  const ClampPanXInput = xInput =>
+  const clampPanXInput = xInput =>
     Math.max(0, Math.min(xInput, cellCount * zoom - canvasSize.width));
-  const ClampPanYInput = yInput =>
+  const clampPanYInput = yInput =>
     Math.max(0, Math.min(yInput, cellCount * zoom - canvasSize.height));
 
   useEffect(() => {
@@ -34,8 +34,8 @@ const App = () => {
         setCellCount={e => setCellCount(e.target.value)}
         setSpeed={e => setSpeed(e.target.value)}
         setZoom={e => setZoom(clampZoomInput(e.target.value))}
-        setPanX={e => setPan({ ...pan, x: ClampPanXInput(e.target.value) })}
-        setPanY={e => setPan({ ...pan, y: ClampPanYInput(e.target.value) })}
+        setPanX={e => setPan({ ...pan, x: clampPanXInput(e.target.value) })}
+        setPanY={e => setPan({ ...pan, y: clampPanYInput(e.target.value) })}
         setIsRunning={() => setRunning(true)}
       />
       <GameContainer
@@ -46,6 +46,12 @@ const App = () => {
         zoom={zoom}
         isRunning={isRunning}
         setCanvasSize={setCanvasSize}
+        setPan={({ movementX, movementY }) => {
+          setPan({
+            x: clampPanXInput(pan.x + movementX),
+            y: clampPanYInput(pan.y + movementY)
+          });
+        }}
       />
     </div>
   );
