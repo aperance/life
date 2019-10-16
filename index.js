@@ -1,13 +1,114 @@
-let cellCount = 25;
-let universe = new Uint8Array(cellCount * cellCount);
-let viewOriginX, viewOriginY, viewOffsetX, viewOffsetY, cellSize;
-let visibleColumnCount, visibleRowCount, firstVisibleColumn, firstVisibleRow;
+import { gameEngine } from "./gameEngine";
+
+let cellCount, universe;
+let visibleColumns, visibleRows;
+let zoom = 100;
+const pan = { x: 0, y: 0 };
 let mouseDown = { x: null, y: null };
 let dragging = false;
+let game, gameTimer;
 
 const container = document.getElementById("canvas-container");
 const gridCanvas = container.querySelector("#grid-canvas");
 const cellCanvas = container.querySelector("#cell-canvas");
+
+function updateParameters(newParameters = {}) {
+  const { clientHeight, clientWidth } = container;
+
+  if (newParameters.cellCount) {
+    cellCount = newParameters.cellCount;
+    universe = new Uint8Array(cellCount * cellCount);
+  }
+
+  zoom = Math.max(
+    Math.ceil(Math.max(clientHeight, clientWidth) / cellCount),
+    newParameters.zoom || zoom
+  );
+
+  pan.x = newParameters.panX || pan.x;
+  pan.y = newParameters.panY || pan.y;
+
+  visibleColumns = {
+    start: Math.floor(pan.x / zoom),
+    end: Math.ceil((clientWidth + pan.x) / zoom)
+  };
+  visibleRows = {
+    start: Math.floor(pan.y / zoom),
+    end: Math.ceil((clientHeight + pan.y) / zoom)
+  };
+
+  document.getElementById("cell-count").value = cellCount;
+  document.getElementById("zoom").value = zoom;
+  document.getElementById("pan-x").value = pan.x;
+  document.getElementById("pan-y").value = pan.y;
+
+  renderGrid();
+  renderCells();
+}
+
+function toggleCell(x, y) {
+  const { top, left } = container.getBoundingClientRect();
+  const row = Math.floor((y + pan.y - top) / zoom);
+  const col = Math.floor((x + pan.x - left) / zoom);
+  const index = cellCount * row + col;
+  universe[index] = universe[index] === 0 ? 1 : 0;
+  renderCells();
+}
+
+function play(speed) {
+  const interval = 1000 / speed;
+  game = gameEngine(cellCount, universe);
+  gameTimer = setInterval(() => {
+    const { newUniverse } = game.next().value;
+    universe = newUniverse;
+    renderCells();
+  }, interval);
+}
+
+/*** Canvas Rendering Methods ***/
+
+function renderGrid() {
+  let ctx = gridCanvas.getContext("2d");
+  ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = "1";
+  ctx.strokeRect(0, 0, gridCanvas.width, gridCanvas.height);
+  ctx.strokeStyle = "lightgrey";
+  ctx.lineWidth = ".25";
+  for (let row = visibleRows.start; row < visibleRows.end; row++) {
+    for (let col = visibleColumns.start; col < visibleColumns.end; col++) {
+      ctx.strokeRect(col * zoom - pan.y, row * zoom - pan.x, zoom, zoom);
+    }
+  }
+}
+
+const renderCells = () => {
+  let ctx = cellCanvas.getContext("2d");
+  ctx.clearRect(0, 0, cellCanvas.width, cellCanvas.height);
+  for (let row = visibleRows.start; row < visibleRows.end; row++) {
+    for (let col = visibleColumns.start; col < visibleColumns.end; col++) {
+      const cellIndex = cellCount * row + +col;
+      if (universe[cellIndex] === 1) fillCell(row, col);
+    }
+  }
+};
+
+const fillCell = (row, col) => {
+  let ctx = cellCanvas.getContext("2d");
+  ctx.fillRect(col * zoom - pan.x, row * zoom - pan.y, zoom, zoom);
+};
+
+// const clearCell = (row, col) => {
+//   let ctx = cellCanvas.getContext("2d");
+//   ctx.clearRect(
+//     col * cellSize - viewOffsetX,
+//     row * cellSize - viewOffsetY,
+//     cellSize,
+//     cellSize
+//   );
+// };
+
+/*** Event Listeners ***/
 
 container.onmousedown = e => {
   mouseDown = { x: e.clientX, y: e.clientY };
@@ -30,170 +131,31 @@ container.onmousemove = e => {
 };
 
 container.onmouseup = e => {
-  if (!dragging) {
-    const { top, left } = container.getBoundingClientRect();
-    const row = Math.floor((viewOriginY + e.clientY - top) / cellSize);
-    const col = Math.floor((viewOriginX + e.clientX - left) / cellSize);
-    toggleCell(row, col);
-  }
+  if (!dragging) toggleCell(e.clientX, e.clientY);
   dragging = false;
   mouseDown = { x: null, y: null };
 };
 
-function setView(orginX, orginY, zoom) {
-  const height = container.clientHeight;
-  const width = container.clientWidth;
+document.getElementById("cell-count").onchange = e =>
+  updateParameters({ cellCount: e.target.value });
 
-  gridCanvas.setAttribute("height", height);
-  gridCanvas.setAttribute("width", width);
-  cellCanvas.setAttribute("height", height);
-  cellCanvas.setAttribute("width", width);
+document.getElementById("zoom").onchange = e =>
+  updateParameters({ zoom: e.target.value });
 
-  cellSize = Math.max(Math.ceil(Math.max(width, height) / cellCount), zoom);
-  viewOriginX = Math.min(Math.max(0, orginX), cellCount * cellSize - width);
-  viewOriginY = Math.min(Math.max(0, orginY), cellCount * cellSize - height);
+document.getElementById("pan-x").onchange = e =>
+  updateParameters({ panX: e.target.value });
 
-  viewOffsetX = viewOriginX % cellSize;
-  viewOffsetY = viewOriginY % cellSize;
+document.getElementById("pan-y").onchange = e =>
+  updateParameters({ panY: e.target.value });
 
-  visibleColumnCount = Math.min(
-    cellCount,
-    Math.ceil((width + viewOffsetX) / cellSize)
-  );
-  visibleRowCount = Math.min(
-    cellCount,
-    Math.ceil((height + viewOffsetY) / cellSize)
-  );
+document.getElementById("start-button").onclick = () =>
+  play(document.getElementById("speed").value);
 
-  firstVisibleColumn = Math.floor(viewOriginX / cellSize);
-  firstVisibleRow = Math.floor(viewOriginY / cellSize);
+/*** Initialization ***/
 
-  renderGrid();
-  renderCells();
-}
+gridCanvas.setAttribute("height", container.clientHeight);
+gridCanvas.setAttribute("width", container.clientWidth);
+cellCanvas.setAttribute("height", container.clientHeight);
+cellCanvas.setAttribute("width", container.clientWidth);
 
-const toggleCell = (row, col) => {
-  const index = cellCount * row + col;
-  universe[index] = universe[index] === 0 ? 1 : 0;
-  renderCells();
-};
-
-const play = cycleTime => {
-  const game = generator(cellCount, universe);
-  const interval = setInterval(() => {
-    const { newUniverse } = game.next().value;
-    universe = newUniverse;
-    renderCells();
-  }, cycleTime);
-};
-
-function* generator(size, startingUniverse) {
-  let currentUniverse = startingUniverse;
-  let newUniverse, born, died;
-  while (true) {
-    newUniverse = new Uint8Array(size * size);
-    born = [];
-    died = [];
-    for (let row = 0; row < size; row++) {
-      const rowPrev = row === 0 ? size - 1 : row - 1;
-      const rowNext = row === size - 1 ? 0 : row + 1;
-
-      for (let col = 0; col < size; col++) {
-        const colPrev = col === 0 ? size - 1 : col - 1;
-        const colNext = col === size - 1 ? 0 : col + 1;
-
-        const selfIndex = size * row + col;
-        const neighborIndecies = [
-          size * rowPrev + colPrev,
-          size * rowPrev + col,
-          size * rowPrev + colNext,
-          size * row + colPrev,
-          size * row + colNext,
-          size * rowNext + colPrev,
-          size * rowNext + col,
-          size * rowNext + colNext
-        ];
-
-        let aliveNeighborCount = 0;
-
-        neighborIndecies.forEach(i => {
-          if (currentUniverse[i]) aliveNeighborCount++;
-        });
-
-        switch (aliveNeighborCount) {
-          case 2:
-            newUniverse[selfIndex] = currentUniverse[selfIndex];
-            break;
-          case 3:
-            newUniverse[selfIndex] = 1;
-            if (currentUniverse[selfIndex] === 0) born.push(selfIndex);
-            break;
-          default:
-            newUniverse[selfIndex] = 0;
-            if (currentUniverse[selfIndex] === 1) died.push(selfIndex);
-            break;
-        }
-      }
-    }
-    currentUniverse = newUniverse;
-
-    yield { newUniverse, born, died };
-  }
-}
-
-/*** Canvas Rendering Methods ***/
-
-function renderGrid() {
-  let ctx = gridCanvas.getContext("2d");
-  ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
-  ctx.strokeStyle = "black";
-  ctx.lineWidth = "1";
-  ctx.strokeRect(0, 0, gridCanvas.width, gridCanvas.height);
-  ctx.strokeStyle = "lightgrey";
-  ctx.lineWidth = ".25";
-  for (let row = 0; row < visibleRowCount; row++) {
-    for (let col = 0; col < visibleColumnCount; col++) {
-      console.log("renderGrid");
-      ctx.strokeRect(
-        col * cellSize - viewOffsetX,
-        row * cellSize - viewOffsetY,
-        cellSize,
-        cellSize
-      );
-    }
-  }
-}
-
-const renderCells = () => {
-  let ctx = cellCanvas.getContext("2d");
-  ctx.clearRect(0, 0, cellCanvas.width, cellCanvas.height);
-  for (let row = 0; row < visibleRowCount; row++) {
-    for (let col = 0; col < visibleColumnCount; col++) {
-      const cellIndex =
-        cellCount * (firstVisibleRow + row) + (firstVisibleColumn + col);
-      if (universe[cellIndex] === 1) fillCell(row, col);
-    }
-  }
-};
-
-const fillCell = (row, col) => {
-  let ctx = cellCanvas.getContext("2d");
-  ctx.fillRect(
-    col * cellSize - viewOffsetX,
-    row * cellSize - viewOffsetY,
-    cellSize,
-    cellSize
-  );
-};
-
-// const clearCell = (row, col) => {
-//   let ctx = cellCanvas.getContext("2d");
-//   ctx.clearRect(
-//     col * cellSize - viewOffsetX,
-//     row * cellSize - viewOffsetY,
-//     cellSize,
-//     cellSize
-//   );
-// };
-
-setView(0, 0, 1);
+updateParameters({ cellCount: 25, zoom: 10, panX: 0, panY: 0 });
