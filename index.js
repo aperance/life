@@ -1,16 +1,15 @@
 import { gameEngine } from "./gameEngine";
 
 let cellCount, universe;
-let visibleColumns, visibleRows;
-let zoom = 100;
-const pan = { x: 0, y: 0 };
+let visibleArea;
+let view = { zoom: 1, panX: 0, panY: 0 };
 let mouseDown = { x: null, y: null };
 let dragging = false;
 let game, gameTimer;
 
 const container = document.getElementById("canvas-container");
-const gridCanvas = container.querySelector("#grid-canvas");
-const cellCanvas = container.querySelector("#cell-canvas");
+const gridCtx = document.getElementById("grid-canvas").getContext("2d");
+const cellCtx = document.getElementById("cell-canvas").getContext("2d");
 
 function updateParameters(newParameters = {}) {
   const { clientHeight, clientWidth } = container;
@@ -20,39 +19,46 @@ function updateParameters(newParameters = {}) {
     universe = new Uint8Array(cellCount * cellCount);
   }
 
-  zoom = Math.max(
+  view.zoom = Math.max(
     Math.ceil(Math.max(clientHeight, clientWidth) / cellCount),
-    newParameters.zoom || zoom
+    newParameters.zoom || view.zoom
   );
 
-  pan.x = newParameters.panX || pan.x;
-  pan.y = newParameters.panY || pan.y;
+  view.panX = newParameters.panX || view.panX;
+  view.panY = newParameters.panY || view.panY;
 
-  visibleColumns = {
-    start: Math.floor(pan.x / zoom),
-    end: Math.ceil((clientWidth + pan.x) / zoom)
-  };
-  visibleRows = {
-    start: Math.floor(pan.y / zoom),
-    end: Math.ceil((clientHeight + pan.y) / zoom)
+  visibleArea = {
+    startColumn: Math.floor(view.panX / view.zoom),
+    endColumn: Math.ceil((clientWidth + view.panX) / view.zoom),
+    startRow: Math.floor(view.panY / view.zoom),
+    endRow: Math.ceil((clientHeight + view.panY) / view.zoom)
   };
 
   document.getElementById("cell-count").value = cellCount;
-  document.getElementById("zoom").value = zoom;
-  document.getElementById("pan-x").value = pan.x;
-  document.getElementById("pan-y").value = pan.y;
+  document.getElementById("zoom").value = view.zoom;
+  document.getElementById("pan-x").value = view.panX;
+  document.getElementById("pan-y").value = view.panY;
 
-  renderGrid();
-  renderCells();
+  gridCtx.canvas.height = container.clientHeight;
+  gridCtx.canvas.width = container.clientWidth;
+  gridCtx.setTransform(view.zoom, 0, 0, view.zoom, -view.panX, -view.panY);
+  gridCtx.strokeStyle = "lightgrey";
+  gridCtx.lineWidth = 0.25 / view.zoom;
+
+  cellCtx.canvas.height = container.clientHeight;
+  cellCtx.canvas.width = container.clientWidth;
+  cellCtx.setTransform(view.zoom, 0, 0, view.zoom, -view.panX, -view.panY);
+
+  renderAll();
 }
 
 function toggleCell(x, y) {
   const { top, left } = container.getBoundingClientRect();
-  const row = Math.floor((y + pan.y - top) / zoom);
-  const col = Math.floor((x + pan.x - left) / zoom);
+  const row = Math.floor((y + view.panY - top) / view.zoom);
+  const col = Math.floor((x + view.panX - left) / view.zoom);
   const index = cellCount * row + col;
   universe[index] = universe[index] === 0 ? 1 : 0;
-  renderCells();
+  renderAll();
 }
 
 function play(speed) {
@@ -61,52 +67,24 @@ function play(speed) {
   gameTimer = setInterval(() => {
     const { newUniverse } = game.next().value;
     universe = newUniverse;
-    renderCells();
+    renderAll();
   }, interval);
 }
 
 /*** Canvas Rendering Methods ***/
 
-function renderGrid() {
-  let ctx = gridCanvas.getContext("2d");
-  ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
-  ctx.strokeStyle = "black";
-  ctx.lineWidth = "1";
-  ctx.strokeRect(0, 0, gridCanvas.width, gridCanvas.height);
-  ctx.strokeStyle = "lightgrey";
-  ctx.lineWidth = ".25";
-  for (let row = visibleRows.start; row < visibleRows.end; row++) {
-    for (let col = visibleColumns.start; col < visibleColumns.end; col++) {
-      ctx.strokeRect(col * zoom - pan.y, row * zoom - pan.x, zoom, zoom);
+function renderAll() {
+  gridCtx.clearRect(0, 0, gridCtx.canvas.width, gridCtx.canvas.height);
+  cellCtx.clearRect(0, 0, cellCtx.canvas.width, cellCtx.canvas.height);
+  for (let col = visibleArea.startColumn; col < visibleArea.endColumn; col++) {
+    for (let row = visibleArea.startRow; row < visibleArea.endRow; row++) {
+      gridCtx.strokeRect(col, row, 1, 1);
+      if (universe[cellCount * row + col] === 1) {
+        cellCtx.fillRect(col, row, 1, 1);
+      }
     }
   }
 }
-
-const renderCells = () => {
-  let ctx = cellCanvas.getContext("2d");
-  ctx.clearRect(0, 0, cellCanvas.width, cellCanvas.height);
-  for (let row = visibleRows.start; row < visibleRows.end; row++) {
-    for (let col = visibleColumns.start; col < visibleColumns.end; col++) {
-      const cellIndex = cellCount * row + +col;
-      if (universe[cellIndex] === 1) fillCell(row, col);
-    }
-  }
-};
-
-const fillCell = (row, col) => {
-  let ctx = cellCanvas.getContext("2d");
-  ctx.fillRect(col * zoom - pan.x, row * zoom - pan.y, zoom, zoom);
-};
-
-// const clearCell = (row, col) => {
-//   let ctx = cellCanvas.getContext("2d");
-//   ctx.clearRect(
-//     col * cellSize - viewOffsetX,
-//     row * cellSize - viewOffsetY,
-//     cellSize,
-//     cellSize
-//   );
-// };
 
 /*** Event Listeners ***/
 
@@ -152,10 +130,5 @@ document.getElementById("start-button").onclick = () =>
   play(document.getElementById("speed").value);
 
 /*** Initialization ***/
-
-gridCanvas.setAttribute("height", container.clientHeight);
-gridCanvas.setAttribute("width", container.clientWidth);
-cellCanvas.setAttribute("height", container.clientHeight);
-cellCanvas.setAttribute("width", container.clientWidth);
 
 updateParameters({ cellCount: 25, zoom: 10, panX: 0, panY: 0 });
