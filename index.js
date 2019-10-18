@@ -39,43 +39,18 @@ function updateParameters(newParameters = {}) {
   document.getElementById("pan-x").value = view.panX;
   document.getElementById("pan-y").value = view.panY;
 
-  gridCtx.canvas.height = container.clientHeight;
-  gridCtx.canvas.width = container.clientWidth;
+  gridCtx.canvas.height = clientHeight;
+  gridCtx.canvas.width = clientWidth;
+  gridCtx.clearRect(0, 0, clientWidth, clientHeight);
   gridCtx.setTransform(view.zoom, 0, 0, view.zoom, -view.panX, -view.panY);
   gridCtx.strokeStyle = "lightgrey";
   gridCtx.lineWidth = 0.25 / view.zoom;
 
-  cellCtx.canvas.height = container.clientHeight;
-  cellCtx.canvas.width = container.clientWidth;
+  cellCtx.canvas.height = clientHeight;
+  cellCtx.canvas.width = clientWidth;
+  cellCtx.clearRect(0, 0, clientWidth, clientHeight);
   cellCtx.setTransform(view.zoom, 0, 0, view.zoom, -view.panX, -view.panY);
 
-  renderAll();
-}
-
-function toggleCell(x, y) {
-  const { top, left } = container.getBoundingClientRect();
-  const row = Math.floor((y + view.panY - top) / view.zoom);
-  const col = Math.floor((x + view.panX - left) / view.zoom);
-  const index = cellCount * row + col;
-  universe[index] = universe[index] === 0 ? 1 : 0;
-  renderAll();
-}
-
-function play(speed) {
-  const interval = 1000 / speed;
-  game = gameEngine(cellCount, universe);
-  gameTimer = setInterval(() => {
-    const { newUniverse } = game.next().value;
-    universe = newUniverse;
-    renderAll();
-  }, interval);
-}
-
-/*** Canvas Rendering Methods ***/
-
-function renderAll() {
-  gridCtx.clearRect(0, 0, gridCtx.canvas.width, gridCtx.canvas.height);
-  cellCtx.clearRect(0, 0, cellCtx.canvas.width, cellCtx.canvas.height);
   for (let col = visibleArea.startColumn; col < visibleArea.endColumn; col++) {
     for (let row = visibleArea.startRow; row < visibleArea.endRow; row++) {
       gridCtx.strokeRect(col, row, 1, 1);
@@ -84,6 +59,47 @@ function renderAll() {
       }
     }
   }
+}
+
+function toggleCell(x, y) {
+  const { top, left } = container.getBoundingClientRect();
+  const row = Math.floor((y + view.panY - top) / view.zoom);
+  const col = Math.floor((x + view.panX - left) / view.zoom);
+  const index = cellCount * row + col;
+  if (universe[index] === 0) {
+    universe[index] = 1;
+    cellCtx.fillRect(col, row, 1, 1);
+  } else {
+    universe[index] = 0;
+    cellCtx.clearRect(col, row, 1, 1);
+  }
+}
+
+function play(speed) {
+  const interval = 1000 / speed;
+  game = gameEngine(cellCount, universe);
+  gameTimer = setInterval(() => {
+    const { newUniverse, born, died } = game.next().value;
+    universe = newUniverse;
+    born.forEach(i => {
+      const row = Math.floor(i / cellCount);
+      const col = i % cellCount;
+      if (
+        visibleArea.startRow <= row <= visibleArea.endRow &&
+        visibleArea.startColumn <= col <= visibleArea.endColumn
+      )
+        cellCtx.fillRect(col, row, 1, 1);
+    });
+    died.forEach(i => {
+      const row = Math.floor(i / cellCount);
+      const col = i % cellCount;
+      if (
+        visibleArea.startRow <= row <= visibleArea.endRow &&
+        visibleArea.startColumn <= col <= visibleArea.endColumn
+      )
+        cellCtx.clearRect(col, row, 1, 1);
+    });
+  }, interval);
 }
 
 /*** Event Listeners ***/
