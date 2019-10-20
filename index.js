@@ -3,9 +3,10 @@ import { gameEngine } from "./gameEngine";
 let cellCount, universe;
 let visibleArea;
 let view = { zoom: 1, panX: 0, panY: 0 };
-let mouseDown = { x: null, y: null };
-let dragging = false;
-let game, gameTimer;
+let mouse = { down: false, dragging: false, lastX: null, lastY: null };
+
+let game;
+let lastTimestamp = 0;
 
 const container = document.getElementById("canvas-container");
 const gridCtx = document.getElementById("grid-canvas").getContext("2d");
@@ -24,8 +25,14 @@ function updateParameters(newParameters = {}) {
     newParameters.zoom || view.zoom
   );
 
-  view.panX = newParameters.panX || view.panX;
-  view.panY = newParameters.panY || view.panY;
+  view.panX = Math.min(
+    Math.max(0, newParameters.panX || view.panX),
+    cellCount * view.zoom - clientWidth
+  );
+  view.panY = Math.min(
+    Math.max(0, newParameters.panY || view.panY),
+    cellCount * view.zoom - clientHeight
+  );
 
   visibleArea = {
     startColumn: Math.floor(view.panX / view.zoom),
@@ -75,13 +82,19 @@ function toggleCell(x, y) {
   }
 }
 
-function play(speed) {
-  const interval = 1000 / speed;
+function play() {
   game = gameEngine(cellCount, universe);
-  gameTimer = setInterval(() => {
-    const { newUniverse, born, died } = game.next().value;
+  const step = timestamp => {
+    const delta = timestamp - lastTimestamp;
+    if (timestamp && delta > 25) console.error("LAG: " + (delta - 16.68));
+    lastTimestamp = timestamp;
+
+    const { newUniverse, alive } = game.next().value;
     universe = newUniverse;
-    born.forEach(i => {
+
+    cellCtx.clearRect(0, 0, container.clientWidth, container.clientHeight);
+
+    alive.forEach(i => {
       const row = Math.floor(i / cellCount);
       const col = i % cellCount;
       if (
@@ -90,44 +103,60 @@ function play(speed) {
       )
         cellCtx.fillRect(col, row, 1, 1);
     });
-    died.forEach(i => {
-      const row = Math.floor(i / cellCount);
-      const col = i % cellCount;
-      if (
-        visibleArea.startRow <= row <= visibleArea.endRow &&
-        visibleArea.startColumn <= col <= visibleArea.endColumn
-      )
-        cellCtx.clearRect(col, row, 1, 1);
-    });
-  }, interval);
+
+    requestAnimationFrame(step);
+  };
+  step();
 }
 
 /*** Event Listeners ***/
 
 container.onmousedown = e => {
-  mouseDown = { x: e.clientX, y: e.clientY };
+  mouse = {
+    down: true,
+    dragging: false,
+    lastX: e.clientX,
+    lastY: e.clientY
+  };
 };
 
-container.onmouseleave = () => {
-  dragging = false;
-  mouseDown = { x: null, y: null };
+container.onmouseleave = e => {
+  mouse = {
+    down: false,
+    dragging: false,
+    lastX: e.clientX,
+    lastY: e.clientY
+  };
 };
 
 container.onmousemove = e => {
-  if (!mouseDown.x || !mouseDown.y) return;
+  if (!mouse.down) return;
 
-  const movementX = mouseDown.x - e.clientX;
-  const movementY = mouseDown.y - e.clientY;
+  const movementX = mouse.lastX - e.clientX;
+  const movementY = mouse.lastY - e.clientY;
 
-  if (Math.abs(movementX) > 5 || Math.abs(movementY) > 5) {
-    dragging = true;
+  if (mouse.dragging || Math.abs(movementX) > 5 || Math.abs(movementY) > 5) {
+    updateParameters({
+      panX: view.panX + movementX,
+      panY: view.panY + movementY
+    });
+    mouse = {
+      down: true,
+      dragging: true,
+      lastX: e.clientX,
+      lastY: e.clientY
+    };
   }
 };
 
 container.onmouseup = e => {
-  if (!dragging) toggleCell(e.clientX, e.clientY);
-  dragging = false;
-  mouseDown = { x: null, y: null };
+  if (!mouse.dragging) toggleCell(e.clientX, e.clientY);
+  mouse = {
+    down: false,
+    dragging: false,
+    lastX: e.clientX,
+    lastY: e.clientY
+  };
 };
 
 document.getElementById("cell-count").onchange = e =>
@@ -142,9 +171,8 @@ document.getElementById("pan-x").onchange = e =>
 document.getElementById("pan-y").onchange = e =>
   updateParameters({ panY: e.target.value });
 
-document.getElementById("start-button").onclick = () =>
-  play(document.getElementById("speed").value);
+document.getElementById("start-button").onclick = () => play();
 
 /*** Initialization ***/
 
-updateParameters({ cellCount: 25, zoom: 10, panX: 0, panY: 0 });
+updateParameters({ cellCount: 100, zoom: 10, panX: 0, panY: 0 });
