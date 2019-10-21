@@ -4,20 +4,22 @@ html {
 }
 
 body {
-  height: 100%;
+  margin: 0 0 0 0;
 }
 
 body > div {
   display: flex;
-  flex-direction: column;
-  height: calc(100vh - 16px);
+}
+
+#sidebar {
+  flex: 0 0 200px;
+  margin: 8px 8px 8px 8px;
 }
 
 #canvas-container {
   position: relative;
-  flex-grow: 0;
-  width: 1000px;
-  height: 1000px;
+  flex: 1 1 auto;
+  height: 100vh;
 }
 
 #grid-canvas,
