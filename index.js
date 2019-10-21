@@ -103,12 +103,24 @@ function render(timestamp) {
   requestAnimationFrame(render);
 }
 
-function play() {
-  game = gameEngine(cellCount, universe);
-  playing = true;
-}
-
 /*** Event Listeners ***/
+
+window.onload = () => {
+  gridCtx.canvas.height = container.clientHeight;
+  gridCtx.canvas.width = container.clientWidth;
+  cellCtx.canvas.height = container.clientHeight;
+  cellCtx.canvas.width = container.clientWidth;
+  updateParameters({ cellCount: 100, zoom: 10, panX: 0, panY: 0 });
+  render();
+};
+
+window.onresize = () => {
+  gridCtx.canvas.height = container.clientHeight;
+  gridCtx.canvas.width = container.clientWidth;
+  cellCtx.canvas.height = container.clientHeight;
+  cellCtx.canvas.width = container.clientWidth;
+  updateParameters();
+};
 
 container.onmousedown = e => {
   mouse = {
@@ -170,14 +182,7 @@ document.getElementById("pan-x").onchange = e =>
 document.getElementById("pan-y").onchange = e =>
   updateParameters({ panY: e.target.value });
 
-document.getElementById("start-button").onclick = () => play();
-
-/*** Initialization ***/
-
-gridCtx.canvas.height = container.clientHeight;
-gridCtx.canvas.width = container.clientWidth;
-cellCtx.canvas.height = container.clientHeight;
-cellCtx.canvas.width = container.clientWidth;
-
-updateParameters({ cellCount: 100, zoom: 10, panX: 0, panY: 0 });
-render();
+document.getElementById("start-button").onclick = () => {
+  game = gameEngine(cellCount, universe);
+  playing = true;
+};
