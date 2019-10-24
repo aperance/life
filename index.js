@@ -102,6 +102,28 @@ dom.container.onmouseup = e => {
   };
 };
 
+dom.container.addEventListener(
+  "wheel",
+  e => {
+    const prevZoom = game.view.zoom;
+    game.setView({
+      zoom: game.view.zoom + e.deltaY / 50
+    });
+    const scale = game.view.zoom / prevZoom - 1;
+    game.setView({
+      panX: game.view.panX + game.view.panX * scale + e.offsetX * scale,
+      panY: game.view.panY + game.view.panY * scale + e.offsetY * scale
+    });
+  },
+  {
+    passive: true
+  }
+);
+
+window.addEventListener("wheel", e => e.preventDefault(), {
+  passive: false
+});
+
 dom.zoom.onchange = e => game.setView({ zoom: e.target.value });
 dom.panX.onchange = e => game.setView({ panX: e.target.value });
 dom.panY.onchange = e => game.setView({ panY: e.target.value });

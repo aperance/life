@@ -1,11 +1,14 @@
 function* gameEngine(size, startingUniverse) {
   let currentUniverse = startingUniverse;
   let newUniverse, born, died, alive;
+  let generation = 0;
+
   while (true) {
     newUniverse = new Uint8Array(size * size);
     born = [];
     died = [];
     alive = [];
+
     for (let row = 0; row < size; row++) {
       const rowPrev = row === 0 ? size - 1 : row - 1;
       const rowNext = row === size - 1 ? 0 : row + 1;
@@ -50,8 +53,9 @@ function* gameEngine(size, startingUniverse) {
       }
     }
     currentUniverse = newUniverse;
+    generation++;
 
-    yield { newUniverse, born, died, alive };
+    yield { newUniverse, born, died, alive, generation };
   }
 }
 
