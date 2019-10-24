@@ -1,125 +1,114 @@
-import { state } from "./store.js";
+import { gameEngine } from "./gameEngine";
 
-const gridCtx = document.getElementById("grid-canvas").getContext("2d");
-const cellCtx = document.getElementById("cell-canvas").getContext("2d");
+class Game {
+  constructor(gridCtx, cellCtx, cellCount) {
+    this.gridCtx = gridCtx;
+    this.cellCtx = cellCtx;
+    this.cellCount = cellCount;
+    this.lastTimestamp = 1;
+    this.cellCount = cellCount;
+    this.universe = new Uint8Array(cellCount * cellCount);
+    this.game = null;
+    this.view = { width: 0, height: 0, zoom: 1, panX: 0, panY: 0 };
+    this.redrawGrid = false;
+    this.playing = false;
 
-let lastTimestamp = 0;
+    this.clamp = (val, min, max) => (val > max ? max : val < min ? min : val);
+    this.getMinZoom = () =>
+      Math.ceil(Math.max(this.view.width, this.view.height) / this.cellCount);
+    this.getMaxPanX = () => this.cellCount * this.view.zoom - this.view.width;
+    this.getMaxPanY = () => this.cellCount * this.view.zoom - this.view.height;
 
-function toggleCell(x, y) {
-  const row = Math.floor((y + state.view.panY) / state.view.zoom);
-  const col = Math.floor((x + state.view.panX) / state.view.zoom);
-  const index = state.cellCount * row + col;
-  if (state.universe[index] === 0) {
-    state.universe[index] = 1;
-    cellCtx.fillRect(col, row, 1, 1);
-  } else {
-    state.universe[index] = 0;
-    cellCtx.clearRect(col, row, 1, 1);
+    this.render();
   }
-}
 
-function render(timestamp) {
-  const { view, universe, cellCount, playing, game, redrawGrid } = state;
-  const delta = timestamp - lastTimestamp;
-  if (timestamp && delta > 25) console.error("LAG: " + (delta - 16.68));
-  lastTimestamp = timestamp;
+  setView(view = {}) {
+    this.view = { ...this.view, ...view };
+    this.view.zoom = this.clamp(this.view.zoom, this.getMinZoom(), 100);
+    this.view.panX = this.clamp(this.view.panX, 0, this.getMaxPanX());
+    this.view.panY = this.clamp(this.view.panY, 0, this.getMaxPanY());
+    this.redrawGrid = true;
+    this.updateDom();
+  }
 
-  const startColumn = Math.floor(view.panX / view.zoom);
-  const endColumn = Math.ceil((view.width + view.panX) / view.zoom);
-  const startRow = Math.floor(view.panY / view.zoom);
-  const endRow = Math.ceil((view.height + view.panY) / view.zoom);
+  updateDom() {
+    document.getElementById("cell-count").value = this.cellCount;
+    document.getElementById("zoom").value = this.view.zoom;
+    document.getElementById("pan-x").value = this.view.panX;
+    document.getElementById("pan-y").value = this.view.panY;
+    document.getElementById("grid-canvas").width = this.view.width;
+    document.getElementById("cell-canvas").width = this.view.width;
+    document.getElementById("grid-canvas").height = this.view.height;
+    document.getElementById("cell-canvas").height = this.view.height;
+  }
 
-  if (redrawGrid) {
-    gridCtx.setTransform(view.zoom, 0, 0, view.zoom, -view.panX, -view.panY);
-    gridCtx.strokeStyle = "lightgrey";
-    gridCtx.lineWidth = 0.25 / view.zoom;
-    gridCtx.clearRect(0, 0, view.width, view.height);
-
-    cellCtx.setTransform(view.zoom, 0, 0, view.zoom, -view.panX, -view.panY);
-    cellCtx.clearRect(0, 0, view.width, view.height);
-
-    for (let col = startColumn; col < endColumn; col++) {
-      for (let row = startRow; row < endRow; row++) {
-        gridCtx.strokeRect(col, row, 1, 1);
-        if (!playing && universe[cellCount * row + col] === 1) {
-          cellCtx.fillRect(col, row, 1, 1);
-        }
-      }
+  toggleCell(x, y) {
+    const row = Math.floor((y + this.view.panY) / this.view.zoom);
+    const col = Math.floor((x + this.view.panX) / this.view.zoom);
+    const index = this.cellCount * row + col;
+    if (this.universe[index] === 0) {
+      this.universe[index] = 1;
+      this.cellCtx.fillRect(col, row, 1, 1);
+    } else {
+      this.universe[index] = 0;
+      this.cellCtx.clearRect(col, row, 1, 1);
     }
   }
 
-  if (playing) {
-    const { newUniverse, alive } = game.next().value;
-    state.universe = newUniverse;
-
-    cellCtx.clearRect(0, 0, view.width, view.height);
-    alive.forEach(i => {
-      const row = Math.floor(i / cellCount);
-      const col = i % cellCount;
-      if (startRow <= row <= endRow && startColumn <= col <= endColumn)
-        cellCtx.fillRect(col, row, 1, 1);
-    });
+  start() {
+    this.game = gameEngine(this.cellCount, this.universe);
+    this.playing = true;
   }
 
-  state.redrawGrid = false;
-  requestAnimationFrame(render);
-}
+  render(timestamp) {
+    const delta = timestamp - this.lastTimestamp;
+    if (timestamp && delta > 25) console.error("LAG: " + (delta - 16.68));
+    this.lastTimestamp = timestamp;
 
-function* gameEngine(size, startingUniverse) {
-  let currentUniverse = startingUniverse;
-  let newUniverse, born, died, alive;
-  while (true) {
-    newUniverse = new Uint8Array(size * size);
-    born = [];
-    died = [];
-    alive = [];
-    for (let row = 0; row < size; row++) {
-      const rowPrev = row === 0 ? size - 1 : row - 1;
-      const rowNext = row === size - 1 ? 0 : row + 1;
+    const { width, height, zoom, panX, panY } = this.view;
+    const startColumn = Math.floor(panX / zoom);
+    const endColumn = Math.ceil((width + panX) / zoom);
+    const startRow = Math.floor(panY / zoom);
+    const endRow = Math.ceil((height + panY) / zoom);
 
-      for (let col = 0; col < size; col++) {
-        const colPrev = col === 0 ? size - 1 : col - 1;
-        const colNext = col === size - 1 ? 0 : col + 1;
+    if (this.redrawGrid) {
+      this.gridCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
+      this.gridCtx.strokeStyle = "lightgrey";
+      this.gridCtx.lineWidth = 0.25 / zoom;
+      this.gridCtx.clearRect(0, 0, width, height);
 
-        const selfIndex = size * row + col;
-        const neighborIndecies = [
-          size * rowPrev + colPrev,
-          size * rowPrev + col,
-          size * rowPrev + colNext,
-          size * row + colPrev,
-          size * row + colNext,
-          size * rowNext + colPrev,
-          size * rowNext + col,
-          size * rowNext + colNext
-        ];
+      this.cellCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
+      this.cellCtx.clearRect(0, 0, width, height);
 
-        let aliveNeighborCount = 0;
-
-        neighborIndecies.forEach(i => {
-          if (currentUniverse[i]) aliveNeighborCount++;
-        });
-
-        switch (aliveNeighborCount) {
-          case 2:
-            newUniverse[selfIndex] = currentUniverse[selfIndex];
-            break;
-          case 3:
-            newUniverse[selfIndex] = 1;
-            if (currentUniverse[selfIndex] === 0) born.push(selfIndex);
-            break;
-          default:
-            newUniverse[selfIndex] = 0;
-            if (currentUniverse[selfIndex] === 1) died.push(selfIndex);
-            break;
+      for (let col = startColumn; col < endColumn; col++) {
+        for (let row = startRow; row < endRow; row++) {
+          this.gridCtx.strokeRect(col, row, 1, 1);
+          if (
+            !this.playing &&
+            this.universe[this.cellCount * row + col] === 1
+          ) {
+            this.cellCtx.fillRect(col, row, 1, 1);
+          }
         }
-
-        if (newUniverse[selfIndex] === 1) alive.push(selfIndex);
       }
     }
-    currentUniverse = newUniverse;
 
-    yield { newUniverse, born, died, alive };
+    if (this.playing) {
+      const { newUniverse, alive } = this.game.next().value;
+      this.universe = newUniverse;
+
+      this.cellCtx.clearRect(0, 0, width, height);
+      alive.forEach(i => {
+        const row = Math.floor(i / this.cellCount);
+        const col = i % this.cellCount;
+        if (startRow <= row <= endRow && startColumn <= col <= endColumn)
+          this.cellCtx.fillRect(col, row, 1, 1);
+      });
+    }
+
+    this.redrawGrid = false;
+    requestAnimationFrame(this.render.bind(this));
   }
 }
 
-export { render, toggleCell, gameEngine };
+export { Game };

@@ -1,25 +1,27 @@
-import { state } from "./store.js";
-import { render, toggleCell, gameEngine } from "./game.js";
+import { Game } from "./game.js";
 
 let mouse = { down: false, dragging: false, lastX: null, lastY: null };
 
 const container = document.getElementById("canvas-container");
+const gridCtx = document.getElementById("grid-canvas").getContext("2d");
+const cellCtx = document.getElementById("cell-canvas").getContext("2d");
+
+const game = new Game(gridCtx, cellCtx, 100);
 
 /*** Event Listeners ***/
 
 window.onload = () => {
-  state.setView({
+  game.setView({
     width: container.clientWidth,
     height: container.clientHeight,
     zoom: 10,
     panX: 0,
     panY: 0
   });
-  render();
 };
 
 window.onresize = () => {
-  state.setView({
+  game.setView({
     width: container.clientWidth,
     height: container.clientHeight
   });
@@ -50,9 +52,9 @@ container.onmousemove = e => {
   const movementY = mouse.lastY - e.clientY;
 
   if (mouse.dragging || Math.abs(movementX) > 5 || Math.abs(movementY) > 5) {
-    state.setView({
-      panX: state.view.panX + movementX,
-      panY: state.view.panY + movementY
+    game.setView({
+      panX: game.view.panX + movementX,
+      panY: game.view.panY + movementY
     });
     mouse = {
       down: true,
@@ -65,7 +67,7 @@ container.onmousemove = e => {
 
 container.onmouseup = e => {
   const { top, left } = container.getBoundingClientRect();
-  if (!mouse.dragging) toggleCell(e.clientX - left, e.clientY - top);
+  if (!mouse.dragging) game.toggleCell(e.clientX - left, e.clientY - top);
   mouse = {
     down: false,
     dragging: false,
@@ -75,18 +77,15 @@ container.onmouseup = e => {
 };
 
 document.getElementById("cell-count").onchange = e =>
-  state.setCellCount(e.target.value);
+  game.setCellCount(e.target.value);
 
 document.getElementById("zoom").onchange = e =>
-  state.setView({ zoom: e.target.value });
+  game.setView({ zoom: e.target.value });
 
 document.getElementById("pan-x").onchange = e =>
-  state.setView({ panX: e.target.value });
+  game.setView({ panX: e.target.value });
 
 document.getElementById("pan-y").onchange = e =>
-  state.setView({ panY: e.target.value });
+  game.setView({ panY: e.target.value });
 
-document.getElementById("start-button").onclick = () => {
-  state.game = gameEngine(state.cellCount, state.universe);
-  state.playing = true;
-};
+document.getElementById("start-button").onclick = () => game.start();
