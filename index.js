@@ -1,4 +1,4 @@
-import { state, setCanvasSize, setCellCount, setView } from "./store.js";
+import { state } from "./store.js";
 import { render, toggleCell, gameEngine } from "./game.js";
 
 let mouse = { down: false, dragging: false, lastX: null, lastY: null };
@@ -8,17 +8,18 @@ const container = document.getElementById("canvas-container");
 /*** Event Listeners ***/
 
 window.onload = () => {
-  setCellCount(100);
-  setCanvasSize({
+  state.setView({
     width: container.clientWidth,
-    height: container.clientHeight
+    height: container.clientHeight,
+    zoom: 10,
+    panX: 0,
+    panY: 0
   });
-  setView({ zoom: 10, panX: 0, panY: 0 });
   render();
 };
 
 window.onresize = () => {
-  setCanvasSize({
+  state.setView({
     width: container.clientWidth,
     height: container.clientHeight
   });
@@ -49,7 +50,7 @@ container.onmousemove = e => {
   const movementY = mouse.lastY - e.clientY;
 
   if (mouse.dragging || Math.abs(movementX) > 5 || Math.abs(movementY) > 5) {
-    setView({
+    state.setView({
       panX: state.view.panX + movementX,
       panY: state.view.panY + movementY
     });
@@ -73,16 +74,16 @@ container.onmouseup = e => {
 };
 
 document.getElementById("cell-count").onchange = e =>
-  setCellCount(e.target.value);
+  state.setCellCount(e.target.value);
 
 document.getElementById("zoom").onchange = e =>
-  setView({ zoom: e.target.value });
+  state.setView({ zoom: e.target.value });
 
 document.getElementById("pan-x").onchange = e =>
-  setView({ panX: e.target.value });
+  state.setView({ panX: e.target.value });
 
 document.getElementById("pan-y").onchange = e =>
-  setView({ panY: e.target.value });
+  state.setView({ panY: e.target.value });
 
 document.getElementById("start-button").onclick = () => {
   state.game = gameEngine(state.cellCount, state.universe);
