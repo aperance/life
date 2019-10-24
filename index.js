@@ -64,7 +64,8 @@ container.onmousemove = e => {
 };
 
 container.onmouseup = e => {
-  if (!mouse.dragging) toggleCell(e.clientX, e.clientY);
+  const { top, left } = container.getBoundingClientRect();
+  if (!mouse.dragging) toggleCell(e.clientX - left, e.clientY - top);
   mouse = {
     down: false,
     dragging: false,

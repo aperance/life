@@ -1,15 +1,13 @@
 import { state } from "./store.js";
 
-const container = document.getElementById("canvas-container");
 const gridCtx = document.getElementById("grid-canvas").getContext("2d");
 const cellCtx = document.getElementById("cell-canvas").getContext("2d");
 
 let lastTimestamp = 0;
 
 function toggleCell(x, y) {
-  const { top, left } = container.getBoundingClientRect();
-  const row = Math.floor((y + state.view.panY - top) / state.view.zoom);
-  const col = Math.floor((x + state.view.panX - left) / state.view.zoom);
+  const row = Math.floor((y + state.view.panY) / state.view.zoom);
+  const col = Math.floor((x + state.view.panX) / state.view.zoom);
   const index = state.cellCount * row + col;
   if (state.universe[index] === 0) {
     state.universe[index] = 1;
@@ -27,18 +25,18 @@ function render(timestamp) {
   lastTimestamp = timestamp;
 
   const startColumn = Math.floor(view.panX / view.zoom);
-  const endColumn = Math.ceil((container.clientWidth + view.panX) / view.zoom);
+  const endColumn = Math.ceil((view.width + view.panX) / view.zoom);
   const startRow = Math.floor(view.panY / view.zoom);
-  const endRow = Math.ceil((container.clientHeight + view.panY) / view.zoom);
+  const endRow = Math.ceil((view.height + view.panY) / view.zoom);
 
   if (redrawGrid) {
     gridCtx.setTransform(view.zoom, 0, 0, view.zoom, -view.panX, -view.panY);
     gridCtx.strokeStyle = "lightgrey";
     gridCtx.lineWidth = 0.25 / view.zoom;
-    gridCtx.clearRect(0, 0, container.clientWidth, container.clientHeight);
+    gridCtx.clearRect(0, 0, view.width, view.height);
 
     cellCtx.setTransform(view.zoom, 0, 0, view.zoom, -view.panX, -view.panY);
-    cellCtx.clearRect(0, 0, container.clientWidth, container.clientHeight);
+    cellCtx.clearRect(0, 0, view.width, view.height);
 
     for (let col = startColumn; col < endColumn; col++) {
       for (let row = startRow; row < endRow; row++) {
@@ -54,7 +52,7 @@ function render(timestamp) {
     const { newUniverse, alive } = game.next().value;
     state.universe = newUniverse;
 
-    cellCtx.clearRect(0, 0, container.clientWidth, container.clientHeight);
+    cellCtx.clearRect(0, 0, view.width, view.height);
     alive.forEach(i => {
       const row = Math.floor(i / cellCount);
       const col = i % cellCount;
