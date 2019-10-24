@@ -19,6 +19,8 @@ class Game {
     this.getMaxPanX = () => this.cellCount * this.view.zoom - this.view.width;
     this.getMaxPanY = () => this.cellCount * this.view.zoom - this.view.height;
 
+    this.onChange = null;
+
     this.render();
   }
 
@@ -28,18 +30,7 @@ class Game {
     this.view.panX = this.clamp(this.view.panX, 0, this.getMaxPanX());
     this.view.panY = this.clamp(this.view.panY, 0, this.getMaxPanY());
     this.redrawGrid = true;
-    this.updateDom();
-  }
-
-  updateDom() {
-    document.getElementById("cell-count").value = this.cellCount;
-    document.getElementById("zoom").value = this.view.zoom;
-    document.getElementById("pan-x").value = this.view.panX;
-    document.getElementById("pan-y").value = this.view.panY;
-    document.getElementById("grid-canvas").width = this.view.width;
-    document.getElementById("cell-canvas").width = this.view.width;
-    document.getElementById("grid-canvas").height = this.view.height;
-    document.getElementById("cell-canvas").height = this.view.height;
+    if (this.onChange) this.onChange(this);
   }
 
   toggleCell(x, y) {

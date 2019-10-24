@@ -1,33 +1,59 @@
 import { Game } from "./game.js";
 
+const dom = {
+  container: document.getElementById("canvas-container"),
+  gridCanvas: document.getElementById("grid-canvas"),
+  cellCanvas: document.getElementById("cell-canvas"),
+  zoom: document.getElementById("zoom"),
+  panX: document.getElementById("pan-x"),
+  panY: document.getElementById("pan-y"),
+  start: document.getElementById("start-button")
+};
+
+let game = null;
 let mouse = { down: false, dragging: false, lastX: null, lastY: null };
-
-const container = document.getElementById("canvas-container");
-const gridCtx = document.getElementById("grid-canvas").getContext("2d");
-const cellCtx = document.getElementById("cell-canvas").getContext("2d");
-
-const game = new Game(gridCtx, cellCtx, 100);
 
 /*** Event Listeners ***/
 
 window.onload = () => {
+  game = new Game(
+    dom.gridCanvas.getContext("2d"),
+    dom.cellCanvas.getContext("2d"),
+    100
+  );
+
+  game.onChange = ({ view }) => {
+    dom.zoom.value = view.zoom;
+    dom.panX.value = view.panX;
+    dom.panY.value = view.panY;
+  };
+
   game.setView({
-    width: container.clientWidth,
-    height: container.clientHeight,
+    width: dom.container.clientWidth,
+    height: dom.container.clientHeight,
     zoom: 10,
     panX: 0,
     panY: 0
   });
+
+  dom.gridCanvas.width = dom.container.clientWidth;
+  dom.gridCanvas.height = dom.container.clientHeight;
+  dom.cellCanvas.width = dom.container.clientWidth;
+  dom.cellCanvas.height = dom.container.clientHeight;
 };
 
 window.onresize = () => {
   game.setView({
-    width: container.clientWidth,
-    height: container.clientHeight
+    width: dom.container.clientWidth,
+    height: dom.container.clientHeight
   });
+  dom.gridCanvas.width = dom.container.clientWidth;
+  dom.gridCanvas.height = dom.container.clientHeight;
+  dom.cellCanvas.width = dom.container.clientWidth;
+  dom.cellCanvas.height = dom.container.clientHeight;
 };
 
-container.onmousedown = e => {
+dom.container.onmousedown = e => {
   mouse = {
     down: true,
     dragging: false,
@@ -36,7 +62,7 @@ container.onmousedown = e => {
   };
 };
 
-container.onmouseleave = e => {
+dom.container.onmouseleave = e => {
   mouse = {
     down: false,
     dragging: false,
@@ -45,7 +71,7 @@ container.onmouseleave = e => {
   };
 };
 
-container.onmousemove = e => {
+dom.container.onmousemove = e => {
   if (!mouse.down) return;
 
   const movementX = mouse.lastX - e.clientX;
@@ -65,8 +91,8 @@ container.onmousemove = e => {
   }
 };
 
-container.onmouseup = e => {
-  const { top, left } = container.getBoundingClientRect();
+dom.container.onmouseup = e => {
+  const { top, left } = dom.container.getBoundingClientRect();
   if (!mouse.dragging) game.toggleCell(e.clientX - left, e.clientY - top);
   mouse = {
     down: false,
@@ -76,16 +102,8 @@ container.onmouseup = e => {
   };
 };
 
-document.getElementById("cell-count").onchange = e =>
-  game.setCellCount(e.target.value);
+dom.zoom.onchange = e => game.setView({ zoom: e.target.value });
+dom.panX.onchange = e => game.setView({ panX: e.target.value });
+dom.panY.onchange = e => game.setView({ panY: e.target.value });
 
-document.getElementById("zoom").onchange = e =>
-  game.setView({ zoom: e.target.value });
-
-document.getElementById("pan-x").onchange = e =>
-  game.setView({ panX: e.target.value });
-
-document.getElementById("pan-y").onchange = e =>
-  game.setView({ panY: e.target.value });
-
-document.getElementById("start-button").onclick = () => game.start();
+dom.start.onclick = () => game.start();
