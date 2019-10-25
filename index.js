@@ -11,9 +11,16 @@ const dom = {
 };
 
 let game = null;
-let mouse = { down: false, dragging: false, lastX: null, lastY: null };
+let mouse = {
+  down: false,
+  panning: false,
+  dragging: false,
+  draggedShape: null,
+  lastX: null,
+  lastY: null
+};
 
-/*** Event Listeners ***/
+/*** Window Event Listeners ***/
 
 window.onload = () => {
   game = new Game(
@@ -53,10 +60,31 @@ window.onresize = () => {
   dom.cellCanvas.height = dom.container.clientHeight;
 };
 
+window.addEventListener("wheel", e => e.preventDefault(), {
+  passive: false
+});
+
+/*** Mouse Event Listeners ***/
+
+dom.container.onmouseenter = e => {
+  if (e.buttons === 1) {
+    mouse = {
+      down: true,
+      panning: false,
+      dragging: true,
+      draggedShape: [[0, 1, 0], [0, 0, 1], [1, 1, 1]],
+      lastX: e.clientX,
+      lastY: e.clientY
+    };
+  }
+};
+
 dom.container.onmousedown = e => {
   mouse = {
     down: true,
+    panning: false,
     dragging: false,
+    draggedShape: null,
     lastX: e.clientX,
     lastY: e.clientY
   };
@@ -65,7 +93,9 @@ dom.container.onmousedown = e => {
 dom.container.onmouseleave = e => {
   mouse = {
     down: false,
+    panning: false,
     dragging: false,
+    draggedShape: null,
     lastX: e.clientX,
     lastY: e.clientY
   };
@@ -74,17 +104,23 @@ dom.container.onmouseleave = e => {
 dom.container.onmousemove = e => {
   if (!mouse.down) return;
 
+  if (mouse.dragging) {
+    return;
+  }
+
   const movementX = mouse.lastX - e.clientX;
   const movementY = mouse.lastY - e.clientY;
 
-  if (mouse.dragging || Math.abs(movementX) > 5 || Math.abs(movementY) > 5) {
+  if (mouse.panning || Math.abs(movementX) > 5 || Math.abs(movementY) > 5) {
     game.setView({
       panX: game.view.panX + movementX,
       panY: game.view.panY + movementY
     });
     mouse = {
       down: true,
-      dragging: true,
+      panning: true,
+      dragging: false,
+      draggedShape: null,
       lastX: e.clientX,
       lastY: e.clientY
     };
@@ -92,11 +128,16 @@ dom.container.onmousemove = e => {
 };
 
 dom.container.onmouseup = e => {
-  const { top, left } = dom.container.getBoundingClientRect();
-  if (!mouse.dragging) game.toggleCell(e.clientX - left, e.clientY - top);
+  if (!mouse.panning) {
+    if (mouse.dragging)
+      game.placeElement(e.offsetX, e.offsetY, mouse.draggedShape);
+    else game.toggleCell(e.offsetX, e.offsetY);
+  }
   mouse = {
     down: false,
+    panning: false,
     dragging: false,
+    draggedShape: null,
     lastX: e.clientX,
     lastY: e.clientY
   };
@@ -120,9 +161,7 @@ dom.container.addEventListener(
   }
 );
 
-window.addEventListener("wheel", e => e.preventDefault(), {
-  passive: false
-});
+/*** Sidebar Event Listeners ***/
 
 dom.zoom.onchange = e => game.setView({ zoom: e.target.value });
 dom.panX.onchange = e => game.setView({ panX: e.target.value });

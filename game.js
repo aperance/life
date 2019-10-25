@@ -46,6 +46,18 @@ class Game {
     }
   }
 
+  placeElement(x, y, shape) {
+    const startRow = Math.floor((y + this.view.panY) / this.view.zoom);
+    const startCol = Math.floor((x + this.view.panX) / this.view.zoom);
+    shape.forEach((arr, row) => {
+      arr.forEach((cell, col) => {
+        const index = this.cellCount * (startRow + row) + (startCol + col);
+        this.universe[index] = cell;
+      });
+    });
+    this.redrawGrid = true;
+  }
+
   start() {
     this.game = gameEngine(this.cellCount, this.universe);
     this.playing = true;
