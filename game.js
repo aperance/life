@@ -17,6 +17,14 @@ class Game {
       Math.ceil(Math.max(this.view.width, this.view.height) / this.cellCount);
     this.getMaxPanX = () => this.cellCount * this.view.zoom - this.view.width;
     this.getMaxPanY = () => this.cellCount * this.view.zoom - this.view.height;
+    this.indexToRowCol = i => ({
+      row: Math.floor(i / this.cellCount),
+      col: i % this.cellCount
+    });
+    this.xyToRowCol = (x, y) => ({
+      row: Math.floor((y + this.view.panY) / this.view.zoom),
+      col: Math.floor((x + this.view.panX) / this.view.zoom)
+    });
 
     this.onChange = null;
 
@@ -33,8 +41,7 @@ class Game {
   }
 
   toggleCell(x, y) {
-    const row = Math.floor((y + this.view.panY) / this.view.zoom);
-    const col = Math.floor((x + this.view.panX) / this.view.zoom);
+    const { row, col } = this.xyToRowCol(x, y);
     const index = this.cellCount * row + col;
     if (this.universe[index] === 0) {
       this.universe[index] = 1;
@@ -46,8 +53,7 @@ class Game {
   }
 
   placeElement(x, y, shape) {
-    const startRow = Math.floor((y + this.view.panY) / this.view.zoom);
-    const startCol = Math.floor((x + this.view.panX) / this.view.zoom);
+    const { row: startRow, col: startCol } = this.xyToRowCol(x, y);
     shape.forEach((arr, row) => {
       arr.forEach((cell, col) => {
         const index = this.cellCount * (startRow + row) + (startCol + col);
@@ -64,10 +70,6 @@ class Game {
 
   render() {
     const { width, height, zoom, panX, panY } = this.view;
-    const startColumn = Math.floor(panX / zoom);
-    const endColumn = Math.ceil((width + panX) / zoom);
-    const startRow = Math.floor(panY / zoom);
-    const endRow = Math.ceil((height + panY) / zoom);
 
     if (this.redrawGrid) {
       this.gridCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
@@ -78,13 +80,13 @@ class Game {
       this.cellCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
       this.cellCtx.clearRect(0, 0, width, height);
 
-      for (let col = startColumn; col < endColumn; col++) {
+      const { row: startRow, col: startCol } = this.xyToRowCol(0, 0);
+      const { row: endRow, col: endCol } = this.xyToRowCol(width, width);
+
+      for (let col = startCol; col < endCol; col++) {
         for (let row = startRow; row < endRow; row++) {
           this.gridCtx.strokeRect(col, row, 1, 1);
-          if (
-            !this.playing &&
-            this.universe[this.cellCount * row + col] === 1
-          ) {
+          if (!this.playing && this.universe[this.cellCount * row + col]) {
             this.cellCtx.fillRect(col, row, 1, 1);
           }
         }
@@ -94,13 +96,11 @@ class Game {
     if (this.playing) {
       const { born, died } = this.game.next().value;
       for (let i = 0, n = born.length; i < n; ++i) {
-        const row = Math.floor(born[i] / this.cellCount);
-        const col = born[i] % this.cellCount;
+        const { row, col } = this.indexToRowCol(born[i]);
         this.cellCtx.fillRect(col, row, 1, 1);
       }
       for (let i = 0, n = died.length; i < n; ++i) {
-        const row = Math.floor(died[i] / this.cellCount);
-        const col = died[i] % this.cellCount;
+        const { row, col } = this.indexToRowCol(died[i]);
         this.cellCtx.clearRect(col, row, 1, 1);
       }
     }
