@@ -62,8 +62,8 @@ class MouseTracker {
     if (!this.down) return;
     if (this.dragging) return;
 
-    const movementX = this.lastX - e.clientX;
-    const movementY = this.lastY - e.clientY;
+    const movementX = Math.round(this.lastX - e.clientX);
+    const movementY = Math.round(this.lastY - e.clientY);
 
     if (this.panning || Math.abs(movementX) > 5 || Math.abs(movementY) > 5) {
       this.game.setView({
@@ -78,15 +78,19 @@ class MouseTracker {
 
   canvasWheel(e) {
     const prevZoom = this.game.view.zoom;
+    const changeZoom =
+      e.deltaY > 0 ? Math.floor(e.deltaY / 10) : Math.ceil(e.deltaY / 10);
     this.game.setView({
-      zoom: this.game.view.zoom + e.deltaY / 50
+      zoom: this.game.view.zoom + changeZoom
     });
     const scale = this.game.view.zoom / prevZoom - 1;
     this.game.setView({
       panX:
-        this.game.view.panX + this.game.view.panX * scale + e.offsetX * scale,
+        this.game.view.panX +
+        Math.round(this.game.view.panX * scale + e.offsetX * scale),
       panY:
-        this.game.view.panY + this.game.view.panY * scale + e.offsetY * scale
+        this.game.view.panY +
+        Math.round(this.game.view.panY * scale + e.offsetY * scale)
     });
   }
 }
