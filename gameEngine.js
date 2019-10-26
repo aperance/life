@@ -31,9 +31,10 @@ function* gameEngine(size, startingUniverse) {
 
         let aliveNeighborCount = 0;
 
-        neighborIndecies.forEach(i => {
-          if (currentUniverse[i]) aliveNeighborCount++;
-        });
+        for (let i = 0, n = neighborIndecies.length; i < n; ++i) {
+          const neighborIndex = neighborIndecies[i];
+          if (currentUniverse[neighborIndex]) aliveNeighborCount++;
+        }
 
         switch (aliveNeighborCount) {
           case 2:

@@ -5,7 +5,6 @@ class Game {
     this.gridCtx = gridCtx;
     this.cellCtx = cellCtx;
     this.cellCount = cellCount;
-    this.lastTimestamp = 1;
     this.cellCount = cellCount;
     this.universe = new Uint8Array(cellCount * cellCount);
     this.game = null;
@@ -63,11 +62,7 @@ class Game {
     this.playing = true;
   }
 
-  render(timestamp) {
-    const delta = timestamp - this.lastTimestamp;
-    if (timestamp && delta > 25) console.error("LAG: " + (delta - 16.68));
-    this.lastTimestamp = timestamp;
-
+  render() {
     const { width, height, zoom, panX, panY } = this.view;
     const startColumn = Math.floor(panX / zoom);
     const endColumn = Math.ceil((width + panX) / zoom);
@@ -97,16 +92,17 @@ class Game {
     }
 
     if (this.playing) {
-      const { newUniverse, alive } = this.game.next().value;
-      this.universe = newUniverse;
-
-      this.cellCtx.clearRect(0, 0, width, height);
-      alive.forEach(i => {
-        const row = Math.floor(i / this.cellCount);
-        const col = i % this.cellCount;
-        if (startRow <= row <= endRow && startColumn <= col <= endColumn)
-          this.cellCtx.fillRect(col, row, 1, 1);
-      });
+      const { born, died } = this.game.next().value;
+      for (let i = 0, n = born.length; i < n; ++i) {
+        const row = Math.floor(born[i] / this.cellCount);
+        const col = born[i] % this.cellCount;
+        this.cellCtx.fillRect(col, row, 1, 1);
+      }
+      for (let i = 0, n = died.length; i < n; ++i) {
+        const row = Math.floor(died[i] / this.cellCount);
+        const col = died[i] % this.cellCount;
+        this.cellCtx.clearRect(col, row, 1, 1);
+      }
     }
 
     this.redrawGrid = false;
