@@ -1,10 +1,10 @@
 function* gameEngine(size, startingUniverse) {
-  let currentUniverse = startingUniverse;
-  let newUniverse, born, died, alive;
+  let universe = new Uint8Array(startingUniverse);
+  let pastUniverse, born, died, alive;
   let generation = 0;
 
   while (true) {
-    newUniverse = new Uint8Array(size * size);
+    pastUniverse = new Uint8Array(universe);
     born = [];
     died = [];
     alive = [];
@@ -33,30 +33,29 @@ function* gameEngine(size, startingUniverse) {
 
         for (let i = 0, n = neighborIndecies.length; i < n; ++i) {
           const neighborIndex = neighborIndecies[i];
-          if (currentUniverse[neighborIndex]) aliveNeighborCount++;
+          if (pastUniverse[neighborIndex]) aliveNeighborCount++;
         }
 
         switch (aliveNeighborCount) {
           case 2:
-            newUniverse[selfIndex] = currentUniverse[selfIndex];
+            universe[selfIndex] = pastUniverse[selfIndex];
             break;
           case 3:
-            newUniverse[selfIndex] = 1;
-            if (currentUniverse[selfIndex] === 0) born.push(selfIndex);
+            universe[selfIndex] = 1;
+            if (pastUniverse[selfIndex] === 0) born.push(selfIndex);
             break;
           default:
-            newUniverse[selfIndex] = 0;
-            if (currentUniverse[selfIndex] === 1) died.push(selfIndex);
+            universe[selfIndex] = 0;
+            if (pastUniverse[selfIndex] === 1) died.push(selfIndex);
             break;
         }
 
-        if (newUniverse[selfIndex] === 1) alive.push(selfIndex);
+        if (universe[selfIndex] === 1) alive.push(selfIndex);
       }
     }
-    currentUniverse = newUniverse;
     generation++;
 
-    yield { newUniverse, born, died, alive, generation };
+    yield { born, died, alive, generation };
   }
 }
 
