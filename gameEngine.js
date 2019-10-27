@@ -18,23 +18,16 @@ function* gameEngine(size, startingUniverse) {
         const colNext = col === size - 1 ? 0 : col + 1;
 
         const selfIndex = size * row + col;
-        const neighborIndecies = [
-          size * rowPrev + colPrev,
-          size * rowPrev + col,
-          size * rowPrev + colNext,
-          size * row + colPrev,
-          size * row + colNext,
-          size * rowNext + colPrev,
-          size * rowNext + col,
-          size * rowNext + colNext
-        ];
 
-        let aliveNeighborCount = 0;
-
-        for (let i = 0, n = neighborIndecies.length; i < n; ++i) {
-          const neighborIndex = neighborIndecies[i];
-          if (pastUniverse[neighborIndex]) aliveNeighborCount++;
-        }
+        const aliveNeighborCount =
+          pastUniverse[size * rowPrev + colPrev] +
+          pastUniverse[size * rowPrev + col] +
+          pastUniverse[size * rowPrev + colNext] +
+          pastUniverse[size * row + colPrev] +
+          pastUniverse[size * row + colNext] +
+          pastUniverse[size * rowNext + colPrev] +
+          pastUniverse[size * rowNext + col] +
+          pastUniverse[size * rowNext + colNext];
 
         switch (aliveNeighborCount) {
           case 2:
