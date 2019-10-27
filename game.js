@@ -72,36 +72,57 @@ class Game {
     const { width, height, zoom, panX, panY } = this.view;
 
     if (this.redrawGrid) {
-      this.gridCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
+      const { row: startRow, col: startCol } = this.xyToRowCol(0, 0);
+      const { row: endRow, col: endCol } = this.xyToRowCol(width, width);
+
+      this.gridCtx.setTransform(1, 0, 0, 1, 0, 0);
       this.gridCtx.strokeStyle = "lightgrey";
-      this.gridCtx.lineWidth = 0.25 / zoom;
+      this.gridCtx.lineWidth = 0.02;
+      this.gridCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
       this.gridCtx.clearRect(0, 0, width, height);
+      this.gridCtx.beginPath();
+
+      for (let col = startCol + 1; col <= endCol; col++) {
+        this.gridCtx.moveTo(col, startRow);
+        this.gridCtx.lineTo(col, endRow + 1);
+      }
+      for (let row = startRow + 1; row <= endRow; row++) {
+        this.gridCtx.moveTo(startCol, row);
+        this.gridCtx.lineTo(endCol + 1, row);
+      }
+
+      this.gridCtx.stroke();
 
       this.cellCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
       this.cellCtx.clearRect(0, 0, width, height);
 
-      const { row: startRow, col: startCol } = this.xyToRowCol(0, 0);
-      const { row: endRow, col: endCol } = this.xyToRowCol(width, width);
-
-      for (let col = startCol; col < endCol; col++) {
-        for (let row = startRow; row < endRow; row++) {
-          this.gridCtx.strokeRect(col, row, 1, 1);
-          if (!this.playing && this.universe[this.cellCount * row + col]) {
-            this.cellCtx.fillRect(col, row, 1, 1);
+      if (!this.playing) {
+        for (let col = startCol; col < endCol; col++) {
+          for (let row = startRow; row < endRow; row++) {
+            if (this.universe[this.cellCount * row + col]) {
+              this.cellCtx.fillRect(col, row, 1, 1);
+            }
           }
         }
       }
     }
 
     if (this.playing) {
-      const { born, died } = this.game.next().value;
-      for (let i = 0, n = born.length; i < n; ++i) {
-        const { row, col } = this.indexToRowCol(born[i]);
-        this.cellCtx.fillRect(col, row, 1, 1);
-      }
-      for (let i = 0, n = died.length; i < n; ++i) {
-        const { row, col } = this.indexToRowCol(died[i]);
-        this.cellCtx.clearRect(col, row, 1, 1);
+      const { born, died, alive } = this.game.next().value;
+      if (this.redrawGrid) {
+        for (let i = 0, n = alive.length; i < n; ++i) {
+          const { row, col } = this.indexToRowCol(alive[i]);
+          this.cellCtx.fillRect(col, row, 1, 1);
+        }
+      } else {
+        for (let i = 0, n = born.length; i < n; ++i) {
+          const { row, col } = this.indexToRowCol(born[i]);
+          this.cellCtx.fillRect(col, row, 1, 1);
+        }
+        for (let i = 0, n = died.length; i < n; ++i) {
+          const { row, col } = this.indexToRowCol(died[i]);
+          this.cellCtx.clearRect(col, row, 1, 1);
+        }
       }
     }
 

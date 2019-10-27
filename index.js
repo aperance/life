@@ -2,6 +2,7 @@ import { Game } from "./game.js";
 import { MouseTracker } from "./mouse.js";
 
 let game = null;
+// eslint-disable-next-line no-unused-vars
 let mouseTracker = null;
 
 const dom = {
@@ -29,7 +30,7 @@ function initializeGame() {
   game = new Game(
     dom.gridCanvas.getContext("2d"),
     dom.cellCanvas.getContext("2d"),
-    100
+    500
   );
   mouseTracker = new MouseTracker(game, dom.cellCanvas);
 
