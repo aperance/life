@@ -61,13 +61,13 @@ class MouseTracker {
   canvasMove(e) {
     if (!this.down || this.dragging) return;
 
-    const movementX = Math.round(this.lastX - e.clientX);
-    const movementY = Math.round(this.lastY - e.clientY);
+    const movementX = this.lastX - e.clientX;
+    const movementY = this.lastY - e.clientY;
 
     if (this.panning || Math.abs(movementX) > 5 || Math.abs(movementY) > 5) {
       this.game.setView({
-        panX: this.game.view.panX + movementX,
-        panY: this.game.view.panY + movementY
+        panX: Math.round(this.game.view.panX + movementX),
+        panY: Math.round(this.game.view.panY + movementY)
       });
       this.panning = true;
       this.lastX = e.clientX;
@@ -78,17 +78,17 @@ class MouseTracker {
   canvasWheel(e) {
     const prevZoom = this.game.view.zoom;
     this.game.setView({
-      zoom: this.game.view.zoom + Math.round(e.deltaY / 10)
+      zoom: Math.round(this.game.view.zoom + e.deltaY / 5)
     });
 
     const scale = this.game.view.zoom / prevZoom - 1;
     this.game.setView({
-      panX:
-        this.game.view.panX +
-        Math.round((this.game.view.panX + e.offsetX) * scale),
-      panY:
-        this.game.view.panY +
-        Math.round((this.game.view.panY + e.offsetY) * scale)
+      panX: Math.round(
+        this.game.view.panX + (this.game.view.panX + e.offsetX) * scale
+      ),
+      panY: Math.round(
+        this.game.view.panY + (this.game.view.panY + e.offsetY) * scale
+      )
     });
   }
 }
