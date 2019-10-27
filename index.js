@@ -15,7 +15,6 @@ const dom = {
   start: document.getElementById("start-button")
 };
 
-window.addEventListener("load", initializeGame);
 window.addEventListener("resize", handleResize);
 window.addEventListener("wheel", e => e.preventDefault(), {
   passive: false
@@ -60,3 +59,5 @@ function handleResize() {
   dom.cellCanvas.width = dom.container.clientWidth;
   dom.cellCanvas.height = dom.container.clientHeight;
 }
+
+initializeGame();
