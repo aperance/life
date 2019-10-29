@@ -1,4 +1,6 @@
-import { gameEngine } from "./gameEngine";
+//import { gameEngine } from "./gameEngine";
+
+import { GameEngine } from "life-wasm";
 
 class Game {
   constructor(gridCtx, cellCtx, cellCount) {
@@ -8,6 +10,7 @@ class Game {
     this.cellCount = cellCount;
     this.universe = new Uint8Array(cellCount * cellCount);
     this.game = null;
+    this.nextResult = null;
     this.view = { width: 0, height: 0, zoom: 1, panX: 0, panY: 0 };
     this.redrawGrid = false;
     this.playing = false;
@@ -64,7 +67,9 @@ class Game {
   }
 
   start() {
-    this.game = gameEngine(this.cellCount, this.universe);
+    //this.game = gameEngine(this.cellCount, this.universe);
+    this.game = new GameEngine(this.universe);
+
     this.playing = true;
   }
 
@@ -105,10 +110,12 @@ class Game {
           }
         }
       }
+
+      this.redrawGrid = false;
     }
 
     if (this.playing) {
-      const { born, died, alive } = this.game.next().value;
+      const { born, died, alive } = this.game.next();
       if (this.redrawGrid) {
         for (let i = 0, n = alive.length; i < n; ++i) {
           const { row, col } = this.indexToRowCol(alive[i]);
@@ -126,7 +133,6 @@ class Game {
       }
     }
 
-    this.redrawGrid = false;
     requestAnimationFrame(this.render.bind(this));
   }
 }
