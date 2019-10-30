@@ -8,6 +8,7 @@ onmessage = function(e) {
   switch (action) {
     case "start":
       game = gameEngine(payload.size, payload.universe);
+      //game = new GameEngine(payload.universe);
       postMessage("started");
       break;
     case "requestResults":
@@ -25,3 +26,12 @@ function batchResults() {
   }
   return arr;
 }
+
+// function batchResults() {
+//     let arr = [];
+//     for (let i = 0; i < 10; i++) {
+//       const { born, died, alive } = game.next();
+//       arr[i] = { born, died, alive };
+//     }
+//     return arr;
+//   }

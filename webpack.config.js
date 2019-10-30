@@ -2,12 +2,13 @@
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const path = require("path");
 
-module.exports = {
+const appConfig = {
   mode: "development",
-  entry: "./bootstrap.js",
+  entry: "./index.js",
   output: {
     filename: "index.js",
-    path: path.resolve(__dirname, "dist")
+    path: path.resolve(__dirname, "dist"),
+    globalObject: "this"
   },
   devServer: {
     contentBase: "./dist",
@@ -15,3 +16,22 @@ module.exports = {
   },
   plugins: [new CopyWebpackPlugin(["index.html", "styles.css"])]
 };
+
+const workerConfig = {
+  mode: "development",
+  target: "webworker",
+  entry: "./bootstrap.js",
+  output: {
+    filename: "worker.js",
+    path: path.resolve(__dirname, "dist"),
+    globalObject: "self"
+  },
+  devServer: {
+    contentBase: "./dist"
+  },
+  resolve: {
+    extensions: [".js", ".wasm"]
+  }
+};
+
+module.exports = [appConfig, workerConfig];

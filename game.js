@@ -1,6 +1,4 @@
-import Worker from "worker-loader!./worker.js";
-
-const worker = new Worker();
+const worker = new Worker("./worker.js");
 
 class Game {
   constructor(gridCtx, cellCtx, cellCount) {
@@ -47,7 +45,7 @@ class Game {
   }
 
   get nextResult() {
-    if (this.resultBuffer.length < 50 && !this.resultsRequested) {
+    if (this.resultBuffer.length < 100 && !this.resultsRequested) {
       worker.postMessage({ action: "requestResults" });
       this.resultsRequested = true;
     }
