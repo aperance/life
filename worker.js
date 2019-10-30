@@ -7,7 +7,7 @@ onmessage = function(e) {
   const { action, payload } = e.data;
   switch (action) {
     case "start":
-      game = gameEngine(payload.size, payload.universe);
+      game = gameEngine(payload.universe);
       //game = new GameEngine(payload.universe);
       postMessage("started");
       break;

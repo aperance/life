@@ -4,15 +4,14 @@ class Game {
   constructor(gridCtx, cellCtx, cellCount) {
     this.gridCtx = gridCtx;
     this.cellCtx = cellCtx;
-    this.cellCount = cellCount;
-    this.cellCount = cellCount;
-    this.universe = new Uint8Array(cellCount * cellCount);
-    this.game = null;
-    this.resultsRequested = false;
-    this.resultBuffer = [];
     this.view = { width: 0, height: 0, zoom: 1, panX: 0, panY: 0 };
     this.redrawGrid = false;
+    this.cellCount = cellCount;
+    this.universe = new Uint8Array(cellCount * cellCount);
     this.playing = false;
+    this.resultsRequested = false;
+    this.resultBuffer = [];
+    this.onChange = null;
 
     this.clamp = (val, min, max) => (val > max ? max : val < min ? min : val);
     this.getMinZoom = () =>
@@ -35,8 +34,6 @@ class Game {
         this.resultsRequested = false;
       }
     };
-
-    this.onChange = null;
 
     this.render();
   }
@@ -76,7 +73,7 @@ class Game {
   start() {
     worker.postMessage({
       action: "start",
-      payload: { size: this.cellCount, universe: this.universe }
+      payload: { universe: this.universe }
     });
   }
 

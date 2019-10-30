@@ -1,4 +1,5 @@
-function* gameEngine(size, startingUniverse) {
+function* gameEngine(startingUniverse) {
+  const size = Math.sqrt(startingUniverse.length);
   let universe = new Uint8Array(startingUniverse);
   let pastUniverse, born, died, alive;
   let generation = 0;
