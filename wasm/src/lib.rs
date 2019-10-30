@@ -2,6 +2,7 @@ extern crate wasm_bindgen;
 
 mod utils;
 
+use serde::Serialize;
 use wasm_bindgen::prelude::*;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -17,6 +18,7 @@ pub struct GameEngine {
 }
 
 #[wasm_bindgen]
+#[derive(Serialize)]
 pub struct Result {
     born: Vec<usize>,
     died: Vec<usize>,
@@ -41,6 +43,14 @@ impl GameEngine {
     #[wasm_bindgen(getter)]
     pub fn data(&self) -> Vec<u8> {
         self.data.clone()
+    }
+
+    pub fn run_batch(&mut self, count: u8) -> String {
+        let mut results = Vec::new();
+        for _ in 0..count {
+            results.push(self.next())
+        }
+        serde_json::to_string(&results).unwrap()
     }
 
     pub fn next(&mut self) -> Result {

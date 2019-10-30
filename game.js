@@ -76,7 +76,10 @@ class Game {
 
     if (this.playing) {
       if (this.resultBuffer.length < 100 && !this.resultsRequested) {
-        worker.postMessage({ action: "requestResults" });
+        worker.postMessage({
+          action: "requestResults",
+          payload: { count: 10 }
+        });
         this.resultsRequested = true;
       }
 
