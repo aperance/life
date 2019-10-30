@@ -29,11 +29,8 @@ class Game {
     });
 
     worker.onmessage = e => {
-      if (e.data === "started") {
-        worker.postMessage({ action: "requestResults" });
-        this.resultsRequested = true;
-        this.playing = true;
-      } else {
+      if (e.data === "started") this.playing = true;
+      else {
         this.resultBuffer.push(...e.data);
         this.resultsRequested = false;
       }
@@ -42,14 +39,6 @@ class Game {
     this.onChange = null;
 
     this.render();
-  }
-
-  get nextResult() {
-    if (this.resultBuffer.length < 100 && !this.resultsRequested) {
-      worker.postMessage({ action: "requestResults" });
-      this.resultsRequested = true;
-    }
-    return this.resultBuffer.shift();
   }
 
   setView(view = {}) {
@@ -128,29 +117,36 @@ class Game {
           }
         }
       }
-
-      this.redrawGrid = false;
     }
 
-    if (this.playing && this.resultBuffer.length > 0) {
-      const { born, died, alive } = this.nextResult;
-      if (this.redrawGrid) {
-        for (let i = 0, n = alive.length; i < n; ++i) {
-          const { row, col } = this.indexToRowCol(alive[i]);
-          this.cellCtx.fillRect(col, row, 1, 1);
-        }
-      } else {
-        for (let i = 0, n = born.length; i < n; ++i) {
-          const { row, col } = this.indexToRowCol(born[i]);
-          this.cellCtx.fillRect(col, row, 1, 1);
-        }
-        for (let i = 0, n = died.length; i < n; ++i) {
-          const { row, col } = this.indexToRowCol(died[i]);
-          this.cellCtx.clearRect(col, row, 1, 1);
+    if (this.playing) {
+      if (this.resultBuffer.length < 100 && !this.resultsRequested) {
+        worker.postMessage({ action: "requestResults" });
+        this.resultsRequested = true;
+      }
+
+      if (this.resultBuffer.length > 0) {
+        const { born, died, alive } = this.resultBuffer.shift();
+
+        if (this.redrawGrid) {
+          for (let i = 0, n = alive.length; i < n; ++i) {
+            const { row, col } = this.indexToRowCol(alive[i]);
+            this.cellCtx.fillRect(col, row, 1, 1);
+          }
+        } else {
+          for (let i = 0, n = born.length; i < n; ++i) {
+            const { row, col } = this.indexToRowCol(born[i]);
+            this.cellCtx.fillRect(col, row, 1, 1);
+          }
+          for (let i = 0, n = died.length; i < n; ++i) {
+            const { row, col } = this.indexToRowCol(died[i]);
+            this.cellCtx.clearRect(col, row, 1, 1);
+          }
         }
       }
     }
 
+    this.redrawGrid = false;
     requestAnimationFrame(this.render.bind(this));
   }
 }
