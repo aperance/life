@@ -1,6 +1,6 @@
-//import { gameEngine } from "./gameEngine";
+import Worker from "worker-loader!./worker.js";
 
-import { GameEngine } from "life-wasm";
+const worker = new Worker();
 
 class Game {
   constructor(gridCtx, cellCtx, cellCount) {
@@ -10,7 +10,8 @@ class Game {
     this.cellCount = cellCount;
     this.universe = new Uint8Array(cellCount * cellCount);
     this.game = null;
-    this.nextResult = null;
+    this.resultsRequested = false;
+    this.resultBuffer = [];
     this.view = { width: 0, height: 0, zoom: 1, panX: 0, panY: 0 };
     this.redrawGrid = false;
     this.playing = false;
@@ -29,9 +30,28 @@ class Game {
       col: Math.floor((x + this.view.panX) / this.view.zoom)
     });
 
+    worker.onmessage = e => {
+      if (e.data === "started") {
+        worker.postMessage({ action: "requestResults" });
+        this.resultsRequested = true;
+        this.playing = true;
+      } else {
+        this.resultBuffer.push(...e.data);
+        this.resultsRequested = false;
+      }
+    };
+
     this.onChange = null;
 
     this.render();
+  }
+
+  get nextResult() {
+    if (this.resultBuffer.length < 50 && !this.resultsRequested) {
+      worker.postMessage({ action: "requestResults" });
+      this.resultsRequested = true;
+    }
+    return this.resultBuffer.shift();
   }
 
   setView(view = {}) {
@@ -67,10 +87,10 @@ class Game {
   }
 
   start() {
-    //this.game = gameEngine(this.cellCount, this.universe);
-    this.game = new GameEngine(this.universe);
-
-    this.playing = true;
+    worker.postMessage({
+      action: "start",
+      payload: { size: this.cellCount, universe: this.universe }
+    });
   }
 
   render() {
@@ -114,8 +134,8 @@ class Game {
       this.redrawGrid = false;
     }
 
-    if (this.playing) {
-      const { born, died, alive } = this.game.next();
+    if (this.playing && this.resultBuffer.length > 0) {
+      const { born, died, alive } = this.nextResult;
       if (this.redrawGrid) {
         for (let i = 0, n = alive.length; i < n; ++i) {
           const { row, col } = this.indexToRowCol(alive[i]);

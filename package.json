@@ -29,7 +29,8 @@
     "parcel-bundler": "^1.12.4",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.9",
-    "webpack-dev-server": "^3.9.0"
+    "webpack-dev-server": "^3.9.0",
+    "worker-loader": "^2.0.0"
   },
   "browserslist": [
     "Chrome > 75"
