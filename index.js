@@ -32,13 +32,12 @@ function initializeGame() {
     dom.cellCanvas.getContext("2d"),
     500
   );
+
   mouseTracker = new MouseTracker(game, dom.cellCanvas);
 
-  game.onChange = ({ view }) => {
-    dom.zoom.value = view.zoom;
-    dom.panX.value = view.panX;
-    dom.panY.value = view.panY;
-  };
+  game.addObserver(() => (dom.zoom.value = game.view.zoom));
+  game.addObserver(() => (dom.panX.value = game.view.panX));
+  game.addObserver(() => (dom.panY.value = game.view.panY));
 
   game.setView({
     zoom: 10,
