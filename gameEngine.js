@@ -1,55 +1,70 @@
 function* gameEngine(startingUniverse) {
   const size = Math.sqrt(startingUniverse.length);
   let universe = new Uint8Array(startingUniverse);
-  let pastUniverse, born, died, alive;
+  let pastUniverse, born, died, alive, checkNextTime;
   let generation = 0;
+
+  let cellsToCheck = Array.from(universe.keys());
 
   while (true) {
     pastUniverse = new Uint8Array(universe);
     born = [];
     died = [];
     alive = [];
+    checkNextTime = [];
 
-    for (let row = 0; row < size; row++) {
+    for (let x = 0, n = cellsToCheck.length; x < n; x++) {
+      const index = cellsToCheck[x];
+      const row = Math.floor(index / size);
+      const col = index % size;
+
       const rowPrev = row === 0 ? size - 1 : row - 1;
       const rowNext = row === size - 1 ? 0 : row + 1;
+      const colPrev = col === 0 ? size - 1 : col - 1;
+      const colNext = col === size - 1 ? 0 : col + 1;
 
-      for (let col = 0; col < size; col++) {
-        const colPrev = col === 0 ? size - 1 : col - 1;
-        const colNext = col === size - 1 ? 0 : col + 1;
+      const neighbors = [
+        size * rowPrev + colPrev,
+        size * rowPrev + col,
+        size * rowPrev + colNext,
+        size * row + colPrev,
+        size * row + colNext,
+        size * rowNext + colPrev,
+        size * rowNext + col,
+        size * rowNext + colNext
+      ];
 
-        const selfIndex = size * row + col;
+      let aliveNeighborCount = 0;
 
-        const aliveNeighborCount =
-          pastUniverse[size * rowPrev + colPrev] +
-          pastUniverse[size * rowPrev + col] +
-          pastUniverse[size * rowPrev + colNext] +
-          pastUniverse[size * row + colPrev] +
-          pastUniverse[size * row + colNext] +
-          pastUniverse[size * rowNext + colPrev] +
-          pastUniverse[size * rowNext + col] +
-          pastUniverse[size * rowNext + colNext];
-
-        switch (aliveNeighborCount) {
-          case 2:
-            universe[selfIndex] = pastUniverse[selfIndex];
-            break;
-          case 3:
-            universe[selfIndex] = 1;
-            if (pastUniverse[selfIndex] === 0) born.push(selfIndex);
-            break;
-          default:
-            universe[selfIndex] = 0;
-            if (pastUniverse[selfIndex] === 1) died.push(selfIndex);
-            break;
-        }
-
-        if (universe[selfIndex] === 1) alive.push(selfIndex);
+      for (let i = 0; i < 8; i++) {
+        aliveNeighborCount += pastUniverse[neighbors[i]];
       }
+
+      switch (aliveNeighborCount) {
+        case 2:
+          universe[index] = pastUniverse[index];
+          break;
+        case 3:
+          universe[index] = 1;
+          if (pastUniverse[index] === 0) born.push(index);
+          break;
+        default:
+          universe[index] = 0;
+          if (pastUniverse[index] === 1) died.push(index);
+          break;
+      }
+
+      if (universe[index] === 1) alive.push(index);
+
+      if (universe[index] !== pastUniverse[index])
+        checkNextTime.push(index, ...neighbors);
     }
+
     generation++;
 
     yield { born, died, alive, generation };
+
+    cellsToCheck = [...new Set(checkNextTime)];
   }
 }
 
