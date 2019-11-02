@@ -121,7 +121,7 @@ class Game {
     this.gridCtx.strokeStyle = "lightgrey";
     this.gridCtx.lineWidth = 0.02;
     this.gridCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
-    this.gridCtx.clearRect(0, 0, width, height);
+    this.gridCtx.clearRect(0, 0, width + panX, height + panY);
     this.gridCtx.beginPath();
 
     for (let col = startCol + 1; col <= endCol; col++) {
@@ -134,12 +134,14 @@ class Game {
     }
 
     this.gridCtx.stroke();
-
-    this.cellCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
-    this.cellCtx.clearRect(0, 0, width, height);
   }
 
   renderAllCells(alive) {
+    const { width, height, zoom, panX, panY } = this.view;
+
+    this.cellCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
+    this.cellCtx.clearRect(0, 0, width + panX, height + panY);
+
     for (let i = 0, n = alive.length; i < n; ++i) {
       const { row, col } = this.indexToRowCol(alive[i]);
       this.cellCtx.fillRect(col, row, 1, 1);
