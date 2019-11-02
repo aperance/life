@@ -26,6 +26,21 @@ class Game {
     this.animationCycle();
   }
 
+  get nextResult() {
+    if (!this.playing) return null;
+
+    if (this.resultBuffer.length < 100 && !this.resultsRequested) {
+      worker.postMessage({
+        action: "requestResults",
+        payload: { count: 10 }
+      });
+      this.resultsRequested = true;
+    }
+
+    if (this.resultBuffer.length === 0) return null;
+    else return this.resultBuffer.shift();
+  }
+
   setView(view = {}) {
     this.view = { ...this.view, ...view };
     this.view.zoom = this.clamp(this.view.zoom, this.getMinZoom(), 100);
@@ -43,20 +58,24 @@ class Game {
 
   placeElement(x, y, shape) {
     const { row: startRow, col: startCol } = this.xyToRowCol(x, y);
-    shape.forEach((arr, row) => {
-      arr.forEach((cell, col) => {
-        const index = this.cellCount * (startRow + row) + (startCol + col);
-        if (cell) this.alive.add(index);
+
+    shape.forEach((rowData, relativeRow) => {
+      rowData.forEach((cellState, relativeCol) => {
+        const index =
+          this.cellCount * (startRow + relativeRow) + (startCol + relativeCol);
+
+        if (cellState === 1) this.alive.add(index);
         else this.alive.delete(index);
       });
     });
+
     this.redrawGrid = true;
   }
 
   start() {
     worker.postMessage({
       action: "start",
-      payload: { size: this.cellCount, initialAlive: [...this.alive] }
+      payload: { size: this.cellCount, initialAlive: Array.from(this.alive) }
     });
   }
 
@@ -69,30 +88,26 @@ class Game {
   }
 
   animationCycle() {
-    if (this.redrawGrid) {
-      this.renderGrid();
-      if (!this.playing) this.renderAllCells([...this.alive]);
-    }
-
     if (this.playing) {
-      if (this.resultBuffer.length < 100 && !this.resultsRequested) {
-        worker.postMessage({
-          action: "requestResults",
-          payload: { count: 10 }
-        });
-        this.resultsRequested = true;
+      const result = this.nextResult;
+      if (result) {
+        this.alive = new Set(result.alive);
+        if (this.redrawGrid) {
+          this.renderGrid();
+          this.renderAllCells(result.alive);
+        } else this.renderChangedCells(result.born, result.died);
       }
-
-      if (this.resultBuffer.length > 0) {
-        const { born, died, alive } = this.resultBuffer.shift();
-        if (this.redrawGrid) this.renderAllCells(alive);
-        else this.renderChangedCells(born, died);
+    } else {
+      if (this.redrawGrid) {
+        this.renderGrid();
+        this.renderAllCells(Array.from(this.alive));
       }
     }
+
+    requestAnimationFrame(this.animationCycle.bind(this));
 
     this.redrawGrid = false;
     this.emitToObservers();
-    requestAnimationFrame(this.animationCycle.bind(this));
   }
 
   /*** Render Methods ***/

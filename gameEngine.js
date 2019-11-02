@@ -20,7 +20,7 @@ function* gameEngine(size, initialAlive) {
     checkNextTime = [];
 
     for (let i = 0, n = cellsToCheck.length; i < n; i++) {
-      const index = cellsToCheck[x];
+      const index = cellsToCheck[i];
       const neighbors = getNeighbors(index, size);
 
       let aliveNeighborCount = 0;
@@ -53,7 +53,7 @@ function* gameEngine(size, initialAlive) {
 
     yield { born, died, alive, generation };
 
-    cellsToCheck = [...new Set(checkNextTime)];
+    cellsToCheck = Array.from(new Set(checkNextTime));
   }
 }
 
