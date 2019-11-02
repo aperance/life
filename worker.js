@@ -2,14 +2,14 @@ import { gameEngine } from "./gameEngine";
 import { GameEngine } from "life-wasm";
 
 let game = null;
-const wasm = true;
+const wasm = false;
 
 onmessage = function(e) {
   const { action, payload } = e.data;
   switch (action) {
     case "start":
-      if (wasm) game = new GameEngine(payload.universe);
-      else game = gameEngine(payload.universe);
+      if (wasm) game = new GameEngine(payload.size, payload.initialAlive);
+      else game = gameEngine(payload.size, payload.initialAlive);
       postMessage("started");
       break;
     case "requestResults":

@@ -7,6 +7,7 @@ class Game {
     this.cellCount = cellCount;
 
     this.universe = new Uint8Array(cellCount * cellCount);
+    this.alive = new Set();
     this.view = { width: 0, height: 0, zoom: 1, panX: 0, panY: 0 };
     this.redrawGrid = false;
     this.observers = [];
@@ -34,15 +35,10 @@ class Game {
   }
 
   toggleCell(x, y) {
-    const { row, col } = this.xyToRowCol(x, y);
-    const index = this.cellCount * row + col;
-    if (this.universe[index] === 0) {
-      this.universe[index] = 1;
-      this.cellCtx.fillRect(col, row, 1, 1);
-    } else {
-      this.universe[index] = 0;
-      this.cellCtx.clearRect(col, row, 1, 1);
-    }
+    const index = this.xyToIndex(x, y);
+    if (this.alive.has(index)) this.alive.delete(index);
+    else this.alive.add(index);
+    this.redrawGrid = true;
   }
 
   placeElement(x, y, shape) {
@@ -50,7 +46,8 @@ class Game {
     shape.forEach((arr, row) => {
       arr.forEach((cell, col) => {
         const index = this.cellCount * (startRow + row) + (startCol + col);
-        this.universe[index] = cell;
+        if (cell) this.alive.add(index);
+        else this.alive.delete(index);
       });
     });
     this.redrawGrid = true;
@@ -59,7 +56,7 @@ class Game {
   start() {
     worker.postMessage({
       action: "start",
-      payload: { universe: this.universe }
+      payload: { size: this.cellCount, initialAlive: [...this.alive] }
     });
   }
 
@@ -72,7 +69,10 @@ class Game {
   }
 
   animationCycle() {
-    if (this.redrawGrid) this.renderGrid();
+    if (this.redrawGrid) {
+      this.renderGrid();
+      if (!this.playing) this.renderAllCells([...this.alive]);
+    }
 
     if (this.playing) {
       if (this.resultBuffer.length < 100 && !this.resultsRequested) {
@@ -122,16 +122,6 @@ class Game {
 
     this.cellCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
     this.cellCtx.clearRect(0, 0, width, height);
-
-    if (!this.playing) {
-      for (let col = startCol; col < endCol; col++) {
-        for (let row = startRow; row < endRow; row++) {
-          if (this.universe[this.cellCount * row + col]) {
-            this.cellCtx.fillRect(col, row, 1, 1);
-          }
-        }
-      }
-    }
   }
 
   renderAllCells(alive) {
@@ -181,6 +171,11 @@ class Game {
       row: Math.floor((y + this.view.panY) / this.view.zoom),
       col: Math.floor((x + this.view.panX) / this.view.zoom)
     };
+  }
+
+  xyToIndex(x, y) {
+    const { row, col } = this.xyToRowCol(x, y);
+    return this.cellCount * row + col;
   }
 }
 

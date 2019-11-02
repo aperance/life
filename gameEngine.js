@@ -1,10 +1,16 @@
-function* gameEngine(startingUniverse) {
-  const size = Math.sqrt(startingUniverse.length);
-  let universe = new Uint8Array(startingUniverse);
+function* gameEngine(size, initialAlive) {
+  let universe = new Uint8Array(size * size);
   let pastUniverse, born, died, alive, checkNextTime;
   let generation = 0;
+  let cellsToCheck = [];
 
-  let cellsToCheck = Array.from(universe.keys());
+  for (let i = 0, n = initialAlive.length; i < n; i++) {
+    const index = initialAlive[i];
+    universe[index] = 1;
+    const neighbors = getNeighbors(index, size);
+    cellsToCheck.push(index, ...neighbors);
+  }
+  cellsToCheck = [...new Set(cellsToCheck)];
 
   while (true) {
     pastUniverse = new Uint8Array(universe);
@@ -13,26 +19,9 @@ function* gameEngine(startingUniverse) {
     alive = [];
     checkNextTime = [];
 
-    for (let x = 0, n = cellsToCheck.length; x < n; x++) {
+    for (let i = 0, n = cellsToCheck.length; i < n; i++) {
       const index = cellsToCheck[x];
-      const row = Math.floor(index / size);
-      const col = index % size;
-
-      const rowPrev = row === 0 ? size - 1 : row - 1;
-      const rowNext = row === size - 1 ? 0 : row + 1;
-      const colPrev = col === 0 ? size - 1 : col - 1;
-      const colNext = col === size - 1 ? 0 : col + 1;
-
-      const neighbors = [
-        size * rowPrev + colPrev,
-        size * rowPrev + col,
-        size * rowPrev + colNext,
-        size * row + colPrev,
-        size * row + colNext,
-        size * rowNext + colPrev,
-        size * rowNext + col,
-        size * rowNext + colNext
-      ];
+      const neighbors = getNeighbors(index, size);
 
       let aliveNeighborCount = 0;
 
@@ -66,6 +55,26 @@ function* gameEngine(startingUniverse) {
 
     cellsToCheck = [...new Set(checkNextTime)];
   }
+}
+
+function getNeighbors(index, size) {
+  const row = Math.floor(index / size);
+  const col = index % size;
+  const rowPrev = row === 0 ? size - 1 : row - 1;
+  const rowNext = row === size - 1 ? 0 : row + 1;
+  const colPrev = col === 0 ? size - 1 : col - 1;
+  const colNext = col === size - 1 ? 0 : col + 1;
+
+  return [
+    size * rowPrev + colPrev,
+    size * rowPrev + col,
+    size * rowPrev + colNext,
+    size * row + colPrev,
+    size * row + colNext,
+    size * rowNext + colPrev,
+    size * rowNext + col,
+    size * rowNext + colNext
+  ];
 }
 
 export { gameEngine };
