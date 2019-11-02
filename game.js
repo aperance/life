@@ -115,7 +115,7 @@ class Game {
   renderGrid() {
     const { width, height, zoom, panX, panY } = this.view;
     const { row: startRow, col: startCol } = this.xyToRowCol(0, 0);
-    const { row: endRow, col: endCol } = this.xyToRowCol(width, width);
+    const { row: endRow, col: endCol } = this.xyToRowCol(width, height);
 
     this.gridCtx.setTransform(1, 0, 0, 1, 0, 0);
     this.gridCtx.strokeStyle = "lightgrey";
