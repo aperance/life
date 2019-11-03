@@ -43,7 +43,10 @@ function* gameEngine(size, initialAlive) {
           break;
       }
 
-      if (universe[index] === 1) alive.push(index);
+      if (universe[index] === 1) {
+        alive.push(index);
+        checkNextTime.push(index);
+      }
 
       if (universe[index] !== pastUniverse[index])
         checkNextTime.push(index, ...neighbors);
