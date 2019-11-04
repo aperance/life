@@ -14,6 +14,7 @@ class Game {
     this.playing = false;
     this.resultBuffer = [];
     this.resultsRequested = false;
+    this.shipRender = false;
 
     worker.onmessage = e => {
       if (e.data === "started") this.playing = true;
@@ -88,7 +89,7 @@ class Game {
   }
 
   animationCycle() {
-    if (this.playing) {
+    if (this.playing && !this.skipRender) {
       const result = this.nextResult;
       if (result) {
         this.alive = new Set(result.alive);
@@ -107,6 +108,7 @@ class Game {
     requestAnimationFrame(this.animationCycle.bind(this));
 
     this.redrawGrid = false;
+    this.skipRender = !this.skipRender;
     this.emitToObservers();
   }
 
