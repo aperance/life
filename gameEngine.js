@@ -1,28 +1,28 @@
 function* gameEngine(size, initialAlive) {
   let universe = new Uint8Array(size * size);
-  let pastUniverse, born, died, alive, checkNextTime;
+  let pastUniverse, born, died, alive;
   let generation = 0;
-  let cellsToCheck = [];
+  let cellsToCheck;
+  let checkNextTime = new Set();
 
   for (let i = 0, n = initialAlive.length; i < n; i++) {
     const index = initialAlive[i];
     universe[index] = 1;
     const neighbors = getNeighbors(index, size);
-    cellsToCheck.push(index, ...neighbors);
+    checkNextTime.add(index);
+    for (let n of neighbors) checkNextTime.add(n);
   }
-  cellsToCheck = [...new Set(cellsToCheck)];
 
   while (true) {
+    cellsToCheck = checkNextTime.values();
+    checkNextTime = new Set();
     pastUniverse = new Uint8Array(universe);
     born = [];
     died = [];
     alive = [];
-    checkNextTime = [];
 
-    for (let i = 0, n = cellsToCheck.length; i < n; i++) {
-      const index = cellsToCheck[i];
-      const neighbors = getNeighbors(index, size);
-
+    for (const cellIndex of cellsToCheck) {
+      const neighbors = getNeighbors(cellIndex, size);
       let aliveNeighborCount = 0;
 
       for (let i = 0; i < 8; i++) {
@@ -31,32 +31,32 @@ function* gameEngine(size, initialAlive) {
 
       switch (aliveNeighborCount) {
         case 2:
-          universe[index] = pastUniverse[index];
+          universe[cellIndex] = pastUniverse[cellIndex];
           break;
         case 3:
-          universe[index] = 1;
-          if (pastUniverse[index] === 0) born.push(index);
+          universe[cellIndex] = 1;
+          if (pastUniverse[cellIndex] === 0) born.push(cellIndex);
           break;
         default:
-          universe[index] = 0;
-          if (pastUniverse[index] === 1) died.push(index);
+          universe[cellIndex] = 0;
+          if (pastUniverse[cellIndex] === 1) died.push(cellIndex);
           break;
       }
 
-      if (universe[index] === 1) {
-        alive.push(index);
-        checkNextTime.push(index);
+      if (universe[cellIndex] === 1) {
+        alive.push(cellIndex);
+        checkNextTime.add(cellIndex);
       }
 
-      if (universe[index] !== pastUniverse[index])
-        checkNextTime.push(index, ...neighbors);
+      if (universe[cellIndex] !== pastUniverse[cellIndex]) {
+        checkNextTime.add(cellIndex);
+        for (let n of neighbors) checkNextTime.add(n);
+      }
     }
 
     generation++;
 
     yield { born, died, alive, generation };
-
-    cellsToCheck = Array.from(new Set(checkNextTime));
   }
 }
 
