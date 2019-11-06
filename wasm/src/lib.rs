@@ -4,6 +4,7 @@ mod utils;
 
 use serde::Serialize;
 use std::collections::HashSet;
+use std::mem;
 use wasm_bindgen::prelude::*;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -16,7 +17,7 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 pub struct GameEngine {
     size: usize,
     data: Vec<u8>,
-    to_check: Vec<usize>,
+    to_check: HashSet<usize>,
 }
 
 #[wasm_bindgen]
@@ -34,16 +35,16 @@ impl GameEngine {
         let mut game_engine = GameEngine {
             size: size,
             data: Vec::new(),
-            to_check: Vec::new(),
+            to_check: HashSet::new(),
         };
         game_engine.data.resize(size * size, 0);
 
         for cell_index in startingData {
             let neighbors = get_neighbors(size, cell_index);
             for neighbor_index in &neighbors {
-                game_engine.to_check.push(*neighbor_index);
+                game_engine.to_check.insert(*neighbor_index);
             }
-            game_engine.to_check.push(cell_index);
+            game_engine.to_check.insert(cell_index);
             game_engine.data[cell_index] = 1;
         }
 
@@ -69,12 +70,13 @@ impl GameEngine {
     }
 
     fn next(&mut self) -> Result {
-        let mut to_check_next = HashSet::new();
+        //let mut to_check_next = HashSet::new();
+        let mut prev_set = mem::replace(&mut self.to_check, HashSet::new());
         let mut born: Vec<usize> = Vec::new();
         let mut died: Vec<usize> = Vec::new();
         let mut alive: Vec<usize> = Vec::new();
 
-        for index in self.to_check.drain(..) {
+        for index in prev_set.drain() {
             let prev_state = self.data[index];
             let mut is_alive = false;
             let mut is_changed = false;
@@ -99,7 +101,7 @@ impl GameEngine {
 
             if is_alive {
                 alive.push(index);
-                to_check_next.insert(index);
+                self.to_check.insert(index);
             }
 
             if is_changed {
@@ -108,9 +110,9 @@ impl GameEngine {
                 } else {
                     died.push(index)
                 }
-                to_check_next.insert(index);
+                self.to_check.insert(index);
                 for neighbor_index in &neighbors {
-                    to_check_next.insert(*neighbor_index);
+                    self.to_check.insert(*neighbor_index);
                 }
             }
         }
@@ -122,9 +124,9 @@ impl GameEngine {
             self.data[*cell_index] = 0
         }
 
-        for cell_index in to_check_next.drain() {
-            self.to_check.push(cell_index)
-        }
+        // for cell_index in to_check_next.drain() {
+        //     self.to_check.insert(cell_index)
+        // }
 
         Result {
             born: born,
