@@ -28,11 +28,18 @@ pub struct Result {
 #[wasm_bindgen]
 impl GameEngine {
     #[wasm_bindgen(constructor)]
-    pub fn new(startingData: Vec<u8>) -> GameEngine {
-        GameEngine {
-            size: (startingData.len() as f64).sqrt() as usize,
-            data: startingData,
+    pub fn new(size: usize, startingData: Vec<usize>) -> GameEngine {
+        let mut game_engine = GameEngine {
+            size: size,
+            data: Vec::new(),
+        };
+        game_engine.data.resize(size * size, 0);
+
+        for cell_index in startingData {
+            game_engine.data[cell_index] = 1;
         }
+
+        game_engine
     }
 
     #[wasm_bindgen(getter)]
@@ -53,31 +60,23 @@ impl GameEngine {
         serde_json::to_string(&results).unwrap()
     }
 
-    pub fn next(&mut self) -> Result {
+    fn next(&mut self) -> Result {
         let prev_data = self.data.clone();
         let mut born = Vec::new();
         let mut died = Vec::new();
         let mut alive = Vec::new();
 
         for row in 0..self.size {
-            let row_prev = if row == 0 { self.size - 1 } else { row - 1 };
-            let row_next = if row == self.size - 1 { 0 } else { row + 1 };
             for col in 0..self.size {
-                let col_prev = if col == 0 { self.size - 1 } else { col - 1 };
-                let col_next = if col == self.size - 1 { 0 } else { col + 1 };
-
                 let index = self.size * row + col;
+                let neighbors = self.get_neighbors(index);
+                let mut alive_neighbor_count = 0;
 
-                let alive_neighbors = prev_data[self.size * row_prev + col_prev]
-                    + prev_data[self.size * row_prev + col]
-                    + prev_data[self.size * row_prev + col_next]
-                    + prev_data[self.size * row + col_prev]
-                    + prev_data[self.size * row + col_next]
-                    + prev_data[self.size * row_next + col_prev]
-                    + prev_data[self.size * row_next + col]
-                    + prev_data[self.size * row_next + col_next];
+                for neighbor_index in neighbors {
+                    alive_neighbor_count = alive_neighbor_count + prev_data[neighbor_index];
+                }
 
-                match alive_neighbors {
+                match alive_neighbor_count {
                     2 => self.data[index] = prev_data[index],
                     3 => {
                         self.data[index] = 1;
@@ -103,6 +102,48 @@ impl GameEngine {
             died: died,
             alive: alive,
         }
+    }
+
+    fn get_neighbors(&self, index: usize) -> Vec<usize> {
+        let wrap = true;
+        let size = self.size;
+        let max = size - 1;
+        let row = index / size;
+        let col = index % size;
+
+        let row_prev = if row == 0 { max } else { row - 1 };
+        let row_next = if row == max { 0 } else { row + 1 };
+        let col_prev = if col == 0 { max } else { col - 1 };
+        let col_next = if col == max { 0 } else { col + 1 };
+
+        let mut arr = Vec::new();
+
+        if wrap || (row != 0 && col != 0) {
+            arr.push(size * row_prev + col_prev)
+        };
+        if wrap || row != 0 {
+            arr.push(size * row_prev + col)
+        };
+        if wrap || (row != 0 && col != max) {
+            arr.push(size * row_prev + col_next)
+        };
+        if wrap || col != 0 {
+            arr.push(size * row + col_prev)
+        };
+        if wrap || col != max {
+            arr.push(size * row + col_next)
+        };
+        if wrap || (row != max && col != 0) {
+            arr.push(size * row_next + col_prev)
+        };
+        if wrap || row != max {
+            arr.push(size * row_next + col)
+        };
+        if wrap || (row != max && col != max) {
+            arr.push(size * row_next + col_next)
+        };
+
+        arr
     }
 }
 
