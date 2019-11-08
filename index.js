@@ -30,7 +30,7 @@ function initializeGame() {
   game = new Game(
     dom.gridCanvas.getContext("2d"),
     dom.cellCanvas.getContext("2d"),
-    500
+    5000
   );
 
   mouseTracker = new MouseTracker(game, dom.cellCanvas);

@@ -31,7 +31,7 @@ pub struct Result {
 #[wasm_bindgen]
 impl GameEngine {
     #[wasm_bindgen(constructor)]
-    pub fn new(size: usize, startingData: Vec<usize>) -> GameEngine {
+    pub fn new(size: usize, starting_data: Vec<usize>) -> GameEngine {
         let mut game_engine = GameEngine {
             size: size,
             data: Vec::new(),
@@ -39,7 +39,7 @@ impl GameEngine {
         };
         game_engine.data.resize(size * size, 0);
 
-        for cell_index in startingData {
+        for cell_index in starting_data {
             let neighbors = get_neighbors(size, cell_index);
             for neighbor_index in &neighbors {
                 game_engine.to_check.insert(*neighbor_index);
@@ -71,7 +71,8 @@ impl GameEngine {
 
     fn next(&mut self) -> Result {
         //let mut to_check_next = HashSet::new();
-        let mut prev_set = mem::replace(&mut self.to_check, HashSet::new());
+        let capacity = self.to_check.len();
+        let mut prev_set = mem::replace(&mut self.to_check, HashSet::with_capacity(capacity));
         let mut born: Vec<usize> = Vec::new();
         let mut died: Vec<usize> = Vec::new();
         let mut alive: Vec<usize> = Vec::new();
@@ -133,48 +134,6 @@ impl GameEngine {
             died: died,
             alive: alive,
         }
-    }
-
-    fn get_neighbors(&self, index: usize) -> Vec<usize> {
-        let wrap = true;
-        let size = self.size;
-        let max = size - 1;
-        let row = index / size;
-        let col = index % size;
-
-        let row_prev = if row == 0 { max } else { row - 1 };
-        let row_next = if row == max { 0 } else { row + 1 };
-        let col_prev = if col == 0 { max } else { col - 1 };
-        let col_next = if col == max { 0 } else { col + 1 };
-
-        let mut arr = Vec::new();
-
-        if wrap || (row != 0 && col != 0) {
-            arr.push(size * row_prev + col_prev)
-        };
-        if wrap || row != 0 {
-            arr.push(size * row_prev + col)
-        };
-        if wrap || (row != 0 && col != max) {
-            arr.push(size * row_prev + col_next)
-        };
-        if wrap || col != 0 {
-            arr.push(size * row + col_prev)
-        };
-        if wrap || col != max {
-            arr.push(size * row + col_next)
-        };
-        if wrap || (row != max && col != 0) {
-            arr.push(size * row_next + col_prev)
-        };
-        if wrap || row != max {
-            arr.push(size * row_next + col)
-        };
-        if wrap || (row != max && col != max) {
-            arr.push(size * row_next + col_next)
-        };
-
-        arr
     }
 }
 
