@@ -2,6 +2,7 @@ extern crate wasm_bindgen;
 
 mod utils;
 
+use crate::utils::set_panic_hook;
 use serde::Serialize;
 use std::collections::HashSet;
 use std::mem;
@@ -32,6 +33,7 @@ pub struct Result {
 impl GameEngine {
     #[wasm_bindgen(constructor)]
     pub fn new(size: usize, starting_data: Vec<usize>) -> GameEngine {
+        set_panic_hook();
         let mut game_engine = GameEngine {
             size: size,
             data: Vec::new(),
@@ -62,7 +64,7 @@ impl GameEngine {
     }
 
     pub fn run_batch(&mut self, count: u8) -> String {
-        let mut results = Vec::new();
+        let mut results: Vec<Result> = Vec::with_capacity(count as usize);
         for _ in 0..count {
             results.push(self.next())
         }
@@ -70,8 +72,6 @@ impl GameEngine {
     }
 
     fn next(&mut self) -> Result {
-        //let mut to_check_next = HashSet::new();
-        self.condense();
         let capacity = self.to_check.len();
         let mut prev_set = mem::replace(&mut self.to_check, Vec::with_capacity(capacity));
         let mut born: Vec<usize> = Vec::new();
@@ -82,7 +82,7 @@ impl GameEngine {
             let prev_state = self.data[index];
             let mut is_alive = false;
             let mut is_changed = false;
-            let neighbors = get_neighbors(self.size, index);
+            let mut neighbors = get_neighbors(self.size, index);
             let mut alive_neighbor_count = 0;
 
             for neighbor_index in &neighbors {
@@ -103,7 +103,7 @@ impl GameEngine {
 
             if is_alive {
                 alive.push(index);
-                self.to_check.push(index);
+                self.add_cells_to_check(vec![index]);
             }
 
             if is_changed {
@@ -112,10 +112,10 @@ impl GameEngine {
                 } else {
                     died.push(index)
                 }
-                self.to_check.push(index);
-                for neighbor_index in &neighbors {
-                    self.to_check.push(*neighbor_index);
-                }
+                let mut vec = Vec::with_capacity(9);
+                vec.push(index);
+                vec.append(&mut neighbors);
+                self.add_cells_to_check(vec);
             }
         }
 
@@ -126,10 +126,6 @@ impl GameEngine {
             self.data[*cell_index] = 0
         }
 
-        // for cell_index in to_check_next.drain() {
-        //     self.to_check.insert(cell_index)
-        // }
-
         Result {
             born: born,
             died: died,
@@ -137,9 +133,23 @@ impl GameEngine {
         }
     }
 
-    fn condense(&mut self) {
-        self.to_check.sort();
-        self.to_check.dedup();
+    fn add_cells_to_check(&mut self, mut cells: Vec<usize>) {
+        if self.to_check.len() == 0 {
+            self.to_check.append(&mut cells)
+        } else {
+            cells.sort();
+            let mut ptr = self.to_check.len() - 1;
+            for new_cell in cells.iter().rev() {
+                while *new_cell < self.to_check[ptr] && ptr > 0 {
+                    ptr -= 1;
+                }
+                if *new_cell > self.to_check[ptr] {
+                    self.to_check.insert(ptr + 1, *new_cell)
+                } else if ptr == 0 {
+                    self.to_check.insert(ptr, *new_cell)
+                }
+            }
+        }
     }
 }
 
@@ -172,7 +182,7 @@ fn get_neighbors(size: usize, index: usize) -> Vec<usize> {
     let col_prev = if col == 0 { max } else { col - 1 };
     let col_next = if col == max { 0 } else { col + 1 };
 
-    let mut arr = Vec::new();
+    let mut arr = Vec::with_capacity(8);
 
     if wrap || (row != 0 && col != 0) {
         arr.push(size * row_prev + col_prev)
