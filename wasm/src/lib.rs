@@ -17,7 +17,7 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 pub struct GameEngine {
     size: usize,
     data: Vec<u8>,
-    to_check: HashSet<usize>,
+    to_check: Vec<usize>,
 }
 
 #[wasm_bindgen]
@@ -35,16 +35,16 @@ impl GameEngine {
         let mut game_engine = GameEngine {
             size: size,
             data: Vec::new(),
-            to_check: HashSet::new(),
+            to_check: Vec::new(),
         };
         game_engine.data.resize(size * size, 0);
 
         for cell_index in starting_data {
             let neighbors = get_neighbors(size, cell_index);
             for neighbor_index in &neighbors {
-                game_engine.to_check.insert(*neighbor_index);
+                game_engine.to_check.push(*neighbor_index);
             }
-            game_engine.to_check.insert(cell_index);
+            game_engine.to_check.push(cell_index);
             game_engine.data[cell_index] = 1;
         }
 
@@ -71,13 +71,14 @@ impl GameEngine {
 
     fn next(&mut self) -> Result {
         //let mut to_check_next = HashSet::new();
+        self.condense();
         let capacity = self.to_check.len();
-        let mut prev_set = mem::replace(&mut self.to_check, HashSet::with_capacity(capacity));
+        let mut prev_set = mem::replace(&mut self.to_check, Vec::with_capacity(capacity));
         let mut born: Vec<usize> = Vec::new();
         let mut died: Vec<usize> = Vec::new();
         let mut alive: Vec<usize> = Vec::new();
 
-        for index in prev_set.drain() {
+        for index in prev_set.drain(..) {
             let prev_state = self.data[index];
             let mut is_alive = false;
             let mut is_changed = false;
@@ -102,7 +103,7 @@ impl GameEngine {
 
             if is_alive {
                 alive.push(index);
-                self.to_check.insert(index);
+                self.to_check.push(index);
             }
 
             if is_changed {
@@ -111,9 +112,9 @@ impl GameEngine {
                 } else {
                     died.push(index)
                 }
-                self.to_check.insert(index);
+                self.to_check.push(index);
                 for neighbor_index in &neighbors {
-                    self.to_check.insert(*neighbor_index);
+                    self.to_check.push(*neighbor_index);
                 }
             }
         }
@@ -134,6 +135,11 @@ impl GameEngine {
             died: died,
             alive: alive,
         }
+    }
+
+    fn condense(&mut self) {
+        self.to_check.sort();
+        self.to_check.dedup();
     }
 }
 
