@@ -1,3 +1,5 @@
+import { patterns, rleToArray } from "./patterns";
+
 class MouseTracker {
   constructor(game, canvas) {
     this.game = game;
@@ -24,7 +26,7 @@ class MouseTracker {
     if (e.buttons === 1) {
       this.down = true;
       this.dragging = true;
-      this.draggedShape = [[0, 1, 0], [0, 0, 1], [1, 1, 1]];
+      this.draggedShape = rleToArray(patterns.max);
     }
   }
 
