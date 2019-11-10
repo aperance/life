@@ -1,12 +1,11 @@
 function* gameEngine(size, initialAlive) {
-  let universe = new Uint8Array(size * size);
-  let born, died, alive;
+  let born, died;
   let generation = 0;
   let cellsToCheck;
   let checkNextTime = new Set();
+  let alive = new Set(initialAlive);
 
   for (let cellIndex of initialAlive) {
-    universe[cellIndex] = 1;
     const neighbors = getNeighbors(cellIndex, size);
     checkNextTime.add(cellIndex);
     for (let n of neighbors) checkNextTime.add(n);
@@ -18,36 +17,30 @@ function* gameEngine(size, initialAlive) {
 
     born = [];
     died = [];
-    alive = [];
     generation++;
 
     for (const cellIndex of cellsToCheck) {
-      const prevState = universe[cellIndex];
-      const neighbors = getNeighbors(cellIndex, size);
+      let isAlive, isChanged;
+      let wasAlive = alive.has(cellIndex);
       let aliveNeighborCount = 0;
-      let isAlive = false;
-      let isChanged = false;
+      const neighbors = getNeighbors(cellIndex, size);
 
       for (let neighborIndex of neighbors)
-        aliveNeighborCount += universe[neighborIndex];
+        if (alive.has(neighborIndex)) aliveNeighborCount++;
 
       switch (aliveNeighborCount) {
         case 2:
-          isAlive = prevState === 1 ? true : false;
+          isAlive = wasAlive;
+          isChanged = false;
           break;
         case 3:
           isAlive = true;
-          isChanged = prevState === 0 ? true : false;
+          isChanged = !wasAlive;
           break;
         default:
           isAlive = false;
-          isChanged = prevState === 1 ? true : false;
+          isChanged = wasAlive;
           break;
-      }
-
-      if (isAlive) {
-        alive.push(cellIndex);
-        checkNextTime.add(cellIndex);
       }
 
       if (isChanged) {
@@ -58,15 +51,15 @@ function* gameEngine(size, initialAlive) {
       }
     }
 
-    for (let cellIndex of born) universe[cellIndex] = 1;
-    for (let cellIndex of died) universe[cellIndex] = 0;
+    for (let cellIndex of born) alive.add(cellIndex);
+    for (let cellIndex of died) alive.delete(cellIndex);
 
-    yield { born, died, alive, generation };
+    yield { born, died, generation };
   }
 }
 
 function getNeighbors(index, size) {
-  const wrap = false;
+  const wrap = true;
   const row = Math.floor(index / size);
   const col = index % size;
   const max = size - 1;
