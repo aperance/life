@@ -6,7 +6,6 @@ class Game {
     this.cellCtx = cellCtx;
     this.cellCount = cellCount;
 
-    this.universe = new Uint8Array(cellCount * cellCount);
     this.alive = new Set();
     this.view = { width: 0, height: 0, zoom: 1, panX: 0, panY: 0 };
     this.redrawGrid = false;
@@ -92,10 +91,11 @@ class Game {
     if (this.playing && !this.skipRender) {
       const result = this.nextResult;
       if (result) {
-        this.alive = new Set(result.alive);
+        for (let cellIndex of result.born) this.alive.add(cellIndex);
+        for (let cellIndex of result.died) this.alive.delete(cellIndex);
         if (this.redrawGrid) {
           this.renderGrid();
-          this.renderAllCells(result.alive);
+          this.renderAllCells(Array.from(this.alive));
         } else this.renderChangedCells(result.born, result.died);
       }
     } else {
