@@ -7,7 +7,7 @@ class Game {
     this.cellCount = cellCount;
 
     this.alive = new Set();
-    this.view = { width: 0, height: 0, zoom: 1, panX: 0, panY: 0 };
+    this.view = { width: 0, height: 0, zoom: 10, panX: null, panY: null };
     this.redrawGrid = false;
     this.observers = [];
     this.playing = false;
@@ -44,13 +44,22 @@ class Game {
   setView(view = {}) {
     this.view = { ...this.view, ...view };
     this.view.zoom = this.clamp(this.view.zoom, this.getMinZoom(), 100);
-    this.view.panX = this.clamp(this.view.panX, 0, this.getMaxPanX());
-    this.view.panY = this.clamp(this.view.panY, 0, this.getMaxPanY());
+    this.view.panX =
+      this.view.panX === null
+        ? this.getMaxPanX() / 2
+        : this.clamp(this.view.panX, 0, this.getMaxPanX());
+    this.view.panY =
+      this.view.panY === null
+        ? this.getMaxPanY() / 2
+        : this.clamp(this.view.panY, 0, this.getMaxPanY());
     this.redrawGrid = true;
   }
 
   toggleCell(x, y) {
+    console.log(x + ", " + y);
     const index = this.xyToIndex(x, y);
+    console.log(index);
+
     if (this.alive.has(index)) this.alive.delete(index);
     else this.alive.add(index);
     this.redrawGrid = true;

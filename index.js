@@ -36,14 +36,18 @@ function initializeGame() {
   mouseTracker = new MouseTracker(game, dom.cellCanvas);
 
   game.addObserver(() => (dom.zoom.value = game.view.zoom));
-  game.addObserver(() => (dom.panX.value = game.view.panX));
-  game.addObserver(() => (dom.panY.value = game.view.panY));
-
-  game.setView({
-    zoom: 10,
-    panX: 0,
-    panY: 0
-  });
+  game.addObserver(
+    () =>
+      (dom.panX.value = Math.round(
+        (game.view.panX + game.view.width / 2) / game.view.zoom
+      ))
+  );
+  game.addObserver(
+    () =>
+      (dom.panY.value = Math.round(
+        (game.view.panY + game.view.height / 2) / game.view.zoom
+      ))
+  );
 
   handleResize();
 }
