@@ -9,6 +9,7 @@ const dom = {
   container: document.getElementById("canvas-container"),
   gridCanvas: document.getElementById("grid-canvas"),
   cellCanvas: document.getElementById("cell-canvas"),
+  previewCanvas: document.getElementById("preview-canvas"),
   sidebar: document.getElementById("sidebar"),
   zoom: document.getElementById("zoom"),
   panX: document.getElementById("pan-x"),
@@ -30,6 +31,7 @@ function initializeGame() {
   game = new Game(
     dom.gridCanvas.getContext("2d"),
     dom.cellCanvas.getContext("2d"),
+    dom.previewCanvas.getContext("2d"),
     5000
   );
 
@@ -62,6 +64,8 @@ function handleResize() {
   dom.gridCanvas.height = dom.container.clientHeight;
   dom.cellCanvas.width = dom.container.clientWidth;
   dom.cellCanvas.height = dom.container.clientHeight;
+  dom.previewCanvas.width = dom.container.clientWidth;
+  dom.previewCanvas.height = dom.container.clientHeight;
 }
 
 initializeGame();

@@ -1,12 +1,14 @@
 const worker = new Worker("./worker.js");
 
 class Game {
-  constructor(gridCtx, cellCtx, cellCount) {
+  constructor(gridCtx, cellCtx, previewCtx, cellCount) {
     this.gridCtx = gridCtx;
     this.cellCtx = cellCtx;
+    this.previewCtx = previewCtx;
     this.cellCount = cellCount;
 
     this.alive = new Set();
+    this.alivePreview = new Set();
     this.view = { width: 0, height: 0, zoom: 10, panX: null, panY: null };
     this.redrawGrid = false;
     this.observers = [];
@@ -56,10 +58,7 @@ class Game {
   }
 
   toggleCell(x, y) {
-    console.log(x + ", " + y);
     const index = this.xyToIndex(x, y);
-    console.log(index);
-
     if (this.alive.has(index)) this.alive.delete(index);
     else this.alive.add(index);
     this.redrawGrid = true;
@@ -67,6 +66,8 @@ class Game {
 
   placeElement(x, y, shape) {
     const { row: startRow, col: startCol } = this.xyToRowCol(x, y);
+
+    this.alivePreview.clear();
 
     shape.forEach((rowData, relativeRow) => {
       rowData.forEach((cellState, relativeCol) => {
@@ -78,6 +79,28 @@ class Game {
       });
     });
 
+    this.redrawGrid = true;
+  }
+
+  placePreview(x, y, shape) {
+    const { row: startRow, col: startCol } = this.xyToRowCol(x, y);
+
+    this.alivePreview.clear();
+
+    shape.forEach((rowData, relativeRow) => {
+      rowData.forEach((cellState, relativeCol) => {
+        const index =
+          this.cellCount * (startRow + relativeRow) + (startCol + relativeCol);
+
+        if (cellState === 1) this.alivePreview.add(index);
+      });
+    });
+
+    this.redrawGrid = true;
+  }
+
+  clearPreview() {
+    this.alivePreview.clear();
     this.redrawGrid = true;
   }
 
@@ -111,6 +134,7 @@ class Game {
       if (this.redrawGrid) {
         this.renderGrid();
         this.renderAllCells(Array.from(this.alive));
+        this.renderPreview(Array.from(this.alivePreview));
       }
     }
 
@@ -167,6 +191,18 @@ class Game {
     for (let i = 0, n = died.length; i < n; ++i) {
       const { row, col } = this.indexToRowCol(died[i]);
       this.cellCtx.clearRect(col, row, 1, 1);
+    }
+  }
+
+  renderPreview(alive) {
+    const { width, height, zoom, panX, panY } = this.view;
+
+    this.previewCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
+    this.previewCtx.clearRect(0, 0, width + panX, height + panY);
+
+    for (let i = 0, n = alive.length; i < n; ++i) {
+      const { row, col } = this.indexToRowCol(alive[i]);
+      this.previewCtx.fillRect(col, row, 1, 1);
     }
   }
 

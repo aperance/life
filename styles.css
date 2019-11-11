@@ -23,10 +23,15 @@ body > div {
 }
 
 #grid-canvas,
-#cell-canvas {
+#cell-canvas,
+#preview-canvas {
   position: absolute;
   left: 0;
   top: 0;
+}
+
+#preview-canvas {
+  opacity: 0.5;
 }
 
 #grid-canvas {

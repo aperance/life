@@ -31,6 +31,8 @@ class MouseTracker {
   }
 
   canvasLeave() {
+    if (this.dragging) this.game.clearPreview();
+
     this.down = false;
     this.panning = false;
     this.dragging = false;
@@ -61,19 +63,23 @@ class MouseTracker {
   }
 
   canvasMove(e) {
-    if (!this.down || this.dragging) return;
+    if (!this.down) return;
 
-    const movementX = this.lastX - e.clientX;
-    const movementY = this.lastY - e.clientY;
+    if (this.dragging)
+      this.game.placePreview(e.offsetX, e.offsetY, this.draggedShape);
+    else {
+      const movementX = this.lastX - e.clientX;
+      const movementY = this.lastY - e.clientY;
 
-    if (this.panning || Math.abs(movementX) > 5 || Math.abs(movementY) > 5) {
-      this.game.setView({
-        panX: Math.round(this.game.view.panX + movementX),
-        panY: Math.round(this.game.view.panY + movementY)
-      });
-      this.panning = true;
-      this.lastX = e.clientX;
-      this.lastY = e.clientY;
+      if (this.panning || Math.abs(movementX) > 5 || Math.abs(movementY) > 5) {
+        this.game.setView({
+          panX: Math.round(this.game.view.panX + movementX),
+          panY: Math.round(this.game.view.panY + movementY)
+        });
+        this.panning = true;
+        this.lastX = e.clientX;
+        this.lastY = e.clientY;
+      }
     }
   }
 
