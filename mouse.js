@@ -80,7 +80,9 @@ class MouseTracker {
   canvasWheel(e) {
     const prevZoom = this.game.view.zoom;
     this.game.setView({
-      zoom: Math.round(this.game.view.zoom + e.deltaY / 5)
+      zoom: Math.round(
+        this.game.view.zoom + Math.min(this.game.view.zoom / 50 + 1, e.deltaY)
+      )
     });
 
     const scale = this.game.view.zoom / prevZoom - 1;
