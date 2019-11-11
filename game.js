@@ -46,11 +46,11 @@ class Game {
     this.view.zoom = this.clamp(this.view.zoom, this.getMinZoom(), 100);
     this.view.panX =
       this.view.panX === null
-        ? this.getMaxPanX() / 2
+        ? Math.round(this.getMaxPanX() / 2)
         : this.clamp(this.view.panX, 0, this.getMaxPanX());
     this.view.panY =
       this.view.panY === null
-        ? this.getMaxPanY() / 2
+        ? Math.round(this.getMaxPanY() / 2)
         : this.clamp(this.view.panY, 0, this.getMaxPanY());
     this.redrawGrid = true;
   }
