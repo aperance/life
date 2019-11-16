@@ -2,7 +2,7 @@ import { gameEngine } from "./gameEngine";
 import { GameEngine } from "life-wasm";
 
 let game = null;
-const wasm = true;
+const wasm = false;
 
 onmessage = function(e) {
   const { action, payload } = e.data;
@@ -21,14 +21,12 @@ onmessage = function(e) {
 };
 
 function batchResults(count) {
-  if (wasm) {
-    const results = game.run_batch(count);
-    return JSON.parse(results);
-  } else {
-    let arr = [];
-    for (let i = 0; i < count; i++) {
-      arr[i] = game.next().value;
-    }
-    return arr;
+  let arr = [];
+  for (let i = 0; i < count; i++) {
+    if (wasm) {
+      let res = game.next();
+      arr[i] = { born: [...res.born], died: [...res.died] };
+    } else arr[i] = game.next().value;
   }
+  return arr;
 }
