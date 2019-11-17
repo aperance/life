@@ -2,7 +2,7 @@ import { gameEngine } from "./gameEngine";
 import { GameEngine } from "life-wasm";
 
 let game = null;
-const wasm = false;
+const wasm = true;
 
 onmessage = function(e) {
   const { action, payload } = e.data;

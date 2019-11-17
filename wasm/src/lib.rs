@@ -4,8 +4,6 @@ extern crate wasm_bindgen;
 mod utils;
 
 use crate::utils::set_panic_hook;
-use js_sys::Uint32Array;
-use serde::Serialize;
 use std::collections::HashSet;
 use std::mem;
 use wasm_bindgen::prelude::*;
@@ -47,16 +45,16 @@ impl GameEngine {
     }
 
     pub fn next(&mut self) -> Result {
-        let capacity = self.to_check.len();
-        let mut prev_set = mem::replace(&mut self.to_check, Vec::with_capacity(capacity));
+        let capacity = self.to_check.capacity();
+        let mut check_now = mem::replace(&mut self.to_check, Vec::with_capacity(capacity));
         let mut born: Vec<u32> = Vec::new();
         let mut died: Vec<u32> = Vec::new();
 
-        for index in prev_set.drain(..) {
+        for index in check_now.drain(..) {
             let was_alive = self.alive.contains(&index);
-            let mut is_alive = false;
-            let mut is_changed = false;
-            let mut neighbors = get_neighbors(self.size, index);
+            let is_alive;
+            let is_changed;
+            let neighbors = get_neighbors(self.size, index);
             let mut alive_neighbor_count = 0;
 
             for neighbor_index in &neighbors {
@@ -66,26 +64,28 @@ impl GameEngine {
             }
 
             match alive_neighbor_count {
-                2 => is_alive = was_alive,
+                2 => {
+                    is_alive = was_alive;
+                    is_changed = false;
+                }
                 3 => {
                     is_alive = true;
-                    is_changed = !was_alive
+                    is_changed = !was_alive;
                 }
                 _ => {
                     is_alive = false;
-                    is_changed = was_alive
+                    is_changed = was_alive;
                 }
             }
 
             if is_changed {
                 if is_alive {
-                    born.push(index as u32)
+                    born.push(index)
                 } else {
-                    died.push(index as u32)
+                    died.push(index)
                 }
-                let mut vec = Vec::with_capacity(9);
-                vec.push(index as u32);
-                vec.append(&mut neighbors);
+                let mut vec = neighbors.clone();
+                vec.push(index);
                 self.add_cells_to_check(vec);
             }
         }
@@ -124,7 +124,6 @@ impl GameEngine {
 }
 
 #[wasm_bindgen]
-#[derive(Serialize)]
 pub struct Result {
     born: Vec<u32>,
     died: Vec<u32>,
@@ -134,12 +133,12 @@ pub struct Result {
 impl Result {
     #[wasm_bindgen(getter)]
     pub fn born(&self) -> js_sys::Uint32Array {
-        unsafe { Uint32Array::view(&self.born[..]) }
+        unsafe { js_sys::Uint32Array::view(&self.born[..]) }
     }
 
     #[wasm_bindgen(getter)]
     pub fn died(&self) -> js_sys::Uint32Array {
-        unsafe { Uint32Array::view(&self.died[..]) }
+        unsafe { js_sys::Uint32Array::view(&self.died[..]) }
     }
 }
 
