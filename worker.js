@@ -1,14 +1,19 @@
 import { gameEngine } from "./gameEngine";
-import { GameEngine } from "life-wasm";
 
 let game = null;
 const wasm = true;
 
-onmessage = function(e) {
+onmessage = async function(e) {
   const { action, payload } = e.data;
   switch (action) {
     case "start":
-      if (wasm) game = new GameEngine(payload.size, payload.initialAlive);
+      if (wasm)
+        try {
+          const { GameEngine } = await import("life-wasm");
+          game = new GameEngine(payload.size, payload.initialAlive);
+        } catch (e) {
+          console.error("Error importing wasm:", e);
+        }
       else game = gameEngine(payload.size, payload.initialAlive);
       postMessage("started");
       break;

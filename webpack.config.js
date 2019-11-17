@@ -20,7 +20,7 @@ const appConfig = {
 const workerConfig = {
   mode: "development",
   target: "webworker",
-  entry: "./bootstrap.js",
+  entry: "./worker.js",
   output: {
     filename: "worker.js",
     path: path.resolve(__dirname, "dist"),
