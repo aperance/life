@@ -1,5 +1,8 @@
 const worker = new Worker("./worker.js");
 
+const batchSize = 25;
+const bufferSize = 50;
+
 class Game {
   constructor(gridCtx, cellCtx, previewCtx, cellCount) {
     this.gridCtx = gridCtx;
@@ -14,14 +17,23 @@ class Game {
     this.observers = [];
     this.playing = false;
     this.resultBuffer = [];
-    this.resultsRequested = false;
-    this.shipRender = false;
+    this.resultsRequestedAt = null;
+    this.speed = { cyclesPerRender: 1, currentCycle: 1 };
 
     worker.onmessage = e => {
       if (e.data === "started") this.playing = true;
       else {
         this.resultBuffer.push(...e.data);
-        this.resultsRequested = false;
+
+        const duration = Date.now() - this.resultsRequestedAt;
+        const limit = 17 * batchSize * this.speed.cyclesPerRender;
+
+        if (duration > limit) {
+          this.speed.cyclesPerRender++;
+          console.warn("Reducing speed to " + 60 / this.speed.cyclesPerRender);
+        }
+
+        this.resultsRequestedAt = null;
       }
     };
 
@@ -31,12 +43,12 @@ class Game {
   get nextResult() {
     if (!this.playing) return null;
 
-    if (this.resultBuffer.length < 100 && !this.resultsRequested) {
+    if (this.resultBuffer.length < bufferSize && !this.resultsRequestedAt) {
       worker.postMessage({
         action: "requestResults",
-        payload: { count: 10 }
+        payload: { count: batchSize }
       });
-      this.resultsRequested = true;
+      this.resultsRequestedAt = Date.now();
     }
 
     if (this.resultBuffer.length === 0) return null;
@@ -105,6 +117,8 @@ class Game {
   }
 
   start() {
+    console.log("Game started");
+
     worker.postMessage({
       action: "start",
       payload: { size: this.cellCount, initialAlive: Array.from(this.alive) }
@@ -120,15 +134,20 @@ class Game {
   }
 
   animationCycle() {
-    if (this.playing && !this.skipRender) {
-      const result = this.nextResult;
-      if (result) {
-        for (let cellIndex of result.born) this.alive.add(cellIndex);
-        for (let cellIndex of result.died) this.alive.delete(cellIndex);
-        if (this.redrawGrid) {
-          this.renderGrid();
-          this.renderAllCells(Array.from(this.alive));
-        } else this.renderChangedCells(result.born, result.died);
+    if (this.playing) {
+      if (this.speed.currentCycle < this.speed.cyclesPerRender) {
+        this.speed.currentCycle++;
+      } else {
+        this.speed.currentCycle = 1;
+        const result = this.nextResult;
+        if (result) {
+          for (let cellIndex of result.born) this.alive.add(cellIndex);
+          for (let cellIndex of result.died) this.alive.delete(cellIndex);
+          if (this.redrawGrid) {
+            this.renderGrid();
+            this.renderAllCells(Array.from(this.alive));
+          } else this.renderChangedCells(result.born, result.died);
+        }
       }
     } else {
       if (this.redrawGrid) {
@@ -141,7 +160,6 @@ class Game {
     requestAnimationFrame(this.animationCycle.bind(this));
 
     this.redrawGrid = false;
-    this.skipRender = !this.skipRender;
     this.emitToObservers();
   }
 
