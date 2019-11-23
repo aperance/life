@@ -1,8 +1,9 @@
 import { patterns, rleToArray } from "./patterns";
 
 class MouseTracker {
-  constructor(game, canvas) {
-    this.game = game;
+  constructor(gameRenderer, gameController, canvas) {
+    this.gameRenderer = gameRenderer;
+    this.gameController = gameController;
     this.canvas = canvas;
     this.down = false;
     this.panning = false;
@@ -31,7 +32,7 @@ class MouseTracker {
   }
 
   canvasLeave() {
-    if (this.dragging) this.game.clearPreview();
+    if (this.dragging) this.gameController.clearPreview();
 
     this.down = false;
     this.panning = false;
@@ -50,8 +51,12 @@ class MouseTracker {
   canvasUp(e) {
     if (!this.panning) {
       if (this.dragging)
-        this.game.placeElement(e.offsetX, e.offsetY, this.draggedShape);
-      else this.game.toggleCell(e.offsetX, e.offsetY);
+        this.gameController.placeElement(
+          e.offsetX,
+          e.offsetY,
+          this.draggedShape
+        );
+      else this.gameController.toggleCell(e.offsetX, e.offsetY);
     }
 
     this.down = false;
@@ -66,15 +71,15 @@ class MouseTracker {
     if (!this.down) return;
 
     if (this.dragging)
-      this.game.placePreview(e.offsetX, e.offsetY, this.draggedShape);
+      this.gameController.placePreview(e.offsetX, e.offsetY, this.draggedShape);
     else {
       const movementX = this.lastX - e.clientX;
       const movementY = this.lastY - e.clientY;
 
       if (this.panning || Math.abs(movementX) > 5 || Math.abs(movementY) > 5) {
-        this.game.setView({
-          panX: Math.round(this.game.view.panX + movementX),
-          panY: Math.round(this.game.view.panY + movementY)
+        this.gameRenderer.setView({
+          panX: Math.round(this.gameRenderer.view.panX + movementX),
+          panY: Math.round(this.gameRenderer.view.panY + movementY)
         });
         this.panning = true;
         this.lastX = e.clientX;
@@ -84,13 +89,13 @@ class MouseTracker {
   }
 
   canvasWheel(e) {
-    const { zoom, panX, panY } = this.game.view;
-    this.game.setView({
+    const { zoom, panX, panY } = this.gameRenderer.view;
+    this.gameRenderer.setView({
       zoom: Math.round(zoom + Math.sign(e.deltaY) * (1 + zoom / 50))
     });
 
-    const scale = this.game.view.zoom / zoom - 1;
-    this.game.setView({
+    const scale = this.gameRenderer.view.zoom / zoom - 1;
+    this.gameRenderer.setView({
       panX: Math.round(panX + (panX + e.offsetX) * scale),
       panY: Math.round(panY + (panY + e.offsetY) * scale)
     });

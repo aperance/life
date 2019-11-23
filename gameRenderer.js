@@ -1,58 +1,12 @@
-const worker = new Worker("./worker.js");
-
-const batchSize = 25;
-const bufferSize = 50;
-
-class Game {
+class GameRenderer {
   constructor(gridCtx, cellCtx, previewCtx, cellCount) {
     this.gridCtx = gridCtx;
     this.cellCtx = cellCtx;
     this.previewCtx = previewCtx;
     this.cellCount = cellCount;
-
-    this.alive = new Set();
-    this.alivePreview = new Set();
     this.view = { width: 0, height: 0, zoom: 10, panX: null, panY: null };
-    this.redrawGrid = false;
+    this.redrawGrid = true;
     this.observers = [];
-    this.playing = false;
-    this.resultBuffer = [];
-    this.resultsRequestedAt = null;
-    this.speed = { cyclesPerRender: 1, currentCycle: 1 };
-
-    worker.onmessage = e => {
-      if (e.data === "started") this.playing = true;
-      else {
-        this.resultBuffer.push(...e.data);
-
-        const duration = Date.now() - this.resultsRequestedAt;
-        const limit = 17 * batchSize * this.speed.cyclesPerRender;
-
-        if (duration > limit) {
-          this.speed.cyclesPerRender++;
-          console.warn("Reducing speed to " + 60 / this.speed.cyclesPerRender);
-        }
-
-        this.resultsRequestedAt = null;
-      }
-    };
-
-    this.animationCycle();
-  }
-
-  get nextResult() {
-    if (!this.playing) return null;
-
-    if (this.resultBuffer.length < bufferSize && !this.resultsRequestedAt) {
-      worker.postMessage({
-        action: "requestResults",
-        payload: { count: batchSize }
-      });
-      this.resultsRequestedAt = Date.now();
-    }
-
-    if (this.resultBuffer.length === 0) return null;
-    else return this.resultBuffer.shift();
   }
 
   setView(view = {}) {
@@ -69,62 +23,6 @@ class Game {
     this.redrawGrid = true;
   }
 
-  toggleCell(x, y) {
-    const index = this.xyToIndex(x, y);
-    if (this.alive.has(index)) this.alive.delete(index);
-    else this.alive.add(index);
-    this.redrawGrid = true;
-  }
-
-  placeElement(x, y, shape) {
-    const { row: startRow, col: startCol } = this.xyToRowCol(x, y);
-
-    this.alivePreview.clear();
-
-    shape.forEach((rowData, relativeRow) => {
-      rowData.forEach((cellState, relativeCol) => {
-        const index =
-          this.cellCount * (startRow + relativeRow) + (startCol + relativeCol);
-
-        if (cellState === 1) this.alive.add(index);
-        else this.alive.delete(index);
-      });
-    });
-
-    this.redrawGrid = true;
-  }
-
-  placePreview(x, y, shape) {
-    const { row: startRow, col: startCol } = this.xyToRowCol(x, y);
-
-    this.alivePreview.clear();
-
-    shape.forEach((rowData, relativeRow) => {
-      rowData.forEach((cellState, relativeCol) => {
-        const index =
-          this.cellCount * (startRow + relativeRow) + (startCol + relativeCol);
-
-        if (cellState === 1) this.alivePreview.add(index);
-      });
-    });
-
-    this.redrawGrid = true;
-  }
-
-  clearPreview() {
-    this.alivePreview.clear();
-    this.redrawGrid = true;
-  }
-
-  start() {
-    console.log("Game started");
-
-    worker.postMessage({
-      action: "start",
-      payload: { size: this.cellCount, initialAlive: Array.from(this.alive) }
-    });
-  }
-
   addObserver(fn) {
     this.observers.push(fn);
   }
@@ -133,37 +31,17 @@ class Game {
     this.observers.forEach(x => x(this));
   }
 
-  animationCycle() {
-    if (this.playing) {
-      if (this.speed.currentCycle < this.speed.cyclesPerRender) {
-        this.speed.currentCycle++;
-      } else {
-        this.speed.currentCycle = 1;
-        const result = this.nextResult;
-        if (result) {
-          for (let cellIndex of result.born) this.alive.add(cellIndex);
-          for (let cellIndex of result.died) this.alive.delete(cellIndex);
-          if (this.redrawGrid) {
-            this.renderGrid();
-            this.renderAllCells(Array.from(this.alive));
-          } else this.renderChangedCells(result.born, result.died);
-        }
-      }
-    } else {
-      if (this.redrawGrid) {
-        this.renderGrid();
-        this.renderAllCells(Array.from(this.alive));
-        this.renderPreview(Array.from(this.alivePreview));
-      }
-    }
+  /*** Render Methods ***/
 
-    requestAnimationFrame(this.animationCycle.bind(this));
+  render(alive, born, died) {
+    if (this.redrawGrid || !born || !died) {
+      this.renderGrid();
+      this.renderAllCells(alive);
+    } else this.renderChangedCells(born, died);
 
     this.redrawGrid = false;
     this.emitToObservers();
   }
-
-  /*** Render Methods ***/
 
   renderGrid() {
     const { width, height, zoom, panX, panY } = this.view;
@@ -261,4 +139,4 @@ class Game {
   }
 }
 
-export { Game };
+export { GameRenderer };

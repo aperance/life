@@ -1,7 +1,9 @@
-import { Game } from "./game.js";
-import { MouseTracker } from "./mouse.js";
+import { GameRenderer } from "./gameRenderer";
+import { GameController } from "./gameController";
+import { MouseTracker } from "./mouse";
 
-let game = null;
+let gameRenderer = null;
+let gameController = null;
 // eslint-disable-next-line no-unused-vars
 let mouseTracker = null;
 
@@ -22,32 +24,36 @@ window.addEventListener("wheel", e => e.preventDefault(), {
   passive: false
 });
 
-dom.zoom.onchange = e => game.setView({ zoom: e.target.value });
-dom.panX.onchange = e => game.setView({ panX: e.target.value });
-dom.panY.onchange = e => game.setView({ panY: e.target.value });
-dom.start.onclick = () => game.start();
+dom.zoom.onchange = e => gameRenderer.setView({ zoom: e.target.value });
+dom.panX.onchange = e => gameRenderer.setView({ panX: e.target.value });
+dom.panY.onchange = e => gameRenderer.setView({ panY: e.target.value });
+dom.start.onclick = () => gameController.start();
 
 function initializeGame() {
-  game = new Game(
+  gameRenderer = new GameRenderer(
     dom.gridCanvas.getContext("2d"),
     dom.cellCanvas.getContext("2d"),
     dom.previewCanvas.getContext("2d"),
     5000
   );
 
-  mouseTracker = new MouseTracker(game, dom.cellCanvas);
+  gameController = new GameController(gameRenderer, 5000);
 
-  game.addObserver(() => (dom.zoom.value = game.view.zoom));
-  game.addObserver(
+  mouseTracker = new MouseTracker(gameRenderer, gameController, dom.cellCanvas);
+
+  gameRenderer.addObserver(() => (dom.zoom.value = gameRenderer.view.zoom));
+  gameRenderer.addObserver(
     () =>
       (dom.panX.value = Math.round(
-        (game.view.panX + game.view.width / 2) / game.view.zoom
+        (gameRenderer.view.panX + gameRenderer.view.width / 2) /
+          gameRenderer.view.zoom
       ))
   );
-  game.addObserver(
+  gameRenderer.addObserver(
     () =>
       (dom.panY.value = Math.round(
-        (game.view.panY + game.view.height / 2) / game.view.zoom
+        (gameRenderer.view.panY + gameRenderer.view.height / 2) /
+          gameRenderer.view.zoom
       ))
   );
 
@@ -55,7 +61,7 @@ function initializeGame() {
 }
 
 function handleResize() {
-  game.setView({
+  gameRenderer.setView({
     width: dom.container.clientWidth,
     height: dom.container.clientHeight
   });
