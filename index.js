@@ -1,6 +1,8 @@
-import { GameRenderer } from "./gameRenderer";
-import { GameController } from "./gameController";
-import { MouseTracker } from "./mouse";
+import { createGameRenderer } from "./gameRenderer";
+import { createGameController } from "./gameController";
+import { createMouseTracker } from "./mouse";
+
+const worker = new Worker("./worker.js");
 
 let gameRenderer = null;
 let gameController = null;
@@ -24,22 +26,17 @@ window.addEventListener("wheel", e => e.preventDefault(), {
   passive: false
 });
 
-dom.zoom.onchange = e => gameRenderer.setView({ zoom: e.target.value });
-dom.panX.onchange = e => gameRenderer.setView({ panX: e.target.value });
-dom.panY.onchange = e => gameRenderer.setView({ panY: e.target.value });
-dom.start.onclick = () => gameController.start();
-
 function initializeGame() {
-  gameRenderer = new GameRenderer(
+  gameRenderer = createGameRenderer(
     dom.gridCanvas.getContext("2d"),
     dom.cellCanvas.getContext("2d"),
     dom.previewCanvas.getContext("2d"),
     5000
   );
+  gameController = createGameController(worker, gameRenderer, 5000);
+  mouseTracker = createMouseTracker(gameRenderer, gameController);
 
-  gameController = new GameController(gameRenderer, 5000);
-
-  mouseTracker = new MouseTracker(gameRenderer, gameController, dom.cellCanvas);
+  gameController.init();
 
   gameRenderer.addObserver(() => (dom.zoom.value = gameRenderer.view.zoom));
   gameRenderer.addObserver(
@@ -55,6 +52,25 @@ function initializeGame() {
         (gameRenderer.view.panY + gameRenderer.view.height / 2) /
           gameRenderer.view.zoom
       ))
+  );
+
+  dom.zoom.onchange = e => gameRenderer.setView({ zoom: e.target.value });
+  dom.panX.onchange = e => gameRenderer.setView({ panX: e.target.value });
+  dom.panY.onchange = e => gameRenderer.setView({ panY: e.target.value });
+  dom.start.onclick = () => gameController.start();
+
+  dom.container.onmouseenter = mouseTracker.canvasEnter.bind(mouseTracker);
+  dom.container.onmousedown = mouseTracker.canvasDown.bind(mouseTracker);
+  dom.container.onmouseleave = mouseTracker.canvasLeave.bind(mouseTracker);
+  dom.container.onmousemove = mouseTracker.canvasMove.bind(mouseTracker);
+  dom.container.onmouseup = mouseTracker.canvasUp.bind(mouseTracker);
+
+  dom.container.addEventListener(
+    "wheel",
+    mouseTracker.canvasWheel.bind(mouseTracker),
+    {
+      passive: true
+    }
   );
 
   handleResize();
