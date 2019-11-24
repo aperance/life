@@ -1,6 +1,7 @@
 import { createGameRenderer } from "./gameRenderer";
 import { createGameController } from "./gameController";
 import { createMouseTracker } from "./mouse";
+import "./styles.css";
 
 const worker = new Worker("./worker.js");
 

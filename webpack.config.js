@@ -14,7 +14,15 @@ const appConfig = {
     contentBase: "./dist",
     port: 1234
   },
-  plugins: [new CopyWebpackPlugin(["index.html", "styles.css"])]
+  plugins: [new CopyWebpackPlugin(["index.html", "styles.css"])],
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"]
+      }
+    ]
+  }
 };
 
 const workerConfig = {
