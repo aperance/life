@@ -4,7 +4,6 @@ const bufferSize = 50;
 const createGameController = (worker, gameRenderer, cellCount) => ({
   alive: new Set(),
   alivePreview: new Set(),
-  cellsChanged: true,
   playing: false,
   resultBuffer: [],
   resultsRequestedAt: null,
@@ -104,6 +103,8 @@ const createGameController = (worker, gameRenderer, cellCount) => ({
   },
 
   animationCycle() {
+    let born, died;
+
     if (this.playing) {
       if (this.speed.currentCycle < this.speed.cyclesPerRender) {
         this.speed.currentCycle++;
@@ -111,17 +112,16 @@ const createGameController = (worker, gameRenderer, cellCount) => ({
         this.speed.currentCycle = 1;
         const result = this.nextResult;
         if (result) {
-          for (let cellIndex of result.born) this.alive.add(cellIndex);
-          for (let cellIndex of result.died) this.alive.delete(cellIndex);
-          gameRenderer.render(Array.from(this.alive), result.born, result.died);
+          ({ born, died } = result);
+          for (let cellIndex of born) this.alive.add(cellIndex);
+          for (let cellIndex of died) this.alive.delete(cellIndex);
         }
       }
-    } else {
-      gameRenderer.render(Array.from(this.alive));
-      gameRenderer.renderPreview(Array.from(this.alivePreview));
     }
 
-    this.cellsChanged = false;
+    gameRenderer.render(Array.from(this.alive), born, died);
+    gameRenderer.renderPreview(Array.from(this.alivePreview));
+
     requestAnimationFrame(this.animationCycle.bind(this));
   }
 });

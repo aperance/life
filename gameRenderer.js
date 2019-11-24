@@ -25,16 +25,16 @@ const createGameRenderer = (gridCtx, cellCtx, previewCtx, cellCount) => ({
     this.observers.forEach(x => x(this));
   },
 
-  /*** Render Methods ***/
-
   render(alive, born, died) {
-    if (this.redrawGrid || !born || !died) {
+    if (this.redrawGrid) {
       this.renderGrid();
       this.renderAllCells(alive);
-    } else this.renderChangedCells(born, died);
-
-    this.redrawGrid = false;
-    this.emitToObservers();
+      this.redrawGrid = false;
+      this.emitToObservers();
+    } else {
+      if (born && died) this.renderChangedCells(born, died);
+      else this.renderAllCells(alive);
+    }
   },
 
   renderGrid() {
