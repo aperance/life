@@ -17,7 +17,8 @@
   },
   "homepage": "https://github.com/aperance/life#readme",
   "dependencies": {
-    "life-wasm": "file:./wasm/pkg"
+    "life-wasm": "file:./wasm/pkg",
+    "materialize-css": "^1.0.0-rc.2"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",

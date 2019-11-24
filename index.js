@@ -1,6 +1,8 @@
 import { createGameRenderer } from "./gameRenderer";
 import { createGameController } from "./gameController";
 import { createMouseTracker } from "./mouse";
+import "materialize-css/dist/css/materialize.min.css";
+import "materialize-css/dist/js/materialize.min.js";
 import "./styles.css";
 
 const worker = new Worker("./worker.js");
