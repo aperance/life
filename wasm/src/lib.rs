@@ -132,13 +132,13 @@ pub struct Result {
 #[wasm_bindgen]
 impl Result {
     #[wasm_bindgen(getter)]
-    pub fn born(&self) -> js_sys::Uint32Array {
-        unsafe { js_sys::Uint32Array::view(&self.born[..]) }
-    }
-
-    #[wasm_bindgen(getter)]
-    pub fn died(&self) -> js_sys::Uint32Array {
-        unsafe { js_sys::Uint32Array::view(&self.died[..]) }
+    pub fn value(&self) -> js_sys::Object {
+        let obj = js_sys::Object::new();
+        let born = unsafe { js_sys::Uint32Array::view(&self.born[..]) };
+        let died = unsafe { js_sys::Uint32Array::view(&self.died[..]) };
+        js_sys::Reflect::set(&obj, &"born".into(), &born).unwrap();
+        js_sys::Reflect::set(&obj, &"died".into(), &died).unwrap();
+        obj
     }
 }
 

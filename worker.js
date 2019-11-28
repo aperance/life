@@ -28,10 +28,8 @@ onmessage = async function(e) {
 function batchResults(count) {
   let arr = [];
   for (let i = 0; i < count; i++) {
-    if (wasm) {
-      let res = game.next();
-      arr[i] = { born: [...res.born], died: [...res.died] };
-    } else arr[i] = game.next().value;
+    const { born, died } = game.next().value;
+    arr[i] = { born: [...born], died: [...died] };
   }
   return arr;
 }
