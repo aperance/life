@@ -3,7 +3,6 @@
 /** @module */
 
 /**
- *
  * @typedef {Object} GameRenderer
  * @property {{width: number, height: number, zoom: number, panX: number, panY: number}} view
  * @property {boolean} redrawGrid
@@ -16,7 +15,6 @@
  * @property {Function} renderAllCells
  * @property {Function} renderChangedCells
  * @property {Function} renderPreview
- * @property {Function} clamp
  * @property {Function} getMinZoom
  * @property {Function} getMaxPanX
  * @property {Function} getMaxPanY
@@ -44,15 +42,15 @@ const createGameRenderer = (gridCtx, cellCtx, previewCtx, cellCount) => ({
    */
   setView(view = {}) {
     this.view = { ...this.view, ...view };
-    this.view.zoom = this.clamp(this.view.zoom, this.getMinZoom(), 100);
+    this.view.zoom = clamp(this.view.zoom, this.getMinZoom(), 100);
     this.view.panX =
       this.view.panX === null
         ? Math.round(this.getMaxPanX() / 2)
-        : this.clamp(this.view.panX, 0, this.getMaxPanX());
+        : clamp(this.view.panX, 0, this.getMaxPanX());
     this.view.panY =
       this.view.panY === null
         ? Math.round(this.getMaxPanY() / 2)
-        : this.clamp(this.view.panY, 0, this.getMaxPanY());
+        : clamp(this.view.panY, 0, this.getMaxPanY());
     this.redrawGrid = true;
   },
 
@@ -86,6 +84,9 @@ const createGameRenderer = (gridCtx, cellCtx, previewCtx, cellCount) => ({
     }
   },
 
+  /**
+   *
+   */
   renderGrid() {
     const { width, height, zoom, panX, panY } = this.view;
     const { row: startRow, col: startCol } = this.xyToRowCol(0, 0);
@@ -161,17 +162,6 @@ const createGameRenderer = (gridCtx, cellCtx, previewCtx, cellCount) => ({
   /*** Utility Methods ***/
 
   /**
-   *
-   * @param {number} val
-   * @param {number} min
-   * @param {number} max
-   * @returns {number}
-   */
-  clamp(val, min, max) {
-    return val > max ? max : val < min ? min : val;
-  },
-
-  /**
    * @returns {number}
    */
   getMinZoom() {
@@ -225,5 +215,14 @@ const createGameRenderer = (gridCtx, cellCtx, previewCtx, cellCount) => ({
     return cellCount * row + col;
   }
 });
+
+/**
+ *
+ * @param {number} val
+ * @param {number} min
+ * @param {number} max
+ * @returns {number}
+ */
+const clamp = (val, min, max) => (val > max ? max : val < min ? min : val);
 
 export { createGameRenderer };

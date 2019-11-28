@@ -4,7 +4,6 @@
 
 const batchSize = 25;
 const bufferSize = 50;
-const wasm = true;
 
 /**
  *
@@ -32,9 +31,10 @@ const wasm = true;
  * @param {Worker} worker
  * @param {import('./gameRenderer.js').GameRenderer} gameRenderer
  * @param {number} cellCount
+ * @param {boolean} wasm
  * @return {GameController}
  */
-const createGameController = (worker, gameRenderer, cellCount) => ({
+const createGameController = (worker, gameRenderer, cellCount, wasm) => ({
   alive: new Set(),
   alivePreview: new Set(),
   playing: false,
