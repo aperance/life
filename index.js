@@ -1,33 +1,47 @@
+// @ts-check
+
 import { createGameRenderer } from "./gameRenderer";
 import { createGameController } from "./gameController";
-import { createMouseTracker } from "./mouse";
+import { createMouseTracker } from "./mouseTracker";
 import "materialize-css/dist/css/materialize.min.css";
 import "materialize-css/dist/js/materialize.min.js";
 import "./styles.css";
 
 const worker = new Worker("./worker.js");
 
+/** @type {import('./gameRenderer').GameRenderer} */
 let gameRenderer = null;
+
+/** @type {import('./gameController').GameController} */
 let gameController = null;
+
+/** @type {import('./mouseTracker').MouseTracker} */
 // eslint-disable-next-line no-unused-vars
 let mouseTracker = null;
 
 const dom = {
-  container: document.getElementById("canvas-container"),
-  gridCanvas: document.getElementById("grid-canvas"),
-  cellCanvas: document.getElementById("cell-canvas"),
-  previewCanvas: document.getElementById("preview-canvas"),
-  sidebar: document.getElementById("sidebar"),
-  zoom: document.getElementById("zoom"),
-  panX: document.getElementById("pan-x"),
-  panY: document.getElementById("pan-y"),
-  start: document.getElementById("start-button")
+  /** @type {HTMLDivElement} */
+  container: (document.getElementById("canvas-container")),
+  /**  @type {HTMLCanvasElement} */
+  gridCanvas: (document.getElementById("grid-canvas")),
+  /** @type {HTMLCanvasElement} */
+  cellCanvas: (document.getElementById("cell-canvas")),
+  /** @type {HTMLCanvasElement} */
+  previewCanvas: (document.getElementById("preview-canvas")),
+  /** @type {HTMLDivElement} */
+  sidebar: (document.getElementById("sidebar")),
+  /** @type {HTMLInputElement} */
+  zoom: (document.getElementById("zoom")),
+  /** @type {HTMLInputElement} */
+  panX: (document.getElementById("pan-x")),
+  /** @type {HTMLInputElement} */
+  panY: (document.getElementById("pan-y")),
+  /** @type {HTMLButtonElement} */
+  start: (document.getElementById("start-button"))
 };
 
 window.addEventListener("resize", handleResize);
-window.addEventListener("wheel", e => e.preventDefault(), {
-  passive: false
-});
+window.addEventListener("wheel", e => e.preventDefault(), { passive: false });
 
 function initializeGame() {
   gameRenderer = createGameRenderer(
@@ -41,25 +55,37 @@ function initializeGame() {
 
   gameController.init();
 
-  gameRenderer.addObserver(() => (dom.zoom.value = gameRenderer.view.zoom));
-  gameRenderer.addObserver(
-    () =>
-      (dom.panX.value = Math.round(
-        (gameRenderer.view.panX + gameRenderer.view.width / 2) /
-          gameRenderer.view.zoom
-      ))
-  );
-  gameRenderer.addObserver(
-    () =>
-      (dom.panY.value = Math.round(
-        (gameRenderer.view.panY + gameRenderer.view.height / 2) /
-          gameRenderer.view.zoom
-      ))
-  );
+  gameRenderer.addObserver(() => {
+    dom.zoom.value = gameRenderer.view.zoom.toString();
+  });
+  gameRenderer.addObserver(() => {
+    dom.panX.value = Math.round(
+      (gameRenderer.view.panX + gameRenderer.view.height / 2) /
+        gameRenderer.view.zoom
+    ).toString();
+  });
+  gameRenderer.addObserver(() => {
+    dom.panY.value = Math.round(
+      (gameRenderer.view.panY + gameRenderer.view.height / 2) /
+        gameRenderer.view.zoom
+    ).toString();
+  });
 
-  dom.zoom.onchange = e => gameRenderer.setView({ zoom: e.target.value });
-  dom.panX.onchange = e => gameRenderer.setView({ panX: e.target.value });
-  dom.panY.onchange = e => gameRenderer.setView({ panY: e.target.value });
+  dom.zoom.onchange = e => {
+    /** @type {HTMLInputElement} */
+    const target = (e.target);
+    gameRenderer.setView({ zoom: target.value });
+  };
+  dom.panX.onchange = e => {
+    /** @type {HTMLInputElement} */
+    const target = (e.target);
+    gameRenderer.setView({ panX: target.value });
+  };
+  dom.panY.onchange = e => {
+    /** @type {HTMLInputElement} */
+    const target = (e.target);
+    gameRenderer.setView({ panY: target.value });
+  };
   dom.start.onclick = () => gameController.start();
 
   dom.container.onmouseenter = mouseTracker.canvasEnter.bind(mouseTracker);

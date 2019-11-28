@@ -1,14 +1,50 @@
+// @ts-check
+
+/** @module */
+
 const batchSize = 25;
 const bufferSize = 50;
 
+/**
+ *
+ * @typedef {Object} GameController
+ * @property {Set} alive
+ * @property {Set} alivePreview
+ * @property {boolean} playing
+ * @property {Array<{born: Array<number>, died: Array<number>}>} resultBuffer
+ * @property {number} resultsRequestedAt
+ * @property {boolean} cellsChanged
+ * @property {{cyclesPerRender: number, currentCycle: number}} speed
+ * @property {{born: Array<number>, died: Array<number>}} nextResult
+ * @property {Function} init
+ * @property {Function} handleWorkerMessage
+ * @property {Function} toggleCell
+ * @property {Function} placeElement
+ * @property {Function} placePreview
+ * @property {Function} clearPreview
+ * @property {Function} start
+ * @property {Function} animationCycle
+ */
+
+/**
+ *  Factory function to create GameController object.
+ * @param {Worker} worker
+ * @param {import('./gameRenderer.js').GameRenderer} gameRenderer
+ * @param {number} cellCount
+ * @return {GameController}
+ */
 const createGameController = (worker, gameRenderer, cellCount) => ({
   alive: new Set(),
   alivePreview: new Set(),
   playing: false,
   resultBuffer: [],
   resultsRequestedAt: null,
+  cellsChanged: true,
   speed: { cyclesPerRender: 1, currentCycle: 1 },
 
+  /**
+   * @returns {{born: Array<number>, died: Array<number>}}
+   */
   get nextResult() {
     if (!this.playing) return null;
 
@@ -29,6 +65,10 @@ const createGameController = (worker, gameRenderer, cellCount) => ({
     this.animationCycle();
   },
 
+  /**
+   *
+   * @param {{data: *}} e
+   */
   handleWorkerMessage(e) {
     if (e.data === "started") this.playing = true;
     else {
@@ -46,6 +86,11 @@ const createGameController = (worker, gameRenderer, cellCount) => ({
     }
   },
 
+  /**
+   *
+   * @param {number} x
+   * @param {number} y
+   */
   toggleCell(x, y) {
     const index = gameRenderer.xyToIndex(x, y);
     if (this.alive.has(index)) this.alive.delete(index);
@@ -53,6 +98,12 @@ const createGameController = (worker, gameRenderer, cellCount) => ({
     this.cellsChanged = true;
   },
 
+  /**
+   *
+   * @param {number} x
+   * @param {number} y
+   * @param {Array<Array<number>>} shape
+   */
   placeElement(x, y, shape) {
     const { row: startRow, col: startCol } = gameRenderer.xyToRowCol(x, y);
 
@@ -71,6 +122,12 @@ const createGameController = (worker, gameRenderer, cellCount) => ({
     this.cellsChanged = true;
   },
 
+  /**
+   *
+   * @param {number} x
+   * @param {number} y
+   * @param {Array<Array<number>>} shape
+   */
   placePreview(x, y, shape) {
     const { row: startRow, col: startCol } = gameRenderer.xyToRowCol(x, y);
 
@@ -88,11 +145,17 @@ const createGameController = (worker, gameRenderer, cellCount) => ({
     this.cellsChanged = true;
   },
 
+  /**
+   *
+   */
   clearPreview() {
     this.alivePreview.clear();
     this.cellsChanged = true;
   },
 
+  /**
+   *
+   */
   start() {
     console.log("Game started");
 
@@ -102,6 +165,9 @@ const createGameController = (worker, gameRenderer, cellCount) => ({
     });
   },
 
+  /**
+   *
+   */
   animationCycle() {
     let born, died;
 

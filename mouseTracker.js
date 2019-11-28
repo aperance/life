@@ -1,5 +1,32 @@
+// @ts-check
+
+/** @module */
+
 import { patterns, rleToArray } from "./patterns";
 
+/**
+ *
+ * @typedef {Object} MouseTracker
+ * @property {boolean} down
+ * @property {boolean} panning
+ * @property {boolean} dragging
+ * @property {Array<Array<number>>} draggedShape
+ * @property {number} lastX
+ * @property {number} lastY
+ * @property {Function} canvasEnter
+ * @property {Function} canvasLeave
+ * @property {Function} canvasDown
+ * @property {Function} canvasMove
+ * @property {Function} canvasUp
+ * @property {Function} canvasWheel
+ */
+
+/**
+ *
+ * @param {import('./gameRenderer').GameRenderer} gameRenderer
+ * @param {import('./gameController').GameController} gameController
+ * @returns {MouseTracker}
+ */
 const createMouseTracker = (gameRenderer, gameController) => ({
   down: false,
   panning: false,
@@ -8,6 +35,10 @@ const createMouseTracker = (gameRenderer, gameController) => ({
   lastX: null,
   lastY: null,
 
+  /**
+   *
+   * @param {MouseEvent} e
+   */
   canvasEnter(e) {
     if (e.buttons === 1) {
       this.down = true;
@@ -16,6 +47,9 @@ const createMouseTracker = (gameRenderer, gameController) => ({
     }
   },
 
+  /**
+   *
+   */
   canvasLeave() {
     if (this.dragging) gameController.clearPreview();
 
@@ -27,12 +61,20 @@ const createMouseTracker = (gameRenderer, gameController) => ({
     this.lastY = null;
   },
 
+  /**
+   *
+   * @param {MouseEvent} e
+   */
   canvasDown(e) {
     this.down = true;
     this.lastX = e.clientX;
     this.lastY = e.clientY;
   },
 
+  /**
+   *
+   * @param {MouseEvent} e
+   */
   canvasUp(e) {
     if (!this.panning) {
       if (this.dragging)
@@ -48,6 +90,10 @@ const createMouseTracker = (gameRenderer, gameController) => ({
     this.lastY = null;
   },
 
+  /**
+   *
+   * @param {MouseEvent} e
+   */
   canvasMove(e) {
     if (!this.down) return;
 
@@ -69,6 +115,10 @@ const createMouseTracker = (gameRenderer, gameController) => ({
     }
   },
 
+  /**
+   *
+   * @param {WheelEvent} e
+   */
   canvasWheel(e) {
     const { zoom, panX, panY } = gameRenderer.view;
     gameRenderer.setView({
