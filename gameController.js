@@ -4,6 +4,7 @@
 
 const batchSize = 25;
 const bufferSize = 50;
+const wasm = true;
 
 /**
  *
@@ -161,7 +162,11 @@ const createGameController = (worker, gameRenderer, cellCount) => ({
 
     worker.postMessage({
       action: "start",
-      payload: { size: cellCount, initialAlive: Array.from(this.alive) }
+      payload: {
+        size: cellCount,
+        initialAlive: Array.from(this.alive),
+        wasm
+      }
     });
   },
 
