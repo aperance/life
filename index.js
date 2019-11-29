@@ -62,8 +62,6 @@ function initializeGame() {
     dom.container
   );
 
-  gameController.init();
-
   dom.start.onclick = () => gameController.start();
 }
 
