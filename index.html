@@ -2,43 +2,42 @@
 <html>
   <head>
     <title>Conway's Game of Life</title>
+    <link rel="stylesheet" type="text/css" href="materialize.min.css" />
+    <link rel="stylesheet" type="text/css" href="styles.css" />
   </head>
   <body>
     <div>
-      <div id="sidebar">
-        <label>
-          Cell Count:
-          <input type="number" id="cell-count" />
-        </label>
-        <br />
-        <label>
-          Cycles / Sec:
-          <input type="number" id="speed" />
-        </label>
-        <br />
-        <label>
-          Zoom:
-          <input type="number" id="zoom" />
-        </label>
-        <br />
-        <label>
-          X Orgin:
-          <input type="number" id="pan-x" />
-        </label>
-        <br />
-        <label>
-          Y Orgin:
-          <input type="number" id="pan-y" />
-        </label>
-        <br />
+      <div id="top-bar" class="z-depth-2">
         <button id="start-button">Start</button>
+        <!-- Modal Trigger -->
+        <a
+          class="waves-effect waves-light btn modal-trigger"
+          href="#pattern-modal"
+          >Pattern Library</a
+        >
       </div>
       <div id="canvas-container">
         <canvas id="grid-canvas"></canvas>
         <canvas id="cell-canvas"></canvas>
         <canvas id="preview-canvas"></canvas>
       </div>
+      <div id="bottom-bar" class="z-depth-2">
+        <span id="left-status"></span>
+        <span id="right-status"></span>
+      </div>
     </div>
-    <script src="index.js"></script>
   </body>
 </html>
+
+<!-- Modal Structure -->
+<div id="pattern-modal" class="modal">
+  <div class="modal-content">
+    <h4>Modal Header</h4>
+    <p>A bunch of text</p>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+  </div>
+</div>
+
+<script src="index.js"></script>

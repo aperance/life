@@ -5,7 +5,6 @@ import { createGameController } from "./gameController";
 import { createMouseTracker } from "./mouseTracker";
 import "materialize-css/dist/css/materialize.min.css";
 import "materialize-css/dist/js/materialize.min.js";
-import "./styles.css";
 
 const dom = {
   /** @type {HTMLDivElement} */
@@ -16,16 +15,14 @@ const dom = {
   cellCanvas: (document.getElementById("cell-canvas")),
   /** @type {HTMLCanvasElement} */
   previewCanvas: (document.getElementById("preview-canvas")),
-  /** @type {HTMLDivElement} */
-  sidebar: (document.getElementById("sidebar")),
-  /** @type {HTMLInputElement} */
-  zoom: (document.getElementById("zoom")),
-  /** @type {HTMLInputElement} */
-  panX: (document.getElementById("pan-x")),
-  /** @type {HTMLInputElement} */
-  panY: (document.getElementById("pan-y")),
+  /** @type {HTMLSpanElement} */
+  leftStatus: (document.getElementById("left-status")),
+  /** @type {HTMLSpanElement} */
+  rightStatus: (document.getElementById("right-status")),
   /** @type {HTMLButtonElement} */
-  start: (document.getElementById("start-button"))
+  start: (document.getElementById("start-button")),
+  /** @type {HTMLDivElement} */
+  patternModal: (document.getElementById("pattern-modal"))
 };
 
 /** @type {import('./gameRenderer').GameRenderer} */
@@ -41,13 +38,24 @@ let mouseTracker;
 const wasm = true;
 
 function initializeGame() {
-  const gridCtx = dom.gridCanvas.getContext("2d");
-  const cellCtx = dom.cellCanvas.getContext("2d");
-  const previewCtx = dom.previewCanvas.getContext("2d");
   const worker = new Worker("./worker.js");
 
-  gameRenderer = createGameRenderer(gridCtx, cellCtx, previewCtx, 5000);
-  gameController = createGameController(worker, gameRenderer, 5000, wasm);
+  gameRenderer = createGameRenderer(
+    dom.gridCanvas.getContext("2d"),
+    dom.cellCanvas.getContext("2d"),
+    dom.previewCanvas.getContext("2d"),
+    5000,
+    handleViewChange
+  );
+
+  gameController = createGameController(
+    worker,
+    gameRenderer,
+    5000,
+    wasm,
+    handleGameChange
+  );
+
   mouseTracker = createMouseTracker(
     gameRenderer,
     gameController,
@@ -56,34 +64,15 @@ function initializeGame() {
 
   gameController.init();
 
-  gameRenderer.addObserver(() => {
-    dom.zoom.value = gameRenderer.view.zoom.toString();
-  });
-  gameRenderer.addObserver(() => {
-    const { panX, zoom, height } = gameRenderer.view;
-    dom.panX.value = Math.round((panX + height / 2) / zoom).toString();
-  });
-  gameRenderer.addObserver(() => {
-    const { panY, zoom, width } = gameRenderer.view;
-    dom.panY.value = Math.round((panY + width / 2) / zoom).toString();
-  });
-
-  dom.zoom.onchange = e => {
-    /** @type {HTMLInputElement} */
-    const target = (e.target);
-    gameRenderer.setView({ zoom: target.value });
-  };
-  dom.panX.onchange = e => {
-    /** @type {HTMLInputElement} */
-    const target = (e.target);
-    gameRenderer.setView({ panX: target.value });
-  };
-  dom.panY.onchange = e => {
-    /** @type {HTMLInputElement} */
-    const target = (e.target);
-    gameRenderer.setView({ panY: target.value });
-  };
   dom.start.onclick = () => gameController.start();
+}
+
+function handleGameChange({ generation, playing }) {
+  dom.leftStatus.textContent = `Playing: ${playing}, Generation: ${generation}`;
+}
+
+function handleViewChange({ zoom, panX, panY }) {
+  dom.rightStatus.textContent = `Zoom: ${zoom}, Position: (${panX},${panY})`;
 }
 
 function handleResize() {
@@ -100,6 +89,10 @@ function handleResize() {
 
 window.addEventListener("resize", handleResize);
 window.addEventListener("wheel", e => e.preventDefault(), { passive: false });
+
+document.addEventListener("DOMContentLoaded", function() {
+  const instances = M.Modal.init(dom.patternModal);
+});
 
 initializeGame();
 handleResize();

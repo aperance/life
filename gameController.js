@@ -32,9 +32,16 @@ const bufferSize = 50;
  * @param {import('./gameRenderer.js').GameRenderer} gameRenderer
  * @param {number} cellCount
  * @param {boolean} wasm
+ * @param {Function} onGameChange
  * @return {GameController}
  */
-const createGameController = (worker, gameRenderer, cellCount, wasm) => ({
+const createGameController = (
+  worker,
+  gameRenderer,
+  cellCount,
+  wasm,
+  onGameChange
+) => ({
   alive: new Set(),
   alivePreview: new Set(),
   playing: false,
@@ -192,6 +199,8 @@ const createGameController = (worker, gameRenderer, cellCount, wasm) => ({
 
     gameRenderer.render(Array.from(this.alive), born, died);
     gameRenderer.renderPreview(Array.from(this.alivePreview));
+
+    onGameChange({ generation: 0, playing: this.playing });
 
     requestAnimationFrame(this.animationCycle.bind(this));
   }

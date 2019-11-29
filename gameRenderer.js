@@ -6,10 +6,8 @@
  * @typedef {Object} GameRenderer
  * @property {{width: number, height: number, zoom: number, panX: number, panY: number}} view
  * @property {boolean} redrawGrid
- * @property {Array<Function>} observers
  * @property {Function} setView
- * @property {Function} addObserver
- * @property {Function} emitToObservers
+ * @property {Function} onViewChange
  * @property {Function} render
  * @property {Function} renderGrid
  * @property {Function} renderAllCells
@@ -29,12 +27,19 @@
  * @param {CanvasRenderingContext2D} cellCtx
  * @param {CanvasRenderingContext2D} previewCtx
  * @param {number} cellCount
+ * @param {Function} onViewChange
  * @returns {GameRenderer}
  */
-const createGameRenderer = (gridCtx, cellCtx, previewCtx, cellCount) => ({
+const createGameRenderer = (
+  gridCtx,
+  cellCtx,
+  previewCtx,
+  cellCount,
+  onViewChange
+) => ({
   view: { width: 0, height: 0, zoom: 10, panX: null, panY: null },
   redrawGrid: true,
-  observers: [],
+  onViewChange: null,
 
   /**
    *
@@ -52,18 +57,8 @@ const createGameRenderer = (gridCtx, cellCtx, previewCtx, cellCount) => ({
         ? Math.round(this.getMaxPanY() / 2)
         : clamp(this.view.panY, 0, this.getMaxPanY());
     this.redrawGrid = true;
-  },
 
-  /**
-   *
-   * @param {Function} fn
-   */
-  addObserver(fn) {
-    this.observers.push(fn);
-  },
-
-  emitToObservers() {
-    this.observers.forEach(x => x(this));
+    onViewChange(this.view);
   },
 
   /**
@@ -77,7 +72,6 @@ const createGameRenderer = (gridCtx, cellCtx, previewCtx, cellCount) => ({
       this.renderGrid();
       this.renderAllCells(alive);
       this.redrawGrid = false;
-      this.emitToObservers();
     } else {
       if (born && died) this.renderChangedCells(born, died);
       else this.renderAllCells(alive);
