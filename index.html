@@ -2,18 +2,21 @@
 <html>
   <head>
     <title>Conway's Game of Life</title>
-    <link rel="stylesheet" type="text/css" href="styles.css" />
+    <!-- <link rel="stylesheet" type="text/css" href="styles.css" /> -->
   </head>
   <body>
     <div>
       <div id="top-bar" class="z-depth-2">
-        <button id="start-button">Start</button>
+        <a id="start-button" class="waves-effect waves-light btn-small">
+          start
+        </a>
         <!-- Modal Trigger -->
         <a
-          class="waves-effect waves-light btn modal-trigger"
+          class="waves-effect waves-light btn-small modal-trigger"
           href="#pattern-modal"
-          >Pattern Library</a
         >
+          Pattern Library
+        </a>
       </div>
       <div id="canvas-container">
         <canvas id="grid-canvas"></canvas>

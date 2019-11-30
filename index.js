@@ -5,6 +5,7 @@ import { createGameController } from "./gameController";
 import { createMouseTracker } from "./mouseTracker";
 import "materialize-css/dist/css/materialize.min.css";
 import "materialize-css/dist/js/materialize.min.js";
+import "./styles.css";
 
 const dom = {
   /** @type {HTMLDivElement} */
