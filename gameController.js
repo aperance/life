@@ -188,12 +188,20 @@ const createGameController = (
             ({ born, died } = result);
             for (let cellIndex of born) this.alive.add(cellIndex);
             for (let cellIndex of died) this.alive.delete(cellIndex);
+            this.cellsChanged = true;
           }
         }
       }
 
-      gameRenderer.render(Array.from(this.alive), born, died);
-      gameRenderer.renderPreview(Array.from(this.alivePreview));
+      gameRenderer.render(
+        Array.from(this.alive),
+        born,
+        died,
+        Array.from(this.alivePreview),
+        this.cellsChanged
+      );
+
+      this.cellsChanged = false;
 
       onGameChange({ generation: 0, playing: this.playing });
 

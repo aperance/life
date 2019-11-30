@@ -6,9 +6,9 @@
  * @typedef {Object} GameRenderer
  * @property {{width: number, height: number, zoom: number, panX: number, panY: number}} view
  * @property {boolean} redrawGrid
- * @property {Function} setView
+ * @property {function(Object)} setView
  * @property {Function} onViewChange
- * @property {Function} render
+ * @property {function(Array<number>,Array<number>,Array<number>,Array<number>,boolean)} render
  * @property {Function} renderGrid
  * @property {Function} renderAllCells
  * @property {Function} renderChangedCells
@@ -63,18 +63,27 @@ const createGameRenderer = (
 
   /**
    *
+   * @function
+   * @name render
    * @param {Array<number>} alive
    * @param {Array<number>} born
    * @param {Array<number>} died
+   * @param {Array<number>} preview
+   * @param {boolean} cellsChanged
    */
-  render(alive, born, died) {
+  render(alive, born, died, preview, cellsChanged) {
     if (this.redrawGrid) {
+      console.log("Render");
       this.renderGrid();
       this.renderAllCells(alive);
       this.redrawGrid = false;
-    } else {
+    } else if (cellsChanged) {
+      console.log("Render");
+
       if (born && died) this.renderChangedCells(born, died);
       else this.renderAllCells(alive);
+
+      if (preview) this.renderPreview(preview);
     }
   },
 
