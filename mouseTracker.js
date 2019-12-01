@@ -2,8 +2,6 @@
 
 /** @module */
 
-import { patterns, rleToArray } from "./patterns";
-
 /**
  *
  * @typedef {Object} MouseTracker
@@ -13,7 +11,6 @@ import { patterns, rleToArray } from "./patterns";
  * @property {Array<Array<number>>} draggedShape
  * @property {number} lastX
  * @property {number} lastY
- * @property {Function} canvasEnter
  * @property {Function} canvasLeave
  * @property {Function} canvasDown
  * @property {Function} canvasMove
@@ -37,17 +34,17 @@ const createMouseTracker = (gameRenderer, gameController, container) => {
     lastX: null,
     lastY: null,
 
-    /**
-     *
-     * @param {MouseEvent} e
-     */
-    canvasEnter(e) {
-      if (e.buttons === 1) {
-        this.down = true;
-        this.dragging = true;
-        this.draggedShape = rleToArray(patterns.max);
-      }
-    },
+    // /**
+    //  *
+    //  * @param {MouseEvent} e
+    //  */
+    // canvasEnter(e) {
+    //   if (e.buttons === 1) {
+    //     this.down = true;
+    //     this.dragging = true;
+    //     this.draggedShape = rleToArray(patterns.max);
+    //   }
+    // },
 
     /**
      *
@@ -137,7 +134,7 @@ const createMouseTracker = (gameRenderer, gameController, container) => {
     }
   };
 
-  container.onmouseenter = mouseTracker.canvasEnter.bind(mouseTracker);
+  // container.onmouseenter = mouseTracker.canvasEnter.bind(mouseTracker);
   container.onmousedown = mouseTracker.canvasDown.bind(mouseTracker);
   container.onmouseleave = mouseTracker.canvasLeave.bind(mouseTracker);
   container.onmousemove = mouseTracker.canvasMove.bind(mouseTracker);

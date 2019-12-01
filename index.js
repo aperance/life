@@ -1,8 +1,8 @@
 // @ts-check
-
 import { createGameRenderer } from "./gameRenderer";
 import { createGameController } from "./gameController";
 import { createMouseTracker } from "./mouseTracker";
+import { patternLibrary, rleToArray } from "./patterns";
 import "materialize-css/dist/css/materialize.min.css";
 import "materialize-css/dist/js/materialize.min.js";
 import "./styles.css";
@@ -23,7 +23,11 @@ const dom = {
   /** @type {HTMLButtonElement} */
   start: (document.getElementById("start-button")),
   /** @type {HTMLDivElement} */
-  patternModal: (document.getElementById("pattern-modal"))
+  speedSlider: (document.getElementById("speed-slider")),
+  /** @type {HTMLDivElement} */
+  patternModal: (document.getElementById("pattern-modal")),
+  /** @type {HTMLUListElement} */
+  patternList: (document.getElementById("pattern-list"))
 };
 
 /** @type {import('./gameRenderer').GameRenderer} */
@@ -87,11 +91,43 @@ function handleResize() {
 }
 
 window.addEventListener("resize", handleResize);
-window.addEventListener("wheel", e => e.preventDefault(), { passive: false });
+dom.container.addEventListener("wheel", e => e.preventDefault(), {
+  passive: false
+});
 
 document.addEventListener("DOMContentLoaded", function() {
-  const instances = M.Modal.init(dom.patternModal);
+  M.Modal.init(dom.patternModal, { preventScrolling: false });
+  M.Sidenav.init(dom.patternList);
+  M.Collapsible.init(document.querySelectorAll(".collapsible"));
 });
 
 initializeGame();
 handleResize();
+
+dom.patternList.innerHTML = Object.entries(patternLibrary.categories)
+  .map(
+    ([category, patterns]) =>
+      `<li class="no-padding">
+        <ul class="collapsible collapsible-accordion">
+          <li>
+            <a class="collapsible-header">${category}</a>
+            <div class="collapsible-body">
+              <ul>
+                ${patterns
+                  .map(
+                    x => `<li><a class="pattern-name" href="#!">${x}</a></li>`
+                  )
+                  .join("")}
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </li>`
+  )
+  .join("");
+
+dom.patternList.onmousedown = e => {
+  if (e.target.className !== "pattern-name") return;
+  console.log(e.target.innerText);
+  console.log(patternLibrary.patterns[e.target.innerText].rle);
+};

@@ -14,12 +14,24 @@ body > div {
 }
 
 .btn-small {
-  margin: 8px 8px 8px 8px;
+  margin: 8px;
+}
+
+.range-field {
+  margin: 8px;
+}
+
+input[type="range"] + .thumb {
+  visibility: hidden;
 }
 
 #canvas-container {
   position: relative;
   flex: 1 1 auto;
+}
+
+#top-bar {
+  display: flex;
 }
 
 #bottom-bar > span {
@@ -50,4 +62,12 @@ body > div {
 
 #cell-canvas {
   z-index: 1;
+}
+
+.modal {
+  overflow-y: hidden;
+}
+
+.sidenav {
+  width: fit-content;
 }
