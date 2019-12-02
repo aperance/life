@@ -75,16 +75,13 @@ const createMouseTracker = (gameRenderer, gameController, container) => {
      * @param {MouseEvent} e
      */
     canvasUp(e) {
-      if (!this.panning) {
-        if (this.dragging)
-          gameController.placeElement(e.offsetX, e.offsetY, this.draggedShape);
-        else gameController.toggleCell(e.offsetX, e.offsetY);
-      }
+      if (this.draggedShape)
+        gameController.placeElement(e.offsetX, e.offsetY, this.draggedShape);
+      else if (!this.panning) gameController.toggleCell(e.offsetX, e.offsetY);
 
       this.down = false;
       this.panning = false;
       this.dragging = false;
-      this.draggedShape = null;
       this.lastX = null;
       this.lastY = null;
     },
@@ -94,11 +91,9 @@ const createMouseTracker = (gameRenderer, gameController, container) => {
      * @param {MouseEvent} e
      */
     canvasMove(e) {
-      if (!this.down) return;
-
-      if (this.dragging)
+      if (this.draggedShape)
         gameController.placePreview(e.offsetX, e.offsetY, this.draggedShape);
-      else {
+      else if (!this.draggedShape && this.down) {
         const movementX = this.lastX - e.clientX;
         const movementY = this.lastY - e.clientY;
 

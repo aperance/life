@@ -127,7 +127,12 @@ dom.patternList.innerHTML = Object.entries(patternLibrary.categories)
   .join("");
 
 dom.patternList.onmousedown = e => {
-  if (e.target.className !== "pattern-name") return;
-  console.log(e.target.innerText);
-  console.log(patternLibrary.patterns[e.target.innerText].rle);
+  if (e.target.className === "pattern-name") {
+    console.log(e.target.innerText);
+    console.log(patternLibrary.patterns[e.target.innerText].rle);
+    mouseTracker.draggedShape = rleToArray(
+      patternLibrary.patterns[e.target.innerText].rle
+    );
+    M.Modal.getInstance(dom.patternModal).close();
+  }
 };

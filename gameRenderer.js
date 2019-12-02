@@ -82,9 +82,8 @@ const createGameRenderer = (
 
       if (born && died) this.renderChangedCells(born, died);
       else this.renderAllCells(alive);
-
-      if (preview) this.renderPreview(preview);
     }
+    if (preview) this.renderPreview(preview);
   },
 
   /**
