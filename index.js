@@ -3,9 +3,6 @@ import { createGameRenderer } from "./gameRenderer";
 import { createGameController } from "./gameController";
 import { createMouseTracker } from "./mouseTracker";
 import { patternLibrary, rleToArray } from "./patterns";
-import "materialize-css/dist/css/materialize.min.css";
-import "materialize-css/dist/js/materialize.min.js";
-import "./styles.css";
 
 const dom = {
   /** @type {HTMLDivElement} */
@@ -95,44 +92,54 @@ dom.container.addEventListener("wheel", e => e.preventDefault(), {
   passive: false
 });
 
-document.addEventListener("DOMContentLoaded", function() {
-  M.Modal.init(dom.patternModal, { preventScrolling: false });
-  M.Sidenav.init(dom.patternList);
-  M.Collapsible.init(document.querySelectorAll(".collapsible"));
-});
+// document.addEventListener("DOMContentLoaded", function() {
+//   M.Modal.init(dom.patternModal, { preventScrolling: false });
+//   M.Sidenav.init(dom.patternList);
+//   M.Collapsible.init(document.querySelectorAll(".collapsible"));
+// });
 
 initializeGame();
 handleResize();
 
-dom.patternList.innerHTML = Object.entries(patternLibrary.categories)
-  .map(
-    ([category, patterns]) =>
-      `<li class="no-padding">
-        <ul class="collapsible collapsible-accordion">
-          <li>
-            <a class="collapsible-header">${category}</a>
-            <div class="collapsible-body">
-              <ul>
-                ${patterns
-                  .map(
-                    x => `<li><a class="pattern-name" href="#!">${x}</a></li>`
-                  )
-                  .join("")}
-              </ul>
-            </div>
-          </li>
-        </ul>
-      </li>`
-  )
-  .join("");
+dom.patternList.innerHTML = `<div class="list-group">
+  ${patternLibrary.categories
+    .map(
+      ({ label, contents }, index) =>
+        `<a class="list-group-item list-group-item-action"
+          data-toggle="collapse"
+          href="#category${index}">
+          ${label}
+        </a>
+        <div id="category${index}" class="collapse">
+          ${contents
+            .map(
+              x =>
+                `<a href="#"
+                  class="pattern-name list-group-item list-group-item-action"
+                  data-dismiss="modal"
+                >
+                  ${x}
+                </a>`
+            )
+            .join("")}
+        </div>
+          `
+    )
+    .join("")}
+</div>`;
+
+document.getElementById("pattern-button").onfocus = e => {
+  console.log(e);
+  document.getElementById("pattern-button").blur();
+  document.getElementById("pattern-button").className += " active";
+  e.preventDefault();
+};
 
 dom.patternList.onmousedown = e => {
-  if (e.target.className === "pattern-name") {
-    console.log(e.target.innerText);
-    console.log(patternLibrary.patterns[e.target.innerText].rle);
+  e.preventDefault();
+  if (e.target.classList[0] === "pattern-name") {
     mouseTracker.draggedShape = rleToArray(
       patternLibrary.patterns[e.target.innerText].rle
     );
-    M.Modal.getInstance(dom.patternModal).close();
   }
 };

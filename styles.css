@@ -13,7 +13,7 @@ body > div {
   height: 100vh;
 }
 
-.btn-small {
+.btn-group {
   margin: 8px;
 }
 
@@ -64,10 +64,6 @@ input[type="range"] + .thumb {
   z-index: 1;
 }
 
-.modal {
-  overflow-y: hidden;
-}
-
-.sidenav {
-  width: fit-content;
+.list-group-item {
+  border: 0;
 }
