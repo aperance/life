@@ -73,17 +73,14 @@ const createGameRenderer = (
    */
   render(alive, born, died, preview, cellsChanged) {
     if (this.redrawGrid) {
-      console.log("Render");
       this.renderGrid();
       this.renderAllCells(alive);
       this.redrawGrid = false;
     } else if (cellsChanged) {
-      console.log("Render");
-
       if (born && died) this.renderChangedCells(born, died);
       else this.renderAllCells(alive);
     }
-    if (preview) this.renderPreview(preview);
+    this.renderPreview(preview);
   },
 
   /**
@@ -150,6 +147,8 @@ const createGameRenderer = (
    * @param {Array<number>} alive
    */
   renderPreview(alive) {
+    if (alive.length === 0) return;
+
     const { width, height, zoom, panX, panY } = this.view;
 
     previewCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
