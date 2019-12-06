@@ -152,9 +152,6 @@ dom.patternModal.addEventListener(
     if (mouseTracker.draggedShape === null) {
       mouseTracker.mode = "pan";
       setModeButtons("pan");
-    } else {
-      mouseTracker.mode = "pattern";
-      setModeButtons("pattern");
     }
   },
   false
@@ -193,5 +190,8 @@ dom.patternList.onmousedown = e => {
     mouseTracker.draggedShape = rleToArray(
       patternLibrary.patterns[e.target.innerText].rle
     );
+    mouseTracker.mode = "pattern";
+    mouseTracker.canvasMove(e);
+    setModeButtons("pattern");
   }
 };

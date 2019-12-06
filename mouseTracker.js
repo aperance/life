@@ -43,9 +43,9 @@ const createMouseTracker = (gameRenderer, gameController) => {
      * @param {MouseEvent} e
      */
     canvasUp(e) {
-      if (this.mode === "edit") gameController.toggleCell(e.offsetX, e.offsetY);
+      if (this.mode === "edit") gameController.toggleCell(e.clientX, e.clientY);
       if (this.mode === "pattern")
-        gameController.placeElement(e.offsetX, e.offsetY, this.draggedShape);
+        gameController.placeElement(e.clientX, e.clientY, this.draggedShape);
     },
 
     /**
@@ -54,7 +54,7 @@ const createMouseTracker = (gameRenderer, gameController) => {
      */
     canvasMove(e) {
       if (this.mode === "pattern")
-        gameController.placePreview(e.offsetX, e.offsetY, this.draggedShape);
+        gameController.placePreview(e.clientX, e.clientY, this.draggedShape);
 
       if (this.mode === "pan") {
         if (e.buttons === 1) {
@@ -79,8 +79,8 @@ const createMouseTracker = (gameRenderer, gameController) => {
       gameRenderer.setView({ zoom: newZoom });
 
       const scale = gameRenderer.view.zoom / zoom - 1;
-      const newPanX = Math.round(panX + (panX + e.offsetX) * scale);
-      const newPanY = Math.round(panY + (panY + e.offsetY) * scale);
+      const newPanX = Math.round(panX + (panX + e.clientX) * scale);
+      const newPanY = Math.round(panY + (panY + e.clientY) * scale);
       gameRenderer.setView({ panX: newPanX, panY: newPanY });
     }
   };
