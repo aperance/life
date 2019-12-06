@@ -11,41 +11,39 @@
     <link rel="stylesheet" type="text/css" href="styles.css" />
   </head>
   <body>
-    <div>
-      <div id="top-bar">
-        <div class="btn-group" role="group" aria-label="Basic example">
-          <button id="start-button" type="button" class="btn btn-secondary">
-            Start
-          </button>
-          <button type="button" class="btn btn-secondary">Pause</button>
-        </div>
-        <div id="mode-btn-group" class="btn-group">
-          <button id="pan-btn" type="button" class="btn btn-secondary active">
-            Pan
-          </button>
-          <button id="edit-btn" type="button" class="btn btn-secondary">
-            Edit
-          </button>
-          <button
-            id="pattern-btn"
-            type="button"
-            class="btn btn-secondary"
-            data-toggle="modal"
-            data-target="#pattern-modal"
-          >
-            Patterns
-          </button>
-        </div>
+    <div id="top-bar">
+      <div class="btn-group" role="group" aria-label="Basic example">
+        <button id="start-button" type="button" class="btn btn-secondary">
+          Start
+        </button>
+        <button type="button" class="btn btn-secondary">Pause</button>
       </div>
-      <div id="canvas-container">
-        <canvas id="grid-canvas"></canvas>
-        <canvas id="cell-canvas"></canvas>
-        <canvas id="preview-canvas"></canvas>
+      <div id="mode-btn-group" class="btn-group">
+        <button id="pan-btn" type="button" class="btn btn-secondary active">
+          Pan
+        </button>
+        <button id="edit-btn" type="button" class="btn btn-secondary">
+          Edit
+        </button>
+        <button
+          id="pattern-btn"
+          type="button"
+          class="btn btn-secondary"
+          data-toggle="modal"
+          data-target="#pattern-modal"
+        >
+          Patterns
+        </button>
       </div>
-      <div id="bottom-bar">
-        <span id="left-status"></span>
-        <span id="right-status"></span>
-      </div>
+    </div>
+    <div id="canvas-container">
+      <canvas id="grid-canvas"></canvas>
+      <canvas id="cell-canvas"></canvas>
+      <canvas id="preview-canvas"></canvas>
+    </div>
+    <div id="bottom-bar">
+      <span id="left-status"></span>
+      <span id="right-status"></span>
     </div>
   </body>
 </html>

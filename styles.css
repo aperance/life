@@ -7,11 +7,11 @@ body {
   margin: 0 0 0 0;
 }
 
-body > div {
+/* body > div {
   display: flex;
   flex-direction: column;
   height: 100vh;
-}
+} */
 
 .btn-group {
   margin: 8px;
@@ -26,12 +26,24 @@ input[type="range"] + .thumb {
 }
 
 #canvas-container {
-  position: relative;
-  flex: 1 1 auto;
+  position: absolute;
+  /* flex: 1 1 auto; */
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
 }
 
 #top-bar {
+  position: absolute;
+  z-index: 2;
   display: flex;
+}
+
+#bottom-bar {
+  position: absolute;
+  bottom: 0;
+  width: 100vw;
 }
 
 #bottom-bar > span {
