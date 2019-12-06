@@ -22,6 +22,8 @@ const dom = {
   /** @type {HTMLDivElement} */
   speedSlider: (document.getElementById("speed-slider")),
   /** @type {HTMLDivElement} */
+  modeButtonGroup: (document.getElementById("mode-btn-group")),
+  /** @type {HTMLDivElement} */
   patternModal: (document.getElementById("pattern-modal")),
   /** @type {HTMLUListElement} */
   patternList: (document.getElementById("pattern-list"))
@@ -58,13 +60,19 @@ function initializeGame() {
     handleGameChange
   );
 
-  mouseTracker = createMouseTracker(
-    gameRenderer,
-    gameController,
-    dom.container
-  );
+  mouseTracker = createMouseTracker(gameRenderer, gameController);
 
   dom.start.onclick = () => gameController.start();
+}
+
+function setModeButtons(mode) {
+  /** @type {Array<HTMLButtonElement>} */
+  const buttons = ([...dom.modeButtonGroup.children]);
+  buttons.forEach(btn => {
+    btn.className = "btn btn-secondary";
+    if (btn.id === mode + "-btn") btn.classList.add("active");
+    btn.blur();
+  });
 }
 
 function handleGameChange({ generation, playing }) {
@@ -87,25 +95,76 @@ function handleResize() {
   });
 }
 
+initializeGame();
+handleResize();
+
 window.addEventListener("resize", handleResize);
+
+document.addEventListener("DOMContentLoaded", function() {
+  [...document.getElementsByClassName("collapse-link")].forEach(
+    // @ts-ignore
+    x => new Collapse(x)
+  );
+});
+
 dom.container.addEventListener("wheel", e => e.preventDefault(), {
   passive: false
 });
 
-// document.addEventListener("DOMContentLoaded", function() {
-//   M.Modal.init(dom.patternModal, { preventScrolling: false });
-//   M.Sidenav.init(dom.patternList);
-//   M.Collapsible.init(document.querySelectorAll(".collapsible"));
-// });
+dom.container.onmouseleave = mouseTracker.canvasLeave.bind(mouseTracker);
+dom.container.onmousemove = mouseTracker.canvasMove.bind(mouseTracker);
+dom.container.onmouseup = mouseTracker.canvasUp.bind(mouseTracker);
 
-initializeGame();
-handleResize();
+dom.container.addEventListener(
+  "wheel",
+  mouseTracker.canvasWheel.bind(mouseTracker),
+  {
+    passive: true
+  }
+);
+
+dom.modeButtonGroup.onmousedown = e => e.preventDefault();
+
+dom.modeButtonGroup.onclick = e => {
+  /** @type {HTMLButtonElement} */
+  const target = (e.target);
+  switch (target.id) {
+    case "pan-btn":
+      mouseTracker.mode = "pan";
+      setModeButtons("pan");
+      break;
+    case "edit-btn":
+      mouseTracker.mode = "edit";
+      setModeButtons("edit");
+      break;
+    case "pattern-btn":
+      mouseTracker.mode = "pattern";
+      setModeButtons("pattern");
+      break;
+    default:
+      break;
+  }
+};
+
+dom.patternModal.addEventListener(
+  "hidden.bs.modal",
+  e => {
+    if (mouseTracker.draggedShape === null) {
+      mouseTracker.mode = "pan";
+      setModeButtons("pan");
+    } else {
+      mouseTracker.mode = "pattern";
+      setModeButtons("pattern");
+    }
+  },
+  false
+);
 
 dom.patternList.innerHTML = `<div class="list-group">
   ${patternLibrary.categories
     .map(
       ({ label, contents }, index) =>
-        `<a class="list-group-item list-group-item-action"
+        `<a class="list-group-item list-group-item-action collapse-link"
           data-toggle="collapse"
           href="#category${index}">
           ${label}
@@ -127,13 +186,6 @@ dom.patternList.innerHTML = `<div class="list-group">
     )
     .join("")}
 </div>`;
-
-document.getElementById("pattern-button").onfocus = e => {
-  console.log(e);
-  document.getElementById("pattern-button").blur();
-  document.getElementById("pattern-button").className += " active";
-  e.preventDefault();
-};
 
 dom.patternList.onmousedown = e => {
   e.preventDefault();
