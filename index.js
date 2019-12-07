@@ -1,4 +1,5 @@
 // @ts-check
+import "@fortawesome/fontawesome-free/js/all";
 import { createGameRenderer } from "./gameRenderer";
 import { createGameController } from "./gameController";
 import { createMouseTracker } from "./mouseTracker";
