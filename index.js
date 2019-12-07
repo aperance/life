@@ -18,10 +18,8 @@ const dom = {
   leftStatus: (document.getElementById("left-status")),
   /** @type {HTMLSpanElement} */
   rightStatus: (document.getElementById("right-status")),
-  /** @type {HTMLButtonElement} */
-  start: (document.getElementById("start-button")),
   /** @type {HTMLDivElement} */
-  speedSlider: (document.getElementById("speed-slider")),
+  topBar: (document.getElementById("top-bar")),
   /** @type {HTMLDivElement} */
   modeButtonGroup: (document.getElementById("mode-btn-group")),
   /** @type {HTMLDivElement} */
@@ -42,7 +40,9 @@ let mouseTracker;
 
 const wasm = true;
 
-dom.patternList.innerHTML = generatePatternList();
+window.addEventListener("resize", handleResize);
+
+window.addEventListener("mousedown", e => e.preventDefault());
 
 document.addEventListener("DOMContentLoaded", function() {
   [...document.getElementsByClassName("collapse-link")].forEach(
@@ -51,28 +51,7 @@ document.addEventListener("DOMContentLoaded", function() {
   );
 });
 
-window.addEventListener("resize", handleResize);
-
-dom.container.addEventListener("wheel", e => e.preventDefault(), {
-  passive: false
-});
-
-document.getElementById("top-bar").onmousedown = e => e.preventDefault();
-
-document.getElementById("pan-btn").onclick = e => {
-  mouseTracker.mode = "pan";
-  setModeButtons("pan");
-};
-
-document.getElementById("edit-btn").onclick = e => {
-  mouseTracker.mode = "edit";
-  setModeButtons("edit");
-};
-
-document.getElementById("pattern-btn").onclick = e => {
-  mouseTracker.mode = "pattern";
-  setModeButtons("pattern");
-};
+dom.topBar.addEventListener("click", handleButton);
 
 dom.patternModal.addEventListener(
   "hidden.bs.modal",
@@ -88,39 +67,27 @@ dom.patternModal.addEventListener(
   false
 );
 
-dom.patternList.onmousedown = e => {
-  e.preventDefault();
-  if (e.target.classList[0] === "pattern-name") {
-    mouseTracker.draggedShape = getPatternRle(e.target.innerText);
+dom.patternList.addEventListener("mousedown", e => {
+  /** @type {HTMLUListElement} */
+  const target = (e.target);
+  if (target.classList[0] === "pattern-name") {
+    mouseTracker.draggedShape = getPatternRle(target.innerText);
     mouseTracker.canvasMove(e);
   }
-};
+});
 
-dom.container.onmouseleave = e => {
-  if (mouseTracker) mouseTracker.canvasLeave(e);
-};
-dom.container.onmousemove = e => {
-  if (mouseTracker) mouseTracker.canvasMove(e);
-};
-dom.container.onmouseup = e => {
-  if (mouseTracker) mouseTracker.canvasUp(e);
-};
+dom.container.addEventListener("mouseleave", e => mouseTracker.canvasLeave(e));
+dom.container.addEventListener("mousemove", e => mouseTracker.canvasMove(e));
+dom.container.addEventListener("mouseup", e => mouseTracker.canvasUp(e));
 
-dom.container.addEventListener(
-  "wheel",
-  e => {
-    if (mouseTracker) mouseTracker.canvasWheel(e);
-  },
-  {
-    passive: true
-  }
-);
+dom.container.addEventListener("wheel", e => e.preventDefault(), {
+  passive: false
+});
+dom.container.addEventListener("wheel", e => mouseTracker.canvasWheel(e), {
+  passive: true
+});
 
-dom.start.onclick = () => gameController.start();
-
-document.getElementById("reset-btn").onclick = e => {
-  initializeGame();
-};
+dom.patternList.innerHTML = generatePatternList();
 
 initializeGame();
 
@@ -191,4 +158,38 @@ function handleGameChange({ generation, playing }) {
  */
 function handleViewChange({ zoom, panX, panY }) {
   dom.rightStatus.textContent = `Zoom: ${zoom}, Position: (${panX},${panY})`;
+}
+
+/**
+ *
+ * @param {MouseEvent} e
+ */
+function handleButton(e) {
+  const el = /** @type {HTMLElement} */ (e.target).closest("button");
+  if (el === null) return;
+
+  switch (el.id) {
+    case "start-btn":
+      gameController.start();
+      break;
+    case "pause-btn":
+      break;
+    case "reset-btn":
+      initializeGame();
+      break;
+    case "pan-btn":
+      mouseTracker.mode = "pan";
+      setModeButtons("pan");
+      break;
+    case "edit-btn":
+      mouseTracker.mode = "edit";
+      setModeButtons("edit");
+      break;
+    case "pattern-btn":
+      mouseTracker.mode = "pattern";
+      setModeButtons("pattern");
+      break;
+    default:
+      break;
+  }
 }
