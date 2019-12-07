@@ -1,25 +1,6 @@
-export const rleToArray = rle =>
-  rle
-    .split("!")[0]
-    .split("$")
-    .map(substring => {
-      let arr = [];
-      let temp = "";
-      substring.split("").forEach(char => {
-        if (char !== "b" && char !== "o") temp += char;
-        else {
-          const count = parseInt(temp, 10) || 1;
-          for (let i = 0; i < count; i++) {
-            if (char === "b") arr.push(0);
-            if (char === "o") arr.push(1);
-          }
-          temp = "";
-        }
-      });
-      return arr;
-    });
+const recentlyUsed = [];
 
-export const patternLibrary = {
+const patternLibrary = {
   patterns: {
     Glider: { rle: "bob$2bo$3o!" },
     "Lightweight Spaceship": {
@@ -46,3 +27,68 @@ export const patternLibrary = {
     }
   ]
 };
+
+/**
+ * @returns {string}
+ */
+export const generatePatternList = () => `
+  <div class="list-group">
+    ${patternLibrary.categories
+      .map(
+        ({ label, contents }, index) =>
+          `<a class="list-group-item list-group-item-action collapse-link"
+            data-toggle="collapse"
+            href="#category${index}">
+            ${label}
+          </a>
+          <div id="category${index}" class="collapse">
+            ${contents
+              .map(
+                x =>
+                  `<a href="#"
+                    class="pattern-name list-group-item list-group-item-action"
+                    data-dismiss="modal"
+                  >
+                    ${x}
+                  </a>`
+              )
+              .join("")}
+          </div>
+            `
+      )
+      .join("")}
+  </div>
+`;
+
+/**
+ *
+ * @param {string} name
+ * @returns {Array<Array<number>>}
+ */
+export const getPatternRle = name => {
+  return patternLibrary.patterns[name].rle
+    .split("!")[0]
+    .split("$")
+    .map(substring => {
+      let arr = [];
+      let temp = "";
+      substring.split("").forEach(char => {
+        if (char !== "b" && char !== "o") temp += char;
+        else {
+          const count = parseInt(temp, 10) || 1;
+          for (let i = 0; i < count; i++) {
+            if (char === "b") arr.push(0);
+            if (char === "o") arr.push(1);
+          }
+          temp = "";
+        }
+      });
+      return arr;
+    });
+};
+
+/**
+ *
+ * @param {string} x
+ */
+export const addRecentlyUsed = x => recentlyUsed.push(x);
