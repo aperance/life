@@ -79,3 +79,11 @@ input[type="range"] + .thumb {
 .list-group-item {
   border: 0;
 }
+
+#view-controls {
+  position: absolute;
+  bottom: 100px;
+  right: -24px;
+  transform: rotate(-90deg);
+  z-index: 5;
+}

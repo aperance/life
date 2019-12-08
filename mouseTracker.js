@@ -74,14 +74,9 @@ const createMouseTracker = (gameRenderer, gameController) => {
      * @param {WheelEvent} e
      */
     canvasWheel(e) {
-      const { zoom, panX, panY } = gameRenderer.view;
+      const { zoom } = gameRenderer.view;
       const newZoom = Math.round(zoom + Math.sign(e.deltaY) * (1 + zoom / 50));
-      gameRenderer.setView({ zoom: newZoom });
-
-      const scale = gameRenderer.view.zoom / zoom - 1;
-      const newPanX = Math.round(panX + (panX + e.clientX) * scale);
-      const newPanY = Math.round(panY + (panY + e.clientY) * scale);
-      gameRenderer.setView({ panX: newPanX, panY: newPanY });
+      gameRenderer.zoomAtPoint(newZoom, e.clientX, e.clientY);
     }
   };
 

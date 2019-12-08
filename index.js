@@ -25,7 +25,10 @@ const dom = {
   /** @type {HTMLDivElement} */
   patternModal: (document.getElementById("pattern-modal")),
   /** @type {HTMLUListElement} */
-  patternList: (document.getElementById("pattern-list"))
+  patternList: (document.getElementById("pattern-list")),
+  /** @type {HTMLInputElement} */
+
+  zoomSlider: (document.getElementById("zoom-slider"))
 };
 
 /** @type {import('./gameRenderer').GameRenderer} */
@@ -42,8 +45,6 @@ const wasm = true;
 
 window.addEventListener("resize", handleResize);
 
-window.addEventListener("mousedown", e => e.preventDefault());
-
 document.addEventListener("DOMContentLoaded", function() {
   [...document.getElementsByClassName("collapse-link")].forEach(
     // @ts-ignore
@@ -51,7 +52,17 @@ document.addEventListener("DOMContentLoaded", function() {
   );
 });
 
+dom.topBar.addEventListener("mousedown", e => e.preventDefault());
+
 dom.topBar.addEventListener("click", handleButton);
+
+dom.zoomSlider.addEventListener("input", e =>
+  gameRenderer.zoomAtPoint(
+    Math.round(Math.pow(parseFloat(dom.zoomSlider.value), 2)),
+    dom.container.clientWidth / 2,
+    dom.container.clientHeight / 2
+  )
+);
 
 dom.patternModal.addEventListener(
   "hidden.bs.modal",
@@ -140,7 +151,7 @@ function setModeButtons(mode) {
   /** @type {Array<HTMLButtonElement>} */
   const buttons = ([...dom.modeButtonGroup.children]);
   buttons.forEach(btn => {
-    btn.className = "btn btn-secondary";
+    btn.className = "btn btn-primary";
     if (btn.id === mode + "-btn") btn.classList.add("active");
     btn.blur();
   });
@@ -158,6 +169,7 @@ function handleGameChange({ generation, playing }) {
  */
 function handleViewChange({ zoom, panX, panY }) {
   dom.rightStatus.textContent = `Zoom: ${zoom}, Position: (${panX},${panY})`;
+  dom.zoomSlider.value = Math.sqrt(zoom).toString();
 }
 
 /**
