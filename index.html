@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Conway's Game of Life</title>
+    <title>Game of Life</title>
     <link
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
@@ -12,28 +12,51 @@
   </head>
   <body>
     <div id="top-bar">
-      <div class="btn-group" role="group" aria-label="Basic example">
-        <button id="start-btn" type="button" class="btn btn-primary">
+      <div class="btn-group" role="group">
+        <button id="start-btn" type="button" class="btn btn-secondary">
           <i class="fas fa-play"></i>
         </button>
-        <button type="button" class="btn btn-primary">
+        <button type="button" class="btn btn-secondary">
           <i class="fas fa-pause"></i>
         </button>
-        <button id="reset-btn" type="button" class="btn btn-primary">
+        <button id="reset-btn" type="button" class="btn btn-secondary">
           <i class="fas fa-undo"></i>
         </button>
       </div>
+      <div class="dropdown">
+        <button
+          class="btn btn-secondary dropdown-toggle"
+          type="button"
+          id="speed-btn"
+          data-toggle="dropdown"
+        >
+          <i class="fas fa-tachometer-alt"></i>
+          &nbsp;
+          <span></span>
+        </button>
+        <div id="speed-dropdown" class="dropdown-menu dropdown-menu-right">
+          <button class="dropdown-item" type="button" data-speed="0.25">
+            1/4x
+          </button>
+          <button class="dropdown-item" type="button" data-speed="0.5">
+            1/2x
+          </button>
+          <button class="dropdown-item" type="button" data-speed="1">1x</button>
+          <button class="dropdown-item" type="button" data-speed="2">2x</button>
+          <button class="dropdown-item" type="button" data-speed="3">3x</button>
+        </div>
+      </div>
       <div id="mode-btn-group" class="btn-group">
-        <button id="pan-btn" type="button" class="btn btn-primary active">
+        <button id="pan-btn" type="button" class="btn btn-secondary">
           <i class="fas fa-arrows-alt"></i>
         </button>
-        <button id="edit-btn" type="button" class="btn btn-primary">
+        <button id="edit-btn" type="button" class="btn btn-secondary">
           <i class="fas fa-pen"></i>
         </button>
         <button
           id="pattern-btn"
           type="button"
-          class="btn btn-primary"
+          class="btn btn-secondary"
           data-toggle="modal"
           data-target="#pattern-modal"
         >

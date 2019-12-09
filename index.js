@@ -20,6 +20,10 @@ const dom = {
   rightStatus: (document.getElementById("right-status")),
   /** @type {HTMLDivElement} */
   topBar: (document.getElementById("top-bar")),
+  /** @type {HTMLButtonElement} */
+  speedBtn: (document.getElementById("speed-btn")),
+  /** @type {HTMLDivElement} */
+  speedDropdown: (document.getElementById("speed-dropdown")),
   /** @type {HTMLDivElement} */
   modeButtonGroup: (document.getElementById("mode-btn-group")),
   /** @type {HTMLDivElement} */
@@ -27,7 +31,6 @@ const dom = {
   /** @type {HTMLUListElement} */
   patternList: (document.getElementById("pattern-list")),
   /** @type {HTMLInputElement} */
-
   zoomSlider: (document.getElementById("zoom-slider"))
 };
 
@@ -55,6 +58,12 @@ document.addEventListener("DOMContentLoaded", function() {
 dom.topBar.addEventListener("mousedown", e => e.preventDefault());
 
 dom.topBar.addEventListener("click", handleButton);
+
+dom.speedDropdown.addEventListener("click", e => {
+  const btn = /** @type {HTMLButtonElement} */ (e.target);
+  if (btn.type === "button")
+    gameController.setSpeed(btn.attributes["data-speed"].value);
+});
 
 dom.zoomSlider.addEventListener("input", e =>
   gameRenderer.zoomAtPoint(
@@ -160,8 +169,13 @@ function setModeButtons(mode) {
 /**
  *
  */
-function handleGameChange({ generation, playing }) {
+function handleGameChange({ generation, playing, speed }) {
   dom.leftStatus.textContent = `Playing: ${playing}, Generation: ${generation}`;
+  dom.speedBtn.querySelector("span").textContent =
+    (6 / speed)
+      .toString()
+      .replace("0.5", "1/2")
+      .replace("0.25", "1/4") + "x";
 }
 
 /**

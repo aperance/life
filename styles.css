@@ -13,8 +13,13 @@ body {
   height: 100vh;
 } */
 
-.btn-group {
+.btn-group,
+.dropdown {
   margin: 8px;
+}
+
+.dropdown-menu {
+  min-width: 0;
 }
 
 .range-field {
@@ -83,7 +88,51 @@ input[type="range"] + .thumb {
 #view-controls {
   position: absolute;
   bottom: 100px;
-  right: -24px;
+  right: -20px;
   transform: rotate(-90deg);
   z-index: 5;
+}
+
+#pan-controls {
+  position: absolute;
+  bottom: 200px;
+  right: 21px;
+  height: 54px;
+  width: 54px;
+  z-index: 5;
+  display: grid;
+  grid: 1fr 1fr 1fr / 1fr 1fr 1fr;
+  grid-template-areas:
+    ". up ."
+    "left . right"
+    ". down .";
+}
+
+#pan-controls > button {
+  padding: 0;
+  border-radius: 0.4rem;
+}
+
+#pan-controls > #up-btn {
+  grid-area: up;
+}
+
+#pan-controls > #down-btn {
+  grid-area: down;
+}
+
+#pan-controls > #left-btn {
+  grid-area: left;
+}
+
+#pan-controls > #right-btn {
+  grid-area: right;
+}
+
+.custom-range::-webkit-slider-thumb {
+  background-color: #6c757d;
+}
+
+.custom-range::-webkit-slider-thumb:active {
+  background-color: rgba(130, 138, 145, 0.5);
 }

@@ -17,6 +17,7 @@ const bufferSize = 50;
  * @property {{cyclesPerRender: number, currentCycle: number}} speed
  * @property {{born: Array<number>, died: Array<number>}} nextResult
  * @property {Function} handleWorkerMessage
+ * @property {Function} setSpeed
  * @property {Function} toggleCell
  * @property {Function} placeElement
  * @property {Function} placePreview
@@ -41,6 +42,7 @@ const createGameController = (
   wasm,
   onGameChange
 ) => {
+  /**@type {GameController} */
   const obj = {
     alive: new Set(),
     alivePreview: new Set(),
@@ -48,7 +50,7 @@ const createGameController = (
     resultBuffer: [],
     resultsRequestedAt: null,
     cellsChanged: true,
-    speed: { cyclesPerRender: 1, currentCycle: 1 },
+    speed: { cyclesPerRender: 6, currentCycle: 1 },
 
     /**
      * @returns {{born: Array<number>, died: Array<number>}}
@@ -66,6 +68,10 @@ const createGameController = (
 
       if (this.resultBuffer.length === 0) return null;
       else return this.resultBuffer.shift();
+    },
+
+    setSpeed(genPerSecond) {
+      this.speed = { cyclesPerRender: 6 / genPerSecond, currentCycle: 1 };
     },
 
     /**
@@ -203,7 +209,11 @@ const createGameController = (
 
       this.cellsChanged = false;
 
-      onGameChange({ generation: 0, playing: this.playing });
+      onGameChange({
+        generation: 0,
+        playing: this.playing,
+        speed: this.speed.cyclesPerRender
+      });
 
       requestAnimationFrame(this.animationCycle.bind(this));
     }
