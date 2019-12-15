@@ -25,8 +25,10 @@ const dom = {
   speedBtn: (document.getElementById("speed-btn")),
   /** @type {HTMLDivElement} */
   speedDropdown: (document.getElementById("speed-dropdown")),
-  /** @type {HTMLDivElement} */
-  modeButtonGroup: (document.getElementById("mode-btn-group")),
+  /** @type {HTMLButtonElement} */
+  defaultBtn: (document.getElementById("default-btn")),
+  /** @type {HTMLButtonElement} */
+  patternBtn: (document.getElementById("pattern-btn")),
   /** @type {HTMLDivElement} */
   patternModal: (document.getElementById("pattern-modal")),
   /** @type {HTMLUListElement} */
@@ -63,13 +65,38 @@ document.addEventListener("DOMContentLoaded", function() {
 
 dom.topBar.addEventListener("mousedown", e => e.preventDefault());
 
-dom.topBar.addEventListener("click", handleButton);
+dom.topBar.addEventListener("click", e => {
+  const el = /** @type {HTMLElement} */ (e.target).closest("button");
+  if (el === null) return;
+  else if (el.id === "start-btn") gameController.start();
+  else if (el.id === "reset-btn") initializeGame();
+  else if (el.id === "default-btn") mouseTracker.clearPattern();
+});
 
 dom.speedDropdown.addEventListener("click", e => {
   const btn = /** @type {HTMLButtonElement} */ (e.target);
   if (btn.type === "button")
     gameController.setSpeed(btn.attributes["data-speed"].value);
 });
+
+dom.patternModal.addEventListener("click", e => {
+  const el = /** @type {HTMLElement} */ (e.target);
+  if (el.closest("button") && el.closest("button").className === "close")
+    mouseTracker.clearPattern();
+  else if (el.id === "pattern-modal") mouseTracker.clearPattern();
+  else if (el.classList[0] === "pattern-name") {
+    mouseTracker.setPattern(getPatternRle(el.innerText));
+    mouseTracker.canvasMove(e);
+  }
+});
+
+dom.patternModal.addEventListener("show.bs.modal", e =>
+  document.getElementById("pattern-btn").classList.add("active")
+);
+
+dom.patternModal.addEventListener("hidden.bs.modal", e =>
+  document.getElementById("pattern-btn").blur()
+);
 
 [...dom.panButtonGroup.children].forEach(btn => {
   btn.addEventListener("mousedown", e => {
@@ -93,32 +120,11 @@ dom.zoomSlider.addEventListener("input", e =>
   )
 );
 
-dom.patternModal.addEventListener(
-  "hidden.bs.modal",
-  e => {
-    if (mouseTracker.draggedShape !== null) {
-      mouseTracker.mode = "pattern";
-      setModeButtons("pattern");
-    } else {
-      mouseTracker.mode = "pan";
-      setModeButtons("pan");
-    }
-  },
-  false
-);
-
-dom.patternList.addEventListener("mousedown", e => {
-  /** @type {HTMLUListElement} */
-  const target = (e.target);
-  if (target.classList[0] === "pattern-name") {
-    mouseTracker.draggedShape = getPatternRle(target.innerText);
-    mouseTracker.canvasMove(e);
-  }
-});
-
 dom.container.addEventListener("mouseleave", e => mouseTracker.canvasLeave(e));
-dom.container.addEventListener("mousemove", e => mouseTracker.canvasMove(e));
+dom.container.addEventListener("mouseenter", e => mouseTracker.canvasEnter(e));
 dom.container.addEventListener("mouseup", e => mouseTracker.canvasUp(e));
+dom.container.addEventListener("mousedown", e => mouseTracker.canvasDown(e));
+dom.container.addEventListener("mousemove", e => mouseTracker.canvasMove(e));
 
 dom.container.addEventListener("wheel", e => e.preventDefault(), {
   passive: false
@@ -153,7 +159,11 @@ function initializeGame() {
     handleGameChange
   );
 
-  mouseTracker = createMouseTracker(gameRenderer, gameController);
+  mouseTracker = createMouseTracker(
+    gameRenderer,
+    gameController,
+    handleMouseChange
+  );
 
   panControls = createPanControls(gameRenderer);
 
@@ -172,19 +182,6 @@ function handleResize() {
   [dom.gridCanvas, dom.cellCanvas, dom.previewCanvas].forEach(canvas => {
     canvas.width = dom.container.clientWidth;
     canvas.height = dom.container.clientHeight;
-  });
-}
-
-/**
- *
- */
-function setModeButtons(mode) {
-  /** @type {Array<HTMLButtonElement>} */
-  const buttons = ([...dom.modeButtonGroup.children]);
-  buttons.forEach(btn => {
-    btn.className = "btn btn-primary";
-    if (btn.id === mode + "-btn") btn.classList.add("active");
-    btn.blur();
   });
 }
 
@@ -210,34 +207,9 @@ function handleViewChange({ zoom, panX, panY }) {
 
 /**
  *
- * @param {MouseEvent} e
  */
-function handleButton(e) {
-  const el = /** @type {HTMLElement} */ (e.target).closest("button");
-  if (el === null) return;
-
-  switch (el.id) {
-    case "start-btn":
-      gameController.start();
-      break;
-    case "pause-btn":
-      break;
-    case "reset-btn":
-      initializeGame();
-      break;
-    case "pan-btn":
-      mouseTracker.mode = "pan";
-      setModeButtons("pan");
-      break;
-    case "edit-btn":
-      mouseTracker.mode = "edit";
-      setModeButtons("edit");
-      break;
-    case "pattern-btn":
-      mouseTracker.mode = "pattern";
-      setModeButtons("pattern");
-      break;
-    default:
-      break;
-  }
+function handleMouseChange({ panning, pattern }) {
+  dom.container.style.cursor = panning ? "all-scroll" : "default";
+  dom.defaultBtn.className = `btn btn-primary ${!pattern && "active"}`;
+  dom.patternBtn.className = `btn btn-primary ${pattern && "active"}`;
 }

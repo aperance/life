@@ -129,10 +129,10 @@ input[type="range"] + .thumb {
   grid-area: right;
 }
 
-.custom-range::-webkit-slider-thumb {
+/* .custom-range::-webkit-slider-thumb {
   background-color: #6c757d;
 }
 
 .custom-range::-webkit-slider-thumb:active {
   background-color: rgba(130, 138, 145, 0.5);
-}
+} */

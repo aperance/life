@@ -13,19 +13,19 @@
   <body>
     <div id="top-bar">
       <div class="btn-group" role="group">
-        <button id="start-btn" type="button" class="btn btn-secondary">
+        <button id="start-btn" type="button" class="btn btn-primary">
           <i class="fas fa-play"></i>
         </button>
-        <button type="button" class="btn btn-secondary">
+        <button type="button" class="btn btn-primary">
           <i class="fas fa-pause"></i>
         </button>
-        <button id="reset-btn" type="button" class="btn btn-secondary">
+        <button id="reset-btn" type="button" class="btn btn-primary">
           <i class="fas fa-undo"></i>
         </button>
       </div>
       <div class="dropdown">
         <button
-          class="btn btn-secondary dropdown-toggle"
+          class="btn btn-primary dropdown-toggle"
           type="button"
           id="speed-btn"
           data-toggle="dropdown"
@@ -47,16 +47,13 @@
         </div>
       </div>
       <div id="mode-btn-group" class="btn-group">
-        <button id="pan-btn" type="button" class="btn btn-secondary">
-          <i class="fas fa-arrows-alt"></i>
-        </button>
-        <button id="edit-btn" type="button" class="btn btn-secondary">
+        <button id="default-btn" type="button" class="btn btn-primary active">
           <i class="fas fa-pen"></i>
         </button>
         <button
           id="pattern-btn"
           type="button"
-          class="btn btn-secondary"
+          class="btn btn-primary"
           data-toggle="modal"
           data-target="#pattern-modal"
         >
@@ -70,16 +67,16 @@
       <canvas id="preview-canvas"></canvas>
     </div>
     <div id="pan-btn-group">
-      <button id="up-btn" type="button" class="btn btn-sm btn-secondary">
+      <button id="up-btn" type="button" class="btn btn-sm btn-primary">
         <i class="fas fa-angle-up"></i>
       </button>
-      <button id="down-btn" type="button" class="btn btn-sm btn-secondary">
+      <button id="down-btn" type="button" class="btn btn-sm btn-primary">
         <i class="fas fa-angle-down"></i>
       </button>
-      <button id="left-btn" type="button" class="btn btn-sm btn-secondary">
+      <button id="left-btn" type="button" class="btn btn-sm btn-primary">
         <i class="fas fa-angle-left"></i>
       </button>
-      <button id="right-btn" type="button" class="btn btn-sm btn-secondary">
+      <button id="right-btn" type="button" class="btn btn-sm btn-primary">
         <i class="fas fa-angle-right"></i>
       </button>
     </div>
