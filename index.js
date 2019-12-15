@@ -3,6 +3,7 @@ import "@fortawesome/fontawesome-free/js/all";
 import { createGameRenderer } from "./gameRenderer";
 import { createGameController } from "./gameController";
 import { createMouseTracker } from "./mouseTracker";
+import { createPanControls } from "./panControls";
 import { generatePatternList, getPatternRle } from "./patterns";
 
 const dom = {
@@ -30,6 +31,8 @@ const dom = {
   patternModal: (document.getElementById("pattern-modal")),
   /** @type {HTMLUListElement} */
   patternList: (document.getElementById("pattern-list")),
+  /** @type {HTMLDivElement} */
+  panButtonGroup: (document.getElementById("pan-btn-group")),
   /** @type {HTMLInputElement} */
   zoomSlider: (document.getElementById("zoom-slider"))
 };
@@ -43,6 +46,9 @@ let gameController;
 /** @type {import('./mouseTracker').MouseTracker} */
 // eslint-disable-next-line no-unused-vars
 let mouseTracker;
+
+/** @type {import('./panControls').PanControls} */
+let panControls;
 
 const wasm = true;
 
@@ -63,6 +69,20 @@ dom.speedDropdown.addEventListener("click", e => {
   const btn = /** @type {HTMLButtonElement} */ (e.target);
   if (btn.type === "button")
     gameController.setSpeed(btn.attributes["data-speed"].value);
+});
+
+[...dom.panButtonGroup.children].forEach(btn => {
+  btn.addEventListener("mousedown", e => {
+    panControls.start(btn.id.split("-")[0]);
+  });
+  btn.addEventListener("mouseup", e => {
+    /** @type {HTMLElement} */ (btn).blur();
+    panControls.stop();
+  });
+  btn.addEventListener("mouseleave", e => {
+    /** @type {HTMLElement} */ (btn).blur();
+    panControls.stop();
+  });
 });
 
 dom.zoomSlider.addEventListener("input", e =>
@@ -134,6 +154,8 @@ function initializeGame() {
   );
 
   mouseTracker = createMouseTracker(gameRenderer, gameController);
+
+  panControls = createPanControls(gameRenderer);
 
   handleResize();
 }
