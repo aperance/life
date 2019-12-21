@@ -1,5 +1,3 @@
-// @ts-check
-
 /** @module */
 
 /**
@@ -8,8 +6,8 @@
  * @property {boolean} redrawGrid
  * @property {function(Object)} setView
  * @property {Function} zoomAtPoint
- * @property {Function} onViewChange
- * @property {function(Array<number>,Array<number>,Array<number>,Array<number>,boolean)} render
+ * @property {Function | null} onViewChange
+ * @property {Function} render
  * @property {Function} renderGrid
  * @property {Function} renderAllCells
  * @property {Function} renderChangedCells
@@ -40,7 +38,7 @@ const createGameRenderer = (
 ) => {
   /** @type {GameRenderer} */
   const gameRenderer = {
-    view: { width: 0, height: 0, zoom: 10, panX: null, panY: null },
+    view: { width: 0, height: 0, zoom: 10, panX: 0, panY: 0 },
     redrawGrid: true,
     onViewChange: null,
 
@@ -84,8 +82,8 @@ const createGameRenderer = (
      * @function
      * @name render
      * @param {Array<number>} alive
-     * @param {Array<number>} born
-     * @param {Array<number>} died
+     * @param {Array<number>} [born]
+     * @param {Array<number>} [died]
      * @param {Array<number>} preview
      * @param {boolean} cellsChanged
      */

@@ -1,5 +1,3 @@
-// @ts-check
-
 /** @module */
 
 /**
@@ -7,9 +5,9 @@
  * @typedef {Object} MouseTracker
  * @property {boolean} down
  * @property {boolean} panning
- * @property {Array<Array<number>>} draggedShape
- * @property {number} lastX
- * @property {number} lastY
+ * @property {Array<Array<number>> | null} draggedShape
+ * @property {number | null} lastX
+ * @property {number | null} lastY
  * @property {Function} setPattern
  * @property {Function} clearPattern
  * @property {Function} canvasLeave
@@ -111,29 +109,31 @@ const createMouseTracker = (gameRenderer, gameController, onChange) => {
      * @param {MouseEvent} e
      */
     canvasMove(e) {
-      const deltaX = this.lastX - e.clientX;
-      const deltaY = this.lastY - e.clientY;
-
-      if (this.down && (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2)) {
-        if (this.draggedShape !== null) gameController.clearPreview();
-        this.panning = true;
-        onChange({
-          panning: this.panning,
-          pattern: this.draggedShape ? true : false
-        });
-      }
-
       if (this.draggedShape !== null && !this.panning)
         gameController.placePreview(e.clientX, e.clientY, this.draggedShape);
 
-      if (this.panning) {
-        gameRenderer.setView({
-          panX: Math.round(gameRenderer.view.panX + deltaX),
-          panY: Math.round(gameRenderer.view.panY + deltaY)
-        });
+      if (this.down && this.lastX && this.lastY) {
+        const deltaX = this.lastX - e.clientX;
+        const deltaY = this.lastY - e.clientY;
 
-        this.lastX = e.clientX;
-        this.lastY = e.clientY;
+        if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
+          if (this.draggedShape !== null) gameController.clearPreview();
+          this.panning = true;
+          onChange({
+            panning: this.panning,
+            pattern: this.draggedShape ? true : false
+          });
+        }
+
+        if (this.panning) {
+          gameRenderer.setView({
+            panX: Math.round(gameRenderer.view.panX + deltaX),
+            panY: Math.round(gameRenderer.view.panY + deltaY)
+          });
+
+          this.lastX = e.clientX;
+          this.lastY = e.clientY;
+        }
       }
     },
 

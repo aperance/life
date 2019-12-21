@@ -1,12 +1,10 @@
-// @ts-check
-
 /** @module */
 
 /**
  *
  * @typedef {Object} PanControls
  * @property {*} intervalID
- * @property {string} direction
+ * @property {string | null} direction
  * @property {Function} start
  * @property {Function} stop
  * @property {Function} updateView

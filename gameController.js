@@ -1,5 +1,3 @@
-// @ts-check
-
 /** @module */
 
 const batchSize = 25;
@@ -12,10 +10,10 @@ const bufferSize = 50;
  * @property {Set} alivePreview
  * @property {boolean} playing
  * @property {Array<{born: Array<number>, died: Array<number>}>} resultBuffer
- * @property {number} resultsRequestedAt
+ * @property {number | null} resultsRequestedAt
  * @property {boolean} cellsChanged
  * @property {{cyclesPerRender: number, currentCycle: number}} speed
- * @property {{born: Array<number>, died: Array<number>}} nextResult
+ * @property {{born: Array<number>, died: Array<number>} | null} nextResult
  * @property {Function} handleWorkerMessage
  * @property {Function} setSpeed
  * @property {Function} toggleCell
@@ -53,7 +51,7 @@ const createGameController = (
     speed: { cyclesPerRender: 6, currentCycle: 1 },
 
     /**
-     * @returns {{born: Array<number>, died: Array<number>}}
+     * @returns {{born: Array<number>, died: Array<number>} | null}
      */
     get nextResult() {
       if (!this.playing) return null;
@@ -66,8 +64,7 @@ const createGameController = (
         this.resultsRequestedAt = Date.now();
       }
 
-      if (this.resultBuffer.length === 0) return null;
-      else return this.resultBuffer.shift();
+      return this.resultBuffer.shift() || null;
     },
 
     setSpeed(genPerSecond) {
@@ -83,6 +80,7 @@ const createGameController = (
       else {
         this.resultBuffer.push(...e.data);
 
+        // @ts-ignore
         const duration = Date.now() - this.resultsRequestedAt;
         const limit = 17 * batchSize * this.speed.cyclesPerRender;
 

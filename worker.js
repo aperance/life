@@ -1,5 +1,3 @@
-// @ts-check
-
 /** @type {Object|Generator} */
 let generator;
 
@@ -16,6 +14,7 @@ async function messageHandler(e) {
     case "start":
       if (payload.wasm)
         try {
+          // @ts-ignore
           const { GameEngine } = await import("life-wasm");
           generator = new GameEngine(payload.size, payload.initialAlive);
         } catch (e) {

@@ -1,4 +1,3 @@
-// @ts-check
 import "@fortawesome/fontawesome-free/js/all";
 import { createGameRenderer } from "./gameRenderer";
 import { createGameController } from "./gameController";
@@ -38,6 +37,13 @@ const dom = {
   /** @type {HTMLInputElement} */
   zoomSlider: (document.getElementById("zoom-slider"))
 };
+
+/** @type {CanvasRenderingContext2D} */
+const gridCtx = (dom.gridCanvas.getContext("2d"));
+/** @type {CanvasRenderingContext2D} */
+const cellCtx = (dom.cellCanvas.getContext("2d"));
+/** @type {CanvasRenderingContext2D} */
+const previewCtx = (dom.previewCanvas.getContext("2d"));
 
 /** @type {import('./gameRenderer').GameRenderer} */
 let gameRenderer;
@@ -81,8 +87,7 @@ dom.speedDropdown.addEventListener("click", e => {
 
 dom.patternModal.addEventListener("click", e => {
   const el = /** @type {HTMLElement} */ (e.target);
-  if (el.closest("button") && el.closest("button").className === "close")
-    mouseTracker.clearPattern();
+  if (el.closest("button")?.className === "close") mouseTracker.clearPattern();
   else if (el.id === "pattern-modal") mouseTracker.clearPattern();
   else if (el.classList[0] === "pattern-name") {
     mouseTracker.setPattern(getPatternRle(el.innerText));
@@ -91,11 +96,11 @@ dom.patternModal.addEventListener("click", e => {
 });
 
 dom.patternModal.addEventListener("show.bs.modal", e =>
-  document.getElementById("pattern-btn").classList.add("active")
+  document.getElementById("pattern-btn")?.classList.add("active")
 );
 
 dom.patternModal.addEventListener("hidden.bs.modal", e =>
-  document.getElementById("pattern-btn").blur()
+  document.getElementById("pattern-btn")?.blur()
 );
 
 [...dom.panButtonGroup.children].forEach(btn => {
@@ -144,9 +149,9 @@ function initializeGame() {
   const worker = new Worker("./worker.js");
 
   gameRenderer = createGameRenderer(
-    dom.gridCanvas.getContext("2d"),
-    dom.cellCanvas.getContext("2d"),
-    dom.previewCanvas.getContext("2d"),
+    gridCtx,
+    cellCtx,
+    previewCtx,
     5000,
     handleViewChange
   );
@@ -190,6 +195,8 @@ function handleResize() {
  */
 function handleGameChange({ generation, playing, speed }) {
   dom.leftStatus.textContent = `Playing: ${playing}, Generation: ${generation}`;
+
+  //@ts-ignore
   dom.speedBtn.querySelector("span").textContent =
     (6 / speed)
       .toString()
