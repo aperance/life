@@ -4,7 +4,7 @@ const path = require("path");
 
 const appConfig = {
   mode: "development",
-  entry: "./index.js",
+  entry: "./src/index.js",
   output: {
     filename: "index.js",
     path: path.resolve(__dirname, "dist"),
@@ -14,7 +14,7 @@ const appConfig = {
     contentBase: "./dist",
     port: 1234
   },
-  plugins: [new CopyWebpackPlugin(["./index.html", "./styles.css"])],
+  plugins: [new CopyWebpackPlugin(["./src/index.html", "./src/styles.css"])],
   module: {
     rules: [
       {
@@ -35,7 +35,7 @@ const appConfig = {
 const workerConfig = {
   mode: "development",
   target: "webworker",
-  entry: "./worker.js",
+  entry: "./src/worker.js",
   output: {
     filename: "worker.js",
     path: path.resolve(__dirname, "dist"),
