@@ -4,5 +4,7 @@
     "module": "esnext",
     "checkJs": true,
     "strictNullChecks": true
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["src/wasm"]
 }

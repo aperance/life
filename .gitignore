@@ -1,6 +1,6 @@
 *DS_Store
 
-wasm/target
+src/wasm/target
 
 # Parcel
 .cache
