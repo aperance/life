@@ -10,18 +10,18 @@ const bufferSize = 50;
  * @property {Set} alivePreview
  * @property {boolean} playing
  * @property {Array<{born: Array<number>, died: Array<number>}>} resultBuffer
- * @property {number | null} resultsRequestedAt
+ * @property {number?} resultsRequestedAt
  * @property {boolean} cellsChanged
  * @property {{cyclesPerRender: number, currentCycle: number}} speed
- * @property {{born: Array<number>, died: Array<number>} | null} nextResult
- * @property {Function} handleWorkerMessage
- * @property {Function} setSpeed
- * @property {Function} toggleCell
- * @property {Function} placeElement
- * @property {Function} placePreview
- * @property {Function} clearPreview
- * @property {Function} start
- * @property {Function} animationCycle
+ * @property {{born: Array<number>, died: Array<number>}?} nextResult
+ * @property {function(MessageEvent): void} handleWorkerMessage
+ * @property {function(number): void} setSpeed
+ * @property {function(number, number): void} toggleCell
+ * @property {function(number, number, Array<Array<number>>): void} placeElement
+ * @property {function(number, number, Array<Array<number>>): void} placePreview
+ * @property {function(): void} clearPreview
+ * @property {function(): void} start
+ * @property {function(): void} animationCycle
  */
 
 /**
@@ -30,7 +30,7 @@ const bufferSize = 50;
  * @param {import('./gameRenderer.js').GameRenderer} gameRenderer
  * @param {number} cellCount
  * @param {boolean} wasm
- * @param {Function} onGameChange
+ * @param {function(boolean, number, number): void} onGameChange
  * @return {GameController}
  */
 const createGameController = (
@@ -40,8 +40,8 @@ const createGameController = (
   wasm,
   onGameChange
 ) => {
-  /**@type {GameController} */
-  const obj = {
+  /** @type {GameController} */
+  const gameController = {
     alive: new Set(),
     alivePreview: new Set(),
     playing: false,
@@ -67,13 +67,9 @@ const createGameController = (
       return this.resultBuffer.shift() || null;
     },
 
-    setSpeed(genPerSecond) {
-      this.speed = { cyclesPerRender: 6 / genPerSecond, currentCycle: 1 };
-    },
-
     /**
      *
-     * @param {{data: *}} e
+     * @param {MessageEvent} e
      */
     handleWorkerMessage(e) {
       if (e.data === "started") this.playing = true;
@@ -91,6 +87,14 @@ const createGameController = (
 
         this.resultsRequestedAt = null;
       }
+    },
+
+    /**
+     *
+     * @param {number} genPerSecond
+     */
+    setSpeed(genPerSecond) {
+      this.speed = { cyclesPerRender: 6 / genPerSecond, currentCycle: 1 };
     },
 
     /**
@@ -180,7 +184,8 @@ const createGameController = (
      *
      */
     animationCycle() {
-      let born, died;
+      let born = null;
+      let died = null;
 
       if (this.playing) {
         if (this.speed.currentCycle < this.speed.cyclesPerRender) {
@@ -207,20 +212,16 @@ const createGameController = (
 
       this.cellsChanged = false;
 
-      onGameChange({
-        generation: 0,
-        playing: this.playing,
-        speed: this.speed.cyclesPerRender
-      });
+      onGameChange(this.playing, 0, this.speed.cyclesPerRender);
 
       requestAnimationFrame(this.animationCycle.bind(this));
     }
   };
 
-  worker.onmessage = obj.handleWorkerMessage.bind(obj);
-  obj.animationCycle();
+  worker.onmessage = gameController.handleWorkerMessage.bind(gameController);
+  gameController.animationCycle();
 
-  return obj;
+  return gameController;
 };
 
 export { createGameController };

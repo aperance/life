@@ -1,23 +1,31 @@
 /** @module */
 
 /**
+ * @typedef {Object} View
+ * @property {number} [width]
+ * @property {number} [height]
+ * @property {number} [zoom]
+ * @property {number} [panX]
+ * @property {number} [panY]
+ */
+
+/**
  * @typedef {Object} GameRenderer
- * @property {{width: number, height: number, zoom: number, panX: number, panY: number}} view
+ * @property {View} view
  * @property {boolean} redrawGrid
- * @property {function(Object)} setView
- * @property {Function} zoomAtPoint
- * @property {Function | null} onViewChange
- * @property {Function} render
- * @property {Function} renderGrid
- * @property {Function} renderAllCells
- * @property {Function} renderChangedCells
- * @property {Function} renderPreview
- * @property {Function} getMinZoom
- * @property {Function} getMaxPanX
- * @property {Function} getMaxPanY
- * @property {Function} indexToRowCol
- * @property {Function} xyToRowCol
- * @property {Function} xyToIndex
+ * @property {function(View)} setView
+ * @property {function(number, number, number): void} zoomAtPoint
+ * @property {function(Array<number>, Array<number>?, Array<number>?, Array<number>, boolean): void} render
+ * @property {function(): void} renderGrid
+ * @property {function(Array<number>): void} renderAllCells
+ * @property {function(Array<number>, Array<number>): void} renderChangedCells
+ * @property {function(Array<number>): void} renderPreview
+ * @property {function(): number} getMinZoom
+ * @property {function(): number} getMaxPanX
+ * @property {function(): number} getMaxPanY
+ * @property {function(number): {row: number, col: number}} indexToRowCol
+ * @property {function(number, number): {row: number, col: number}} xyToRowCol
+ * @property {function(number, number): number} xyToIndex
  */
 
 /**
@@ -26,7 +34,7 @@
  * @param {CanvasRenderingContext2D} cellCtx
  * @param {CanvasRenderingContext2D} previewCtx
  * @param {number} cellCount
- * @param {Function} onViewChange
+ * @param {function(number, number, number): void} onViewChange
  * @returns {GameRenderer}
  */
 const createGameRenderer = (
@@ -38,28 +46,27 @@ const createGameRenderer = (
 ) => {
   /** @type {GameRenderer} */
   const gameRenderer = {
-    view: { width: 0, height: 0, zoom: 10, panX: 0, panY: 0 },
+    view: { width: 0, height: 0, zoom: 10 },
     redrawGrid: true,
-    onViewChange: null,
 
     /**
      *
-     * @param {Object} view
+     * @param {View} view
      */
     setView(view = {}) {
       this.view = { ...this.view, ...view };
       this.view.zoom = clamp(this.view.zoom, this.getMinZoom(), 100);
       this.view.panX =
-        this.view.panX === null
+        typeof this.view.panX === "undefined"
           ? Math.round(this.getMaxPanX() / 2)
           : clamp(this.view.panX, 0, this.getMaxPanX());
       this.view.panY =
-        this.view.panY === null
+        typeof this.view.panY === "undefined"
           ? Math.round(this.getMaxPanY() / 2)
           : clamp(this.view.panY, 0, this.getMaxPanY());
       this.redrawGrid = true;
 
-      onViewChange(this.view);
+      onViewChange(this.view.zoom, this.view.panX, this.view.panY);
     },
 
     /**
@@ -82,8 +89,8 @@ const createGameRenderer = (
      * @function
      * @name render
      * @param {Array<number>} alive
-     * @param {Array<number>} [born]
-     * @param {Array<number>} [died]
+     * @param {Array<number>?} born
+     * @param {Array<number>?} died
      * @param {Array<number>} preview
      * @param {boolean} cellsChanged
      */

@@ -4,15 +4,15 @@
  *
  * @typedef {Object} PanControls
  * @property {*} intervalID
- * @property {string | null} direction
- * @property {Function} start
- * @property {Function} stop
- * @property {Function} updateView
+ * @property {string?} direction
+ * @property {function(string): void} start
+ * @property {function(): void} stop
+ * @property {function(): void} updateView
  */
 
 /**
  *
- * @param {*} gameRenderer
+ * @param {import('./gameRenderer.js').GameRenderer} gameRenderer
  * @returns {PanControls}
  */
 const createPanControls = gameRenderer => {
@@ -61,6 +61,7 @@ const createPanControls = gameRenderer => {
       }
     }
   };
+
   return panControls;
 };
 

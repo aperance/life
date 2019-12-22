@@ -8,25 +8,25 @@
  * @property {Array<Array<number>> | null} draggedShape
  * @property {number | null} lastX
  * @property {number | null} lastY
- * @property {Function} setPattern
- * @property {Function} clearPattern
- * @property {Function} canvasLeave
- * @property {Function} canvasEnter
- * @property {Function} canvasMove
- * @property {Function} canvasUp
- * @property {Function} canvasDown
- * @property {Function} canvasWheel
+ * @property {function(Array<Array<number>>): void} setPattern
+ * @property {function(): void} clearPattern
+ * @property {function(MouseEvent): void} canvasEnter
+ * @property {function(): void} canvasLeave
+ * @property {function(MouseEvent): void} canvasUp
+ * @property {function(MouseEvent): void} canvasDown
+ * @property {function(MouseEvent): void} canvasMove
+ * @property {function(MouseEvent): void} canvasWheel
  */
 
 /**
  *
  * @param {import('./gameRenderer').GameRenderer} gameRenderer
  * @param {import('./gameController').GameController} gameController
- * @param  {Function} onChange
+ * @param  {function(boolean, boolean): void} onChange
  * @returns {MouseTracker}
  */
 const createMouseTracker = (gameRenderer, gameController, onChange) => {
-  /** @type MouseTracker */
+  /** @type {MouseTracker} */
   const mouseTracker = {
     draggedShape: null,
     down: false,
@@ -34,20 +34,21 @@ const createMouseTracker = (gameRenderer, gameController, onChange) => {
     lastX: null,
     lastY: null,
 
+    /**
+     *
+     * @param {*} pattern
+     */
     setPattern(pattern) {
       this.draggedShape = pattern;
-      onChange({
-        panning: this.panning,
-        pattern: this.draggedShape ? true : false
-      });
+      onChange(this.panning, this.draggedShape ? true : false);
     },
 
+    /**
+     *
+     */
     clearPattern() {
       this.draggedShape = null;
-      onChange({
-        panning: this.panning,
-        pattern: this.draggedShape ? true : false
-      });
+      onChange(this.panning, this.draggedShape ? true : false);
     },
 
     /**
@@ -88,10 +89,7 @@ const createMouseTracker = (gameRenderer, gameController, onChange) => {
       this.lastX = null;
       this.lastY = null;
 
-      onChange({
-        panning: this.panning,
-        pattern: this.draggedShape ? true : false
-      });
+      onChange(this.panning, this.draggedShape ? true : false);
     },
 
     /**
@@ -119,10 +117,7 @@ const createMouseTracker = (gameRenderer, gameController, onChange) => {
         if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
           if (this.draggedShape !== null) gameController.clearPreview();
           this.panning = true;
-          onChange({
-            panning: this.panning,
-            pattern: this.draggedShape ? true : false
-          });
+          onChange(this.panning, this.draggedShape ? true : false);
         }
 
         if (this.panning) {

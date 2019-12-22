@@ -5,6 +5,21 @@ import { createMouseTracker } from "./mouseTracker";
 import { createPanControls } from "./panControls";
 import { generatePatternList, getPatternRle } from "./patterns";
 
+const wasm = true;
+
+/** @type {import('./gameRenderer').GameRenderer} */
+let gameRenderer;
+
+/** @type {import('./gameController').GameController} */
+let gameController;
+
+/** @type {import('./mouseTracker').MouseTracker} */
+// eslint-disable-next-line no-unused-vars
+let mouseTracker;
+
+/** @type {import('./panControls').PanControls} */
+let panControls;
+
 const dom = {
   /** @type {HTMLDivElement} */
   container: (document.getElementById("canvas-container")),
@@ -45,21 +60,6 @@ const cellCtx = (dom.cellCanvas.getContext("2d"));
 /** @type {CanvasRenderingContext2D} */
 const previewCtx = (dom.previewCanvas.getContext("2d"));
 
-/** @type {import('./gameRenderer').GameRenderer} */
-let gameRenderer;
-
-/** @type {import('./gameController').GameController} */
-let gameController;
-
-/** @type {import('./mouseTracker').MouseTracker} */
-// eslint-disable-next-line no-unused-vars
-let mouseTracker;
-
-/** @type {import('./panControls').PanControls} */
-let panControls;
-
-const wasm = true;
-
 window.addEventListener("resize", handleResize);
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -96,11 +96,11 @@ dom.patternModal.addEventListener("click", e => {
 });
 
 dom.patternModal.addEventListener("show.bs.modal", e =>
-  document.getElementById("pattern-btn")?.classList.add("active")
+  dom.patternBtn.classList.add("active")
 );
 
 dom.patternModal.addEventListener("hidden.bs.modal", e =>
-  document.getElementById("pattern-btn")?.blur()
+  dom.patternBtn.blur()
 );
 
 [...dom.panButtonGroup.children].forEach(btn => {
@@ -125,7 +125,7 @@ dom.zoomSlider.addEventListener("input", e =>
   )
 );
 
-dom.container.addEventListener("mouseleave", e => mouseTracker.canvasLeave(e));
+dom.container.addEventListener("mouseleave", e => mouseTracker.canvasLeave());
 dom.container.addEventListener("mouseenter", e => mouseTracker.canvasEnter(e));
 dom.container.addEventListener("mouseup", e => mouseTracker.canvasUp(e));
 dom.container.addEventListener("mousedown", e => mouseTracker.canvasDown(e));
@@ -192,9 +192,12 @@ function handleResize() {
 
 /**
  *
+ * @param {boolean} isPlaying
+ * @param {number} generation
+ * @param {number} speed
  */
-function handleGameChange({ generation, playing, speed }) {
-  dom.leftStatus.textContent = `Playing: ${playing}, Generation: ${generation}`;
+function handleGameChange(isPlaying, generation, speed) {
+  dom.leftStatus.textContent = `Playing: ${isPlaying}, Generation: ${generation}`;
 
   //@ts-ignore
   dom.speedBtn.querySelector("span").textContent =
@@ -206,17 +209,22 @@ function handleGameChange({ generation, playing, speed }) {
 
 /**
  *
+ * @param {number} zoom
+ * @param {number} panX
+ * @param {number} panY
  */
-function handleViewChange({ zoom, panX, panY }) {
+function handleViewChange(zoom, panX, panY) {
   dom.rightStatus.textContent = `Zoom: ${zoom}, Position: (${panX},${panY})`;
   dom.zoomSlider.value = Math.sqrt(zoom).toString();
 }
 
 /**
  *
+ * @param {boolean} panningMode
+ * @param {boolean} patternMode
  */
-function handleMouseChange({ panning, pattern }) {
-  dom.container.style.cursor = panning ? "all-scroll" : "default";
-  dom.defaultBtn.className = `btn btn-primary ${!pattern && "active"}`;
-  dom.patternBtn.className = `btn btn-primary ${pattern && "active"}`;
+function handleMouseChange(panningMode, patternMode) {
+  dom.container.style.cursor = panningMode ? "all-scroll" : "default";
+  dom.defaultBtn.className = `btn btn-primary ${!patternMode && "active"}`;
+  dom.patternBtn.className = `btn btn-primary ${patternMode && "active"}`;
 }
