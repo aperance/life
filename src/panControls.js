@@ -26,6 +26,7 @@ const createPanControls = gameRenderer => {
      * @param {string} direction
      */
     start(direction) {
+      if (this.intervalID !== null) this.stop();
       this.intervalID = setInterval(this.updateView.bind(this), 10);
       this.direction = direction;
     },
@@ -57,6 +58,7 @@ const createPanControls = gameRenderer => {
           gameRenderer.setView({ panX: gameRenderer.view.panX + 2 });
           break;
         default:
+          this.stop();
           break;
       }
     }
