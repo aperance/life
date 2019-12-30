@@ -21,8 +21,6 @@ let mouseTracker;
 let panControls;
 
 const dom = {
-  /** @type {HTMLDivElement} */
-  container: (document.getElementById("canvas-container")),
   /**  @type {HTMLCanvasElement} */
   gridCanvas: (document.getElementById("grid-canvas")),
   /** @type {HTMLCanvasElement} */
@@ -69,6 +67,19 @@ document.addEventListener("DOMContentLoaded", function() {
   );
 });
 
+document.addEventListener("wheel", e => e.preventDefault(), {
+  passive: false
+});
+
+document.addEventListener("wheel", e => mouseTracker.mouseWheel(e), {
+  passive: true
+});
+
+document.addEventListener("mouseup", e => mouseTracker.mouseUp(e));
+document.addEventListener("mousedown", e => mouseTracker.mouseDown(e));
+document.addEventListener("mousemove", e => mouseTracker.mouseMove(e));
+document.addEventListener("mouseleave", e => mouseTracker.mouseLeave());
+
 dom.topBar.addEventListener("mousedown", e => e.preventDefault());
 
 dom.topBar.addEventListener("click", e => {
@@ -91,7 +102,7 @@ dom.patternModal.addEventListener("click", e => {
   else if (el.id === "pattern-modal") mouseTracker.clearPattern();
   else if (el.classList[0] === "pattern-name") {
     mouseTracker.setPattern(getPatternRle(el.innerText));
-    mouseTracker.canvasMove(e);
+    mouseTracker.mouseMove(e);
   }
 });
 
@@ -124,19 +135,6 @@ dom.zoomSlider.addEventListener("input", e =>
     dom.container.clientHeight / 2
   )
 );
-
-dom.container.addEventListener("mouseleave", e => mouseTracker.canvasLeave());
-dom.container.addEventListener("mouseenter", e => mouseTracker.canvasEnter(e));
-dom.container.addEventListener("mouseup", e => mouseTracker.canvasUp(e));
-dom.container.addEventListener("mousedown", e => mouseTracker.canvasDown(e));
-dom.container.addEventListener("mousemove", e => mouseTracker.canvasMove(e));
-
-dom.container.addEventListener("wheel", e => e.preventDefault(), {
-  passive: false
-});
-dom.container.addEventListener("wheel", e => mouseTracker.canvasWheel(e), {
-  passive: true
-});
 
 dom.patternList.innerHTML = generatePatternList();
 
@@ -180,13 +178,13 @@ function initializeGame() {
  */
 function handleResize() {
   gameRenderer.setView({
-    width: dom.container.clientWidth,
-    height: dom.container.clientHeight
+    width: window.innerWidth,
+    height: window.innerHeight
   });
 
   [dom.gridCanvas, dom.cellCanvas, dom.previewCanvas].forEach(canvas => {
-    canvas.width = dom.container.clientWidth;
-    canvas.height = dom.container.clientHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
   });
 }
 
@@ -224,7 +222,7 @@ function handleViewChange(zoom, panX, panY) {
  * @param {boolean} patternMode
  */
 function handleMouseChange(panningMode, patternMode) {
-  dom.container.style.cursor = panningMode ? "all-scroll" : "default";
+  document.body.style.cursor = panningMode ? "all-scroll" : "default";
   dom.defaultBtn.className = `btn btn-primary ${!patternMode && "active"}`;
   dom.patternBtn.className = `btn btn-primary ${patternMode && "active"}`;
 }

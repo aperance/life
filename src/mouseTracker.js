@@ -3,20 +3,20 @@
 /**
  *
  * @typedef {Object} MouseTracker
- * @property {boolean} down
+ * @property {boolean} downOnCanvas
  * @property {boolean} panning
  * @property {Array<Array<number>> | null} pattern
  * @property {number | null} lastX
  * @property {number | null} lastY
- * @property {function(): void} updateObserver
  * @property {function(Array<Array<number>>): void} setPattern
  * @property {function(): void} clearPattern
- * @property {function(MouseEvent): void} canvasEnter
- * @property {function(): void} canvasLeave
- * @property {function(MouseEvent): void} canvasUp
- * @property {function(MouseEvent): void} canvasDown
- * @property {function(MouseEvent): void} canvasMove
- * @property {function(MouseEvent): void} canvasWheel
+ * @property {function(MouseEvent): void} mouseUp
+ * @property {function(MouseEvent): void} mouseDown
+ * @property {function(MouseEvent): void} mouseMove
+ * @property {function(): void} mouseLeave
+ * @property {function(MouseEvent): void} mouseWheel
+ * @property {function(MouseEvent): string} getTargetID
+ * @property {function(): void} updateObserver
  */
 
 /**
@@ -30,14 +30,14 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
   /** @type {MouseTracker} */
   const mouseTracker = {
     pattern: null,
-    down: false,
+    downOnCanvas: false,
     panning: false,
     lastX: null,
     lastY: null,
 
     /**
      *
-     * @param {*} pattern
+     * @param {Array<Array<number>>} pattern
      */
     setPattern(pattern) {
       this.pattern = pattern;
@@ -56,36 +56,20 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
      *
      * @param {MouseEvent} e
      */
-    canvasEnter(e) {
-      if (e.buttons === 0) {
-        this.down = false;
-        this.panning = false;
-      }
-    },
+    mouseUp(e) {
+      if (this.downOnCanvas) {
+        if (this.panning && this.pattern)
+          gameController.placePreview(e.clientX, e.clientY, this.pattern);
 
-    /**
-     *
-     */
-    canvasLeave() {
-      if (this.pattern !== null) gameController.clearPreview();
-    },
+        if (!this.panning && this.pattern)
+          gameController.placeElement(e.clientX, e.clientY, this.pattern);
 
-    /**
-     *
-     * @param {MouseEvent} e
-     */
-    canvasUp(e) {
-      if (!this.panning) {
-        if (this.pattern === null)
+        if (!this.panning && !this.pattern)
           gameController.toggleCell(e.clientX, e.clientY);
-        else gameController.placeElement(e.clientX, e.clientY, this.pattern);
       }
-
-      if (this.pattern !== null)
-        gameController.placePreview(e.clientX, e.clientY, this.pattern);
 
       this.panning = false;
-      this.down = false;
+      this.downOnCanvas = false;
       this.lastX = null;
       this.lastY = null;
 
@@ -96,21 +80,26 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
      *
      * @param {MouseEvent} e
      */
-    canvasDown(e) {
-      this.down = true;
-      this.lastX = e.clientX;
-      this.lastY = e.clientY;
+    mouseDown(e) {
+      if (this.getTargetID(e) === "cell-canvas") {
+        this.downOnCanvas = true;
+        this.lastX = e.clientX;
+        this.lastY = e.clientY;
+      }
     },
 
     /**
      *
      * @param {MouseEvent} e
      */
-    canvasMove(e) {
-      if (this.pattern !== null && !this.panning)
-        gameController.placePreview(e.clientX, e.clientY, this.pattern);
+    mouseMove(e) {
+      if (this.pattern !== null && !this.panning) {
+        if (this.getTargetID(e) === "cell-canvas")
+          gameController.placePreview(e.clientX, e.clientY, this.pattern);
+        else gameController.clearPreview();
+      }
 
-      if (this.down && this.lastX && this.lastY) {
+      if (this.downOnCanvas && this.lastX && this.lastY) {
         const deltaX = this.lastX - e.clientX;
         const deltaY = this.lastY - e.clientY;
 
@@ -134,12 +123,27 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
 
     /**
      *
+     */
+    mouseLeave() {
+      gameController.clearPreview();
+    },
+
+    /**
+     *
      * @param {WheelEvent} e
      */
-    canvasWheel(e) {
+    mouseWheel(e) {
+      if (this.getTargetID(e) !== "cell-canvas") return;
+
       const { zoom } = gameRenderer.view;
       const newZoom = Math.round(zoom + Math.sign(e.deltaY) * (1 + zoom / 50));
       gameRenderer.zoomAtPoint(newZoom, e.clientX, e.clientY);
+    },
+
+    getTargetID(e) {
+      /** @type {HTMLElement} */
+      const target = (e.target);
+      return target.id;
     },
 
     updateObserver() {
