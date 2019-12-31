@@ -131,8 +131,8 @@ dom.patternModal.addEventListener("hidden.bs.modal", e =>
 dom.zoomSlider.addEventListener("input", e =>
   gameRenderer.zoomAtPoint(
     Math.round(Math.pow(parseFloat(dom.zoomSlider.value), 2)),
-    dom.container.clientWidth / 2,
-    dom.container.clientHeight / 2
+    window.innerWidth / 2,
+    window.innerHeight / 2
   )
 );
 
