@@ -15,10 +15,6 @@ const observer = jest.fn();
 
 const mouseTracker = createMouseTracker(gameRenderer, gameController, observer);
 
-// beforeEach(() => {
-//   jest.clearAllMocks();
-// });
-
 describe("For wheel spin", () => {
   beforeEach(() => {
     jest.clearAllMocks();
