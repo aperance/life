@@ -2,8 +2,6 @@
 
 /**
  * @typedef {Object} View
- * @property {number} [width]
- * @property {number} [height]
  * @property {number} [zoom]
  * @property {number} [panX]
  * @property {number} [panY]
@@ -11,9 +9,11 @@
 
 /**
  * @typedef {Object} GameRenderer
- * @property {View} view
+ * @property {{width: number, height: number}} [window]
+ * @property {View} [view]
  * @property {boolean} redrawGrid
- * @property {function(View)} setView
+ * @property {function(number, number)} setWindow
+ * @property {function(View?)} setView
  * @property {function(number, number, number): void} zoomAtPoint
  * @property {function(Array<number>, Array<number>?, Array<number>?, Array<number>, boolean): void} render
  * @property {function(): void} renderGrid
@@ -46,24 +46,38 @@ const createGameRenderer = (
 ) => {
   /** @type {GameRenderer} */
   const gameRenderer = {
-    view: { width: 0, height: 0, zoom: 10 },
     redrawGrid: true,
 
     /**
      *
-     * @param {View} view
+     * @param {number} width
+     * @param {number} height
      */
-    setView(view = {}) {
-      this.view = { ...this.view, ...view };
+    setWindow(width, height) {
+      this.window = { width, height };
+      this.setView(null);
+    },
+
+    /**
+     *
+     * @param {View} [view]
+     */
+    setView(newView) {
+      if (typeof this.window === "undefined") return;
+
+      if (typeof this.view === "undefined") {
+        this.view = {};
+        this.view.zoom = 10;
+        this.view.panX = Math.round(this.getMaxPanY() / 2);
+        this.view.panY = Math.round(this.getMaxPanX() / 2);
+      }
+
+      if (newView) this.view = { ...this.view, ...newView };
+
       this.view.zoom = clamp(this.view.zoom, this.getMinZoom(), 100);
-      this.view.panX =
-        typeof this.view.panX === "undefined"
-          ? Math.round(this.getMaxPanX() / 2)
-          : clamp(this.view.panX, 0, this.getMaxPanX());
-      this.view.panY =
-        typeof this.view.panY === "undefined"
-          ? Math.round(this.getMaxPanY() / 2)
-          : clamp(this.view.panY, 0, this.getMaxPanY());
+      this.view.panX = clamp(this.view.panX, 0, this.getMaxPanX());
+      this.view.panY = clamp(this.view.panY, 0, this.getMaxPanY());
+
       this.redrawGrid = true;
 
       onViewChange(this.view.zoom, this.view.panX, this.view.panY);
@@ -75,13 +89,13 @@ const createGameRenderer = (
      * @param {number} x
      * @param {number} y
      */
-    zoomAtPoint(newZoom, x, y) {
+    zoomAtPoint(zoom, x, y) {
       const { zoom: oldZoom, panX: oldPanX, panY: oldPanY } = this.view;
-      this.setView({ zoom: newZoom });
-      const scale = this.view.zoom / oldZoom - 1;
+      const newZoom = clamp(zoom, this.getMinZoom(), 100);
+      const scale = newZoom / oldZoom - 1;
       const newPanX = Math.round(oldPanX + scale * (oldPanX + x));
       const newPanY = Math.round(oldPanY + scale * (oldPanY + y));
-      this.setView({ panX: newPanX, panY: newPanY });
+      this.setView({ zoom: newZoom, panX: newPanX, panY: newPanY });
     },
 
     /**
@@ -95,6 +109,12 @@ const createGameRenderer = (
      * @param {boolean} cellsChanged
      */
     render(alive, born, died, preview, cellsChanged) {
+      if (
+        typeof this.window === "undefined" ||
+        typeof this.view === "undefined"
+      )
+        return;
+
       if (this.redrawGrid) {
         this.renderGrid();
         this.renderAllCells(alive);
@@ -111,7 +131,8 @@ const createGameRenderer = (
      *
      */
     renderGrid() {
-      const { width, height, zoom, panX, panY } = this.view;
+      const { width, height } = this.window;
+      const { zoom, panX, panY } = this.view;
       const { row: startRow, col: startCol } = this.xyToRowCol(0, 0);
       const { row: endRow, col: endCol } = this.xyToRowCol(width, height);
 
@@ -139,7 +160,8 @@ const createGameRenderer = (
      * @param {Array<number>} alive
      */
     renderAllCells(alive) {
-      const { width, height, zoom, panX, panY } = this.view;
+      const { width, height } = this.window;
+      const { zoom, panX, panY } = this.view;
 
       cellCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
       cellCtx.clearRect(0, 0, width + panX, height + panY);
@@ -171,7 +193,8 @@ const createGameRenderer = (
      * @param {Array<number>} alive
      */
     renderPreview(alive) {
-      const { width, height, zoom, panX, panY } = this.view;
+      const { width, height } = this.window;
+      const { zoom, panX, panY } = this.view;
 
       previewCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
       previewCtx.clearRect(0, 0, width + panX, height + panY);
@@ -188,21 +211,23 @@ const createGameRenderer = (
      * @returns {number}
      */
     getMinZoom() {
-      return Math.ceil(Math.max(this.view.width, this.view.height) / cellCount);
+      return Math.ceil(
+        Math.max(this.window.width, this.window.height) / cellCount
+      );
     },
 
     /**
      * @returns {number}
      */
     getMaxPanX() {
-      return cellCount * this.view.zoom - this.view.width;
+      return cellCount * this.view.zoom - this.window.width;
     },
 
     /**
      * @returns {number}
      */
     getMaxPanY() {
-      return cellCount * this.view.zoom - this.view.height;
+      return cellCount * this.view.zoom - this.window.height;
     },
 
     /**

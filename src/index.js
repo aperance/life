@@ -177,10 +177,7 @@ function initializeGame() {
  *
  */
 function handleResize() {
-  gameRenderer.setView({
-    width: window.innerWidth,
-    height: window.innerHeight
-  });
+  gameRenderer.setWindow(window.innerWidth, window.innerHeight);
 
   [dom.gridCanvas, dom.cellCanvas, dom.previewCanvas].forEach(canvas => {
     canvas.width = window.innerWidth;
