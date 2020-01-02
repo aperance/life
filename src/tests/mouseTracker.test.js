@@ -3,7 +3,9 @@ import { createMouseTracker } from "../mouseTracker";
 const gameRenderer = {
   view: { zoom: 10, panX: 100, panY: 100 },
   setView: jest.fn(),
-  zoomAtPoint: jest.fn()
+  zoomAtPoint: jest.fn(),
+  xyToIndex: jest.fn().mockReturnValue(0),
+  xyToRowCol: jest.fn().mockReturnValue({ row: 0, col: 0 })
 };
 const gameController = {
   toggleCell: jest.fn(),
@@ -74,6 +76,12 @@ describe("With pattern selected", () => {
       jest.clearAllMocks();
       mouseTracker.mouseMove(e);
     });
+    test("Conversion function called with correct coordinates", () => {
+      expect(gameRenderer.xyToRowCol).toHaveBeenCalledWith(
+        e.clientX,
+        e.clientY
+      );
+    });
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
@@ -82,8 +90,8 @@ describe("With pattern selected", () => {
     });
     test("Place preview is requested with coordinates and pattern", () => {
       expect(gameController.placePreview).toHaveBeenCalledWith(
-        e.clientX,
-        e.clientY,
+        0,
+        0,
         testPattern
       );
     });
@@ -164,20 +172,26 @@ describe("With pattern selected", () => {
       mouseTracker.mouseMove(e);
       mouseTracker.mouseUp(e);
     });
+    test("Conversion function called with correct coordinates", () => {
+      expect(gameRenderer.xyToRowCol).toHaveBeenCalledWith(
+        e.clientX,
+        e.clientY
+      );
+    });
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
     test("Place element is requested", () => {
       expect(gameController.placeElement).toHaveBeenCalledWith(
-        e.clientX,
-        e.clientY,
+        0,
+        0,
         testPattern
       );
     });
     test("Place preview is requested", () => {
       expect(gameController.placePreview).toHaveBeenCalledWith(
-        e.clientX,
-        e.clientY,
+        0,
+        0,
         testPattern
       );
     });
@@ -207,6 +221,12 @@ describe("With pattern selected", () => {
       mouseTracker.mouseMove(e);
       mouseTracker.mouseUp(e);
     });
+    test("Conversion function called with correct coordinates", () => {
+      expect(gameRenderer.xyToRowCol).toHaveBeenCalledWith(
+        e.clientX,
+        e.clientY
+      );
+    });
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
@@ -215,8 +235,8 @@ describe("With pattern selected", () => {
     });
     test("Place preview is requested", () => {
       expect(gameController.placePreview).toHaveBeenCalledWith(
-        e.clientX,
-        e.clientY,
+        0,
+        0,
         testPattern
       );
     });
@@ -289,6 +309,12 @@ describe("With pattern selected", () => {
       mouseTracker.mouseMove(e);
       mouseTracker.mouseUp(e);
     });
+    test("Conversion function called with correct coordinates", () => {
+      expect(gameRenderer.xyToRowCol).toHaveBeenCalledWith(
+        e.clientX,
+        e.clientY
+      );
+    });
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
@@ -297,8 +323,8 @@ describe("With pattern selected", () => {
     });
     test("Place preview is requested", () => {
       expect(gameController.placePreview).toHaveBeenCalledWith(
-        e.clientX,
-        e.clientY,
+        0,
+        0,
         testPattern
       );
     });
@@ -328,11 +354,11 @@ describe("With pattern cleared", () => {
       mouseTracker.mouseDown(e);
       mouseTracker.mouseUp(e);
     });
+    test("Conversion function called with correct coordinates", () => {
+      expect(gameRenderer.xyToIndex).toHaveBeenCalledWith(e.clientX, e.clientY);
+    });
     test("Toggle cell requested with correct coordinates", () => {
-      expect(gameController.toggleCell).toHaveBeenCalledWith(
-        e.clientX,
-        e.clientY
-      );
+      expect(gameController.toggleCell).toHaveBeenCalledWith(0);
     });
     test("Place element not requested", () => {
       expect(gameController.placeElement).not.toHaveBeenCalled();
@@ -394,10 +420,7 @@ describe("With pattern cleared", () => {
       mouseTracker.mouseUp(e);
     });
     test("Toggle cell requested with correct coordinates", () => {
-      expect(gameController.toggleCell).toHaveBeenCalledWith(
-        e.clientX,
-        e.clientY
-      );
+      expect(gameController.toggleCell).toHaveBeenCalledWith(0);
     });
     test("Place element not requested", () => {
       expect(gameController.placeElement).not.toHaveBeenCalled();

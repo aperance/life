@@ -57,14 +57,16 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
      */
     mouseUp(e) {
       if (isPointerOverCanvas(e) && this.downOnCanvas) {
-        if (!this.panning && !this.pattern)
-          gameController.toggleCell(e.clientX, e.clientY);
+        if (this.pattern) {
+          const { row, col } = gameRenderer.xyToRowCol(e.clientX, e.clientY);
+          if (this.panning) gameController.placePreview(row, col, this.pattern);
+          else gameController.placeElement(row, col, this.pattern);
+        }
 
-        if (!this.panning && this.pattern)
-          gameController.placeElement(e.clientX, e.clientY, this.pattern);
-
-        if (this.panning && this.pattern)
-          gameController.placePreview(e.clientX, e.clientY, this.pattern);
+        if (!this.pattern && !this.panning) {
+          const index = gameRenderer.xyToIndex(e.clientX, e.clientY);
+          gameController.toggleCell(index);
+        }
       }
 
       this.panning = false;
@@ -114,9 +116,10 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
       }
 
       if (this.pattern && !this.panning) {
-        if (isPointerOverCanvas(e))
-          gameController.placePreview(e.clientX, e.clientY, this.pattern);
-        else gameController.clearPreview();
+        if (isPointerOverCanvas(e)) {
+          const { row, col } = gameRenderer.xyToRowCol(e.clientX, e.clientY);
+          gameController.placePreview(row, col, this.pattern);
+        } else gameController.clearPreview();
       }
     },
 

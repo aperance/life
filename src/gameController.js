@@ -16,7 +16,7 @@ const bufferSize = 50;
  * @property {{born: Array<number>, died: Array<number>}?} nextResult
  * @property {function(MessageEvent): void} handleWorkerMessage
  * @property {function(number): void} setSpeed
- * @property {function(number, number): void} toggleCell
+ * @property {function(number): void} toggleCell
  * @property {function(number, number, Array<Array<number>>): void} placeElement
  * @property {function(number, number, Array<Array<number>>): void} placePreview
  * @property {function(): void} clearPreview
@@ -99,28 +99,27 @@ const createGameController = (
 
     /**
      *
-     * @param {number} x
-     * @param {number} y
+     * @param {number} index
      */
-    toggleCell(x, y) {
-      const index = gameRenderer.xyToIndex(x, y);
-      if (this.alive.has(index)) this.alive.delete(index);
-      else this.alive.add(index);
+    toggleCell(index) {
+      if (this.playing) return;
+
+      this.alive.has(index) ? this.alive.delete(index) : this.alive.add(index);
       this.cellsChanged = true;
     },
 
     /**
      *
-     * @param {number} x
-     * @param {number} y
-     * @param {Array<Array<number>>} shape
+     * @param {number} startRow
+     * @param {number} startCol
+     * @param {Array<Array<number>>} pattern
      */
-    placeElement(x, y, shape) {
-      const { row: startRow, col: startCol } = gameRenderer.xyToRowCol(x, y);
+    placeElement(startRow, startCol, pattern) {
+      if (this.playing) return;
 
       this.alivePreview.clear();
 
-      shape.forEach((rowData, relativeRow) => {
+      pattern.forEach((rowData, relativeRow) => {
         rowData.forEach((cellState, relativeCol) => {
           const index =
             cellCount * (startRow + relativeRow) + (startCol + relativeCol);
@@ -135,16 +134,16 @@ const createGameController = (
 
     /**
      *
-     * @param {number} x
-     * @param {number} y
-     * @param {Array<Array<number>>} shape
+     * @param {number} startRow
+     * @param {number} startCol
+     * @param {Array<Array<number>>} pattern
      */
-    placePreview(x, y, shape) {
-      const { row: startRow, col: startCol } = gameRenderer.xyToRowCol(x, y);
+    placePreview(startRow, startCol, pattern) {
+      if (this.playing) return;
 
       this.alivePreview.clear();
 
-      shape.forEach((rowData, relativeRow) => {
+      pattern.forEach((rowData, relativeRow) => {
         rowData.forEach((cellState, relativeCol) => {
           const index =
             cellCount * (startRow + relativeRow) + (startCol + relativeCol);
@@ -168,6 +167,8 @@ const createGameController = (
      *
      */
     start() {
+      if (this.playing) return;
+
       console.log("Game started");
 
       worker.postMessage({
