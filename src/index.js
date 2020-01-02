@@ -191,8 +191,8 @@ function handleResize() {
  * @param {number} generation
  * @param {number} speed
  */
-function handleGameChange(isPlaying, generation, speed) {
-  dom.leftStatus.textContent = `Playing: ${isPlaying}, Generation: ${generation}`;
+function handleGameChange(isPlaying, generation, population, speed) {
+  dom.leftStatus.textContent = `Playing: ${isPlaying}, Generation: ${generation}, Population: ${population}`;
 
   //@ts-ignore
   dom.speedBtn.querySelector("span").textContent =

@@ -13,6 +13,7 @@ const bufferSize = 50;
  * @property {number?} resultsRequestedAt
  * @property {boolean} cellsChanged
  * @property {{cyclesPerRender: number, currentCycle: number}} speed
+ * @property {number} generation
  * @property {{born: Array<number>, died: Array<number>}?} nextResult
  * @property {function(MessageEvent): void} handleWorkerMessage
  * @property {function(number): void} setSpeed
@@ -30,7 +31,7 @@ const bufferSize = 50;
  * @param {import('./gameRenderer.js').GameRenderer} gameRenderer
  * @param {number} cellCount
  * @param {boolean} wasm
- * @param {function(boolean, number, number): void} onGameChange
+ * @param {function(boolean, number, number, number): void} onGameChange
  * @return {GameController}
  */
 const createGameController = (
@@ -49,6 +50,7 @@ const createGameController = (
     resultsRequestedAt: null,
     cellsChanged: true,
     speed: { cyclesPerRender: 6, currentCycle: 1 },
+    generation: 0,
 
     /**
      * @returns {{born: Array<number>, died: Array<number>} | null}
@@ -199,6 +201,7 @@ const createGameController = (
             for (let cellIndex of born) this.alive.add(cellIndex);
             for (let cellIndex of died) this.alive.delete(cellIndex);
             this.cellsChanged = true;
+            this.generation++;
           }
         }
       }
@@ -213,7 +216,12 @@ const createGameController = (
 
       this.cellsChanged = false;
 
-      onGameChange(this.playing, 0, this.speed.cyclesPerRender);
+      onGameChange(
+        this.playing,
+        this.generation,
+        this.alive.size,
+        this.speed.cyclesPerRender
+      );
 
       requestAnimationFrame(this.animationCycle.bind(this));
     }
