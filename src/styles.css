@@ -13,10 +13,10 @@ body {
   height: 100vh;
 } */
 
-.btn-group,
+/* .btn-group,
 .dropdown {
   margin: 8px;
-}
+} */
 
 /* .drop-shadow {
   box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2),
@@ -53,6 +53,10 @@ input[type="range"] + .thumb {
   position: absolute;
   z-index: 2;
   display: flex;
+}
+
+#top-bar > div {
+  margin: 8px;
 }
 
 #bottom-bar {

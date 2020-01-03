@@ -12,17 +12,18 @@ const bufferSize = 50;
  * @property {Array<{born: Array<number>, died: Array<number>}>} resultBuffer
  * @property {number?} resultsRequestedAt
  * @property {boolean} cellsChanged
- * @property {{cyclesPerRender: number, currentCycle: number}} speed
+ * @property {{cyclesPerRender: number, currentCycle: number, paused: boolean}} speed
  * @property {number} generation
  * @property {{born: Array<number>, died: Array<number>}?} nextResult
- * @property {function(MessageEvent): void} handleWorkerMessage
- * @property {function(number): void} setSpeed
  * @property {function(number): void} toggleCell
  * @property {function(number, number, Array<Array<number>>): void} placeElement
  * @property {function(number, number, Array<Array<number>>): void} placePreview
  * @property {function(): void} clearPreview
- * @property {function(): void} start
+ * @property {function(): void} play
+ * @property {function(): void} pause
+ * @property {function(number): void} setSpeed
  * @property {function(): void} animationCycle
+ * @property {function(MessageEvent): void} handleWorkerMessage
  */
 
 /**
@@ -31,7 +32,7 @@ const bufferSize = 50;
  * @param {import('./gameRenderer.js').GameRenderer} gameRenderer
  * @param {number} cellCount
  * @param {boolean} wasm
- * @param {function(boolean, number, number, number): void} onGameChange
+ * @param {function(boolean, boolean, number, number, number): void} observer
  * @return {GameController}
  */
 const createGameController = (
@@ -39,7 +40,7 @@ const createGameController = (
   gameRenderer,
   cellCount,
   wasm,
-  onGameChange
+  observer
 ) => {
   /** @type {GameController} */
   const gameController = {
@@ -49,10 +50,11 @@ const createGameController = (
     resultBuffer: [],
     resultsRequestedAt: null,
     cellsChanged: true,
-    speed: { cyclesPerRender: 6, currentCycle: 1 },
+    speed: { cyclesPerRender: 6, currentCycle: 1, paused: false },
     generation: 0,
 
     /**
+     *
      * @returns {{born: Array<number>, died: Array<number>} | null}
      */
     get nextResult() {
@@ -67,36 +69,6 @@ const createGameController = (
       }
 
       return this.resultBuffer.shift() || null;
-    },
-
-    /**
-     *
-     * @param {MessageEvent} e
-     */
-    handleWorkerMessage(e) {
-      if (e.data === "started") this.playing = true;
-      else {
-        this.resultBuffer.push(...e.data);
-
-        // @ts-ignore
-        const duration = Date.now() - this.resultsRequestedAt;
-        const limit = 17 * batchSize * this.speed.cyclesPerRender;
-
-        if (duration > limit) {
-          this.speed.cyclesPerRender++;
-          console.warn("Reducing speed to " + 60 / this.speed.cyclesPerRender);
-        }
-
-        this.resultsRequestedAt = null;
-      }
-    },
-
-    /**
-     *
-     * @param {number} genPerSecond
-     */
-    setSpeed(genPerSecond) {
-      this.speed = { cyclesPerRender: 6 / genPerSecond, currentCycle: 1 };
     },
 
     /**
@@ -168,19 +140,36 @@ const createGameController = (
     /**
      *
      */
-    start() {
-      if (this.playing) return;
+    play() {
+      if (this.playing) this.speed.paused = false;
+      else {
+        console.log("Game started");
 
-      console.log("Game started");
+        worker.postMessage({
+          action: "start",
+          payload: {
+            size: cellCount,
+            initialAlive: Array.from(this.alive),
+            wasm
+          }
+        });
+      }
+    },
 
-      worker.postMessage({
-        action: "start",
-        payload: {
-          size: cellCount,
-          initialAlive: Array.from(this.alive),
-          wasm
-        }
-      });
+    /**
+     *
+     * @param {boolean} paused
+     */
+    pause() {
+      this.speed.paused = true;
+    },
+
+    /**
+     *
+     * @param {number} genPerSecond
+     */
+    setSpeed(genPerSecond) {
+      this.speed.cyclesPerRender = 6 / genPerSecond;
     },
 
     /**
@@ -190,7 +179,7 @@ const createGameController = (
       let born = null;
       let died = null;
 
-      if (this.playing) {
+      if (this.playing && !this.speed.paused) {
         if (this.speed.currentCycle < this.speed.cyclesPerRender) {
           this.speed.currentCycle++;
         } else {
@@ -216,14 +205,37 @@ const createGameController = (
 
       this.cellsChanged = false;
 
-      onGameChange(
+      observer(
         this.playing,
+        this.speed.paused,
         this.generation,
         this.alive.size,
         this.speed.cyclesPerRender
       );
 
       requestAnimationFrame(this.animationCycle.bind(this));
+    },
+
+    /**
+     *
+     * @param {MessageEvent} e
+     */
+    handleWorkerMessage(e) {
+      if (e.data === "started") this.playing = true;
+      else {
+        this.resultBuffer.push(...e.data);
+
+        // @ts-ignore
+        const duration = Date.now() - this.resultsRequestedAt;
+        const limit = 17 * batchSize * this.speed.cyclesPerRender;
+
+        if (duration > limit) {
+          this.speed.cyclesPerRender++;
+          console.warn("Reducing speed to " + 60 / this.speed.cyclesPerRender);
+        }
+
+        this.resultsRequestedAt = null;
+      }
     }
   };
 

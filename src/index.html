@@ -12,15 +12,17 @@
   </head>
   <body>
     <div id="top-bar">
-      <div class="btn-group drop-shadow" role="group">
-        <button id="start-btn" type="button" class="btn btn-primary">
+      <div>
+        <button id="play-btn" type="button" class="btn btn-primary drop-shadow">
           <i class="fas fa-play"></i>
         </button>
-        <button type="button" class="btn btn-primary">
+        <button
+          id="pause-btn"
+          type="button"
+          class="btn btn-primary drop-shadow"
+          hidden
+        >
           <i class="fas fa-pause"></i>
-        </button>
-        <button id="reset-btn" type="button" class="btn btn-primary">
-          <i class="fas fa-undo"></i>
         </button>
       </div>
       <div class="dropdown">
@@ -46,6 +48,29 @@
           <button class="dropdown-item" type="button" data-speed="3">3x</button>
         </div>
       </div>
+      <!-- <div class="dropdown">
+        <button
+          class="btn btn-primary dropdown-toggle drop-shadow"
+          type="button"
+          id="edit-btn"
+          data-toggle="dropdown"
+        >
+          <i class="fas fa-pen"></i>
+          &nbsp;
+          <span>Edit Cells</span>
+        </button>
+        <div id="edit-dropdown" class="dropdown-menu dropdown-menu-right">
+          <button class="dropdown-item" type="button">Edit Cells</button>
+          <button
+            class="dropdown-item"
+            type="button"
+            data-toggle="modal"
+            data-target="#pattern-modal"
+          >
+            Choose Pattern...
+          </button>
+        </div>
+      </div> -->
       <div id="mode-btn-group" class="btn-group drop-shadow">
         <button id="default-btn" type="button" class="btn btn-primary active">
           <i class="fas fa-pen"></i>
@@ -57,7 +82,19 @@
           data-toggle="modal"
           data-target="#pattern-modal"
         >
-          <i class="fas fa-border-none"></i>
+          <svg
+            class="svg-inline--fa fa-pen fa-w-16"
+            aria-hidden="true"
+            focusable="false"
+            role="img"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+          >
+            <path
+              fill="currentColor"
+              d="M 174 0 v 164 h 164 v -164 h -164 z M 348 174 v 164 h 164 v -164 h -164 z M 0 348 v 164 h 164 v -164 h -164 z M 174 348 v 164 h 164 v -164 h -164 z M 348 348 v 164 h 164 v -164 h -164 z"
+            ></path>
+          </svg>
         </button>
       </div>
     </div>

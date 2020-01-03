@@ -34,6 +34,10 @@ const dom = {
   /** @type {HTMLDivElement} */
   topBar: (document.getElementById("top-bar")),
   /** @type {HTMLButtonElement} */
+  playBtn: (document.getElementById("play-btn")),
+  /** @type {HTMLButtonElement} */
+  pauseBtn: (document.getElementById("pause-btn")),
+  /** @type {HTMLButtonElement} */
   speedBtn: (document.getElementById("speed-btn")),
   /** @type {HTMLDivElement} */
   speedDropdown: (document.getElementById("speed-dropdown")),
@@ -85,8 +89,8 @@ dom.topBar.addEventListener("mousedown", e => e.preventDefault());
 dom.topBar.addEventListener("click", e => {
   const el = /** @type {HTMLElement} */ (e.target).closest("button");
   if (el === null) return;
-  else if (el.id === "start-btn") gameController.start();
-  else if (el.id === "reset-btn") initializeGame();
+  else if (el.id === "play-btn") gameController.play();
+  else if (el.id === "pause-btn") gameController.pause();
   else if (el.id === "default-btn") mouseTracker.clearPattern();
 });
 
@@ -191,8 +195,12 @@ function handleResize() {
  * @param {number} generation
  * @param {number} speed
  */
-function handleGameChange(isPlaying, generation, population, speed) {
-  dom.leftStatus.textContent = `Playing: ${isPlaying}, Generation: ${generation}, Population: ${population}`;
+function handleGameChange(isPlaying, isPaused, generation, population, speed) {
+  const state = isPlaying ? (isPaused ? "Paused" : "Running") : "Stopped";
+  dom.leftStatus.textContent = `${state}, Generation: ${generation}, Population: ${population}`;
+
+  dom.playBtn.hidden = isPlaying && !isPaused;
+  dom.pauseBtn.hidden = !isPlaying || isPaused;
 
   //@ts-ignore
   dom.speedBtn.querySelector("span").textContent =
