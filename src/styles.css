@@ -7,38 +7,12 @@ body {
   margin: 0 0 0 0;
 }
 
-/* body > div {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-} */
-
-/* .btn-group,
-.dropdown {
-  margin: 8px;
-} */
-
-/* .drop-shadow {
-  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2),
-    0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
-} */
-
 .drop-shadow {
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
     0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
 }
 
-.dropdown-menu {
-  min-width: 0;
-}
-
-.range-field {
-  margin: 8px;
-}
-
-input[type="range"] + .thumb {
-  visibility: hidden;
-}
+/* Canvas Elements */
 
 #canvas-container {
   position: absolute;
@@ -47,32 +21,6 @@ input[type="range"] + .thumb {
   left: 0;
   height: 100vh;
   width: 100vw;
-}
-
-#top-bar {
-  position: absolute;
-  z-index: 2;
-  display: flex;
-}
-
-#top-bar > div {
-  margin: 8px;
-}
-
-#bottom-bar {
-  position: absolute;
-  bottom: 0;
-  width: 100vw;
-}
-
-#bottom-bar > span {
-  font-family: monospace;
-  padding-left: 8px;
-  padding-right: 8px;
-}
-
-#right-status {
-  float: right;
 }
 
 #grid-canvas,
@@ -95,9 +43,51 @@ input[type="range"] + .thumb {
   z-index: 1;
 }
 
+/* Pattern Library Modal */
+
+.modal-body {
+  display: flex;
+}
+
 .list-group-item {
   border: 0;
 }
+
+/* Top Bar */
+
+#top-bar {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+}
+
+#top-bar > div {
+  margin: 8px;
+}
+
+.dropdown-menu {
+  min-width: 0;
+}
+
+/* Bottom Bar */
+
+#bottom-bar {
+  position: absolute;
+  bottom: 0;
+  width: 100vw;
+}
+
+#bottom-bar > span {
+  font-family: monospace;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+#right-status {
+  float: right;
+}
+
+/* Pan and Zoom Controls */
 
 #view-controls {
   position: absolute;
@@ -105,6 +95,14 @@ input[type="range"] + .thumb {
   right: -20px;
   transform: rotate(-90deg);
   z-index: 5;
+}
+
+.range-field {
+  margin: 8px;
+}
+
+input[type="range"] + .thumb {
+  visibility: hidden;
 }
 
 #pan-btn-group {
@@ -142,11 +140,3 @@ input[type="range"] + .thumb {
 #pan-btn-group > #right-btn {
   grid-area: right;
 }
-
-/* .custom-range::-webkit-slider-thumb {
-  background-color: #6c757d;
-}
-
-.custom-range::-webkit-slider-thumb:active {
-  background-color: rgba(130, 138, 145, 0.5);
-} */
