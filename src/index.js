@@ -71,6 +71,18 @@ document.addEventListener("DOMContentLoaded", function() {
   );
 });
 
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") mouseTracker.clearPattern();
+  else if (e.key.includes("Arrow")) {
+    const direction = e.key.replace("Arrow", "").toLowerCase();
+    panControls.start(direction);
+  }
+});
+
+document.addEventListener("keyup", e => {
+  if (e.key.includes("Arrow")) panControls.stop();
+});
+
 document.addEventListener("wheel", e => e.preventDefault(), {
   passive: false
 });
