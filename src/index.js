@@ -99,21 +99,19 @@ document.addEventListener("mouseleave", e => mouseTracker.mouseLeave());
 dom.topBar.addEventListener("mousedown", e => e.preventDefault());
 
 dom.topBar.addEventListener("click", e => {
-  const el = /** @type {HTMLElement} */ (e.target).closest("button");
-  if (el === null) return;
-  else if (el.id === "play-btn") gameController.play();
-  else if (el.id === "pause-btn") gameController.pause();
-  else if (el.id === "default-btn") mouseTracker.clearPattern();
-});
-
-dom.speedDropdown.addEventListener("click", e => {
-  const btn = /** @type {HTMLButtonElement} */ (e.target);
-  if (btn.type === "button")
-    gameController.setSpeed(btn.attributes["data-speed"].value);
+  /** @type {HTMLElement} */
+  const el = (e.target);
+  const btn = el.closest("button");
+  // @ts-ignore
+  if (btn?.dataset.speed) gameController.setSpeed(btn.dataset.speed);
+  else if (btn?.id === "play-btn") gameController.play();
+  else if (btn?.id === "pause-btn") gameController.pause();
+  else if (btn?.id === "default-btn") mouseTracker.clearPattern();
 });
 
 dom.patternModal.addEventListener("click", e => {
-  const el = /** @type {HTMLElement} */ (e.target);
+  /** @type {HTMLElement} */
+  const el = (e.target);
   if (el.closest("button")?.className === "close") mouseTracker.clearPattern();
   else if (el.id === "pattern-modal") mouseTracker.clearPattern();
   else if (el.classList[0] === "pattern-name") {
@@ -130,18 +128,19 @@ dom.patternModal.addEventListener("hidden.bs.modal", e =>
   dom.patternBtn.blur()
 );
 
-[...dom.panButtonGroup.children].forEach(btn => {
-  btn.addEventListener("mousedown", e => {
-    panControls.start(btn.id.split("-")[0]);
-  });
-  btn.addEventListener("mouseup", e => {
-    /** @type {HTMLElement} */ (btn).blur();
+[...dom.panButtonGroup.children].forEach(child => {
+  /** @type {HTMLButtonElement} */
+  const btn = (child);
+  const start = () => {
+    if (btn.dataset.direction) panControls.start(btn.dataset.direction);
+  };
+  const stop = () => {
+    btn.blur();
     panControls.stop();
-  });
-  btn.addEventListener("mouseleave", e => {
-    /** @type {HTMLElement} */ (btn).blur();
-    panControls.stop();
-  });
+  };
+  btn.addEventListener("mousedown", start);
+  btn.addEventListener("mouseup", stop);
+  btn.addEventListener("mouseleave", stop);
 });
 
 dom.zoomSlider.addEventListener("input", e =>

@@ -23,9 +23,7 @@ body {
   width: 100vw;
 }
 
-#grid-canvas,
-#cell-canvas,
-#preview-canvas {
+#canvas-container > canvas {
   position: absolute;
   left: 0;
   top: 0;
@@ -87,23 +85,7 @@ body {
   float: right;
 }
 
-/* Pan and Zoom Controls */
-
-#view-controls {
-  position: absolute;
-  bottom: 100px;
-  right: -20px;
-  transform: rotate(-90deg);
-  z-index: 5;
-}
-
-.range-field {
-  margin: 8px;
-}
-
-input[type="range"] + .thumb {
-  visibility: hidden;
-}
+/* Pan Controls */
 
 #pan-btn-group {
   position: absolute;
@@ -125,18 +107,36 @@ input[type="range"] + .thumb {
   border-radius: 0.4rem;
 }
 
-#pan-btn-group > #up-btn {
+#pan-btn-group > button[data-direction="up"] {
   grid-area: up;
 }
 
-#pan-btn-group > #down-btn {
+#pan-btn-group > button[data-direction="down"] {
   grid-area: down;
 }
 
-#pan-btn-group > #left-btn {
+#pan-btn-group > button[data-direction="left"] {
   grid-area: left;
 }
 
-#pan-btn-group > #right-btn {
+#pan-btn-group > button[data-direction="right"] {
   grid-area: right;
+}
+
+/* Zoom Controls */
+
+#zoom-controls {
+  position: absolute;
+  bottom: 100px;
+  right: -20px;
+  transform: rotate(-90deg);
+  z-index: 5;
+}
+
+#zoom-controls .range-field {
+  margin: 8px;
+}
+
+#zoom-controls .thumb {
+  visibility: hidden;
 }
