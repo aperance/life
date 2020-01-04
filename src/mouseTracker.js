@@ -48,6 +48,7 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
      */
     clearPattern() {
       this.pattern = null;
+      gameController.clearPreview();
       this.updateObserver();
     },
 
