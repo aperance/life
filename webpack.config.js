@@ -27,6 +27,10 @@ const appConfig = {
         use: {
           loader: "babel-loader"
         }
+      },
+      {
+        test: /\.rle$/,
+        use: "raw-loader"
       }
     ]
   }

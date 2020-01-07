@@ -3,7 +3,7 @@ import { createGameRenderer } from "./gameRenderer";
 import { createGameController } from "./gameController";
 import { createMouseTracker } from "./mouseTracker";
 import { createPanControls } from "./panControls";
-import { generatePatternList, getPatternRle } from "./patterns";
+import { patternLibrary } from "./patterns";
 
 const wasm = true;
 
@@ -64,13 +64,6 @@ const previewCtx = (dom.previewCanvas.getContext("2d"));
 
 window.addEventListener("resize", handleResize);
 
-document.addEventListener("DOMContentLoaded", function() {
-  [...document.getElementsByClassName("collapse-link")].forEach(
-    // @ts-ignore
-    x => new Collapse(x)
-  );
-});
-
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") mouseTracker.clearPattern();
   else if (e.key.includes("Arrow")) {
@@ -114,8 +107,10 @@ dom.patternModal.addEventListener("click", e => {
   const el = (e.target);
   if (el.closest("button")?.className === "close") mouseTracker.clearPattern();
   else if (el.id === "pattern-modal") mouseTracker.clearPattern();
-  else if (el.classList[0] === "pattern-name") {
-    mouseTracker.setPattern(getPatternRle(el.innerText));
+  else if (el.dataset.pattern) {
+    const patternData = patternLibrary.getPatternData(el.dataset.pattern);
+    console.log(patternData);
+    mouseTracker.setPattern(patternData.array);
     mouseTracker.mouseMove(e);
   }
 });
@@ -151,7 +146,13 @@ dom.zoomSlider.addEventListener("input", e =>
   )
 );
 
-dom.patternList.innerHTML = generatePatternList();
+patternLibrary.init().then(() => {
+  dom.patternList.innerHTML = patternLibrary.generateListHTML();
+  [...document.getElementsByClassName("collapse-link")].forEach(
+    // @ts-ignore
+    x => new Collapse(x)
+  );
+});
 
 initializeGame();
 
