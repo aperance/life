@@ -8,7 +8,7 @@
  * @property {Array<Array<number>> | null} pattern
  * @property {number | null} lastX
  * @property {number | null} lastY
- * @property {function(Array<Array<number>>): void} setPattern
+ * @property {function(MouseEvent, Array<Array<number>>): void} setPattern
  * @property {function(): void} clearPattern
  * @property {function(MouseEvent): void} mouseUp
  * @property {function(MouseEvent): void} mouseDown
@@ -36,10 +36,13 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
 
     /**
      *
+     * @param {MouseEvent} e
      * @param {Array<Array<number>>} pattern
      */
-    setPattern(pattern) {
+    setPattern(e, pattern) {
       this.pattern = pattern;
+      const { row, col } = gameRenderer.xyToRowCol(e.clientX, e.clientY);
+      gameController.placePreview(row, col, this.pattern);
       this.updateObserver();
     },
 

@@ -20,7 +20,7 @@ let mouseTracker;
 /** @type {import('./panControls').PanControls} */
 let panControls;
 
-/** @type {Map} */
+/** @type {Map<string,import('./patterns').PatternData>} */
 let patternLibrary;
 
 const dom = {
@@ -112,9 +112,7 @@ dom.patternModal.addEventListener("click", e => {
   else if (el.id === "pattern-modal") mouseTracker.clearPattern();
   else if (el.dataset.pattern) {
     const patternData = patternLibrary.get(el.dataset.pattern);
-    console.log(patternData);
-    mouseTracker.setPattern(patternData.array);
-    mouseTracker.mouseMove(e);
+    if (patternData) mouseTracker.setPattern(e, patternData.array);
   }
 });
 
