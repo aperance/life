@@ -9,17 +9,13 @@ const wasm = true;
 
 /** @type {import('./gameRenderer').GameRenderer} */
 let gameRenderer;
-
 /** @type {import('./gameController').GameController} */
 let gameController;
-
 /** @type {import('./mouseTracker').MouseTracker} */
 // eslint-disable-next-line no-unused-vars
 let mouseTracker;
-
 /** @type {import('./panControls').PanControls} */
 let panControls;
-
 /** @type {Map<string,import('./patterns').PatternData>} */
 let patternLibrary;
 
@@ -58,110 +54,121 @@ const dom = {
   zoomSlider: (document.getElementById("zoom-slider"))
 };
 
-/** @type {CanvasRenderingContext2D} */
-const gridCtx = (dom.gridCanvas.getContext("2d"));
-/** @type {CanvasRenderingContext2D} */
-const cellCtx = (dom.cellCanvas.getContext("2d"));
-/** @type {CanvasRenderingContext2D} */
-const previewCtx = (dom.previewCanvas.getContext("2d"));
-
-window.addEventListener("resize", handleResize);
-
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape") mouseTracker.clearPattern();
-  else if (e.key.includes("Arrow")) {
-    const direction = e.key.replace("Arrow", "").toLowerCase();
-    panControls.start(direction);
-  }
-});
-
-document.addEventListener("keyup", e => {
-  if (e.key.includes("Arrow")) panControls.stop();
-});
-
-document.addEventListener("wheel", e => e.preventDefault(), {
-  passive: false
-});
-
-document.addEventListener("wheel", e => mouseTracker.mouseWheel(e), {
-  passive: true
-});
-
-document.addEventListener("mouseup", e => mouseTracker.mouseUp(e));
-document.addEventListener("mousedown", e => mouseTracker.mouseDown(e));
-document.addEventListener("mousemove", e => mouseTracker.mouseMove(e));
-document.addEventListener("mouseleave", e => mouseTracker.mouseLeave());
-
-dom.topBar.addEventListener("mousedown", e => e.preventDefault());
-
-dom.topBar.addEventListener("click", e => {
-  /** @type {HTMLElement} */
-  const el = (e.target);
-  const btn = el.closest("button");
-  // @ts-ignore
-  if (btn?.dataset.speed) gameController.setSpeed(btn.dataset.speed);
-  else if (btn?.id === "play-btn") gameController.play();
-  else if (btn?.id === "pause-btn") gameController.pause();
-  else if (btn?.id === "default-btn") mouseTracker.clearPattern();
-});
-
-dom.patternModal.addEventListener("click", e => {
-  /** @type {HTMLElement} */
-  const el = (e.target);
-  if (el.closest("button")?.className === "close") mouseTracker.clearPattern();
-  else if (el.id === "pattern-modal") mouseTracker.clearPattern();
-  else if (el.dataset.pattern) {
-    const patternData = patternLibrary.get(el.dataset.pattern);
-    if (patternData) mouseTracker.setPattern(e, patternData.array);
-  }
-});
-
-dom.patternModal.addEventListener("show.bs.modal", e =>
-  dom.patternBtn.classList.add("active")
-);
-
-dom.patternModal.addEventListener("hidden.bs.modal", e =>
-  dom.patternBtn.blur()
-);
-
-[...dom.panButtonGroup.children].forEach(child => {
-  /** @type {HTMLButtonElement} */
-  const btn = (child);
-  const start = () => {
-    if (btn.dataset.direction) panControls.start(btn.dataset.direction);
-  };
-  const stop = () => {
-    btn.blur();
-    panControls.stop();
-  };
-  btn.addEventListener("mousedown", start);
-  btn.addEventListener("mouseup", stop);
-  btn.addEventListener("mouseleave", stop);
-});
-
-dom.zoomSlider.addEventListener("input", e =>
-  gameRenderer.zoomAtPoint(
-    Math.round(Math.pow(parseFloat(dom.zoomSlider.value), 2)),
-    window.innerWidth / 2,
-    window.innerHeight / 2
-  )
-);
-
-createPatternLibrary()
-  .then(library => {
-    patternLibrary = library;
-    dom.patternList.innerHTML = generateListHTML(library);
+/**
+ *
+ */
+async function init() {
+  try {
+    setEventListeners();
+    initializeGame();
+    patternLibrary = await createPatternLibrary();
+    dom.patternList.innerHTML = generateListHTML(patternLibrary);
     // @ts-ignore
     [...dom.categoryLinks].forEach(el => new Collapse(el));
-  })
-  .catch(err => console.error(err));
+  } catch (err) {
+    console.error(err);
+  }
+}
 
-initializeGame();
+/**
+ *
+ */
+function setEventListeners() {
+  window.addEventListener("resize", handleResize);
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") mouseTracker.clearPattern();
+    else if (e.key.includes("Arrow")) {
+      const direction = e.key.replace("Arrow", "").toLowerCase();
+      panControls.start(direction);
+    }
+  });
+
+  document.addEventListener("keyup", e => {
+    if (e.key.includes("Arrow")) panControls.stop();
+  });
+
+  document.addEventListener("wheel", e => e.preventDefault(), {
+    passive: false
+  });
+
+  document.addEventListener("wheel", e => mouseTracker.mouseWheel(e), {
+    passive: true
+  });
+
+  document.addEventListener("mouseup", e => mouseTracker.mouseUp(e));
+  document.addEventListener("mousedown", e => mouseTracker.mouseDown(e));
+  document.addEventListener("mousemove", e => mouseTracker.mouseMove(e));
+  document.addEventListener("mouseleave", e => mouseTracker.mouseLeave());
+
+  dom.topBar.addEventListener("mousedown", e => e.preventDefault());
+
+  dom.topBar.addEventListener("click", e => {
+    /** @type {HTMLElement} */
+    const el = (e.target);
+    const btn = el.closest("button");
+    // @ts-ignore
+    if (btn?.dataset.speed) gameController.setSpeed(btn.dataset.speed);
+    else if (btn?.id === "play-btn") gameController.play();
+    else if (btn?.id === "pause-btn") gameController.pause();
+    else if (btn?.id === "default-btn") mouseTracker.clearPattern();
+  });
+
+  dom.patternModal.addEventListener("click", e => {
+    /** @type {HTMLElement} */
+    const el = (e.target);
+    if (el.closest("button")?.className === "close")
+      mouseTracker.clearPattern();
+    else if (el.id === "pattern-modal") mouseTracker.clearPattern();
+    else if (el.dataset.pattern) {
+      const patternData = patternLibrary.get(el.dataset.pattern);
+      if (patternData) mouseTracker.setPattern(e, patternData.array);
+    }
+  });
+
+  dom.patternModal.addEventListener("show.bs.modal", e =>
+    dom.patternBtn.classList.add("active")
+  );
+
+  dom.patternModal.addEventListener("hidden.bs.modal", e =>
+    dom.patternBtn.blur()
+  );
+
+  [...dom.panButtonGroup.children].forEach(child => {
+    /** @type {HTMLButtonElement} */
+    const btn = (child);
+    const start = () => {
+      if (btn.dataset.direction) panControls.start(btn.dataset.direction);
+    };
+    const stop = () => {
+      btn.blur();
+      panControls.stop();
+    };
+    btn.addEventListener("mousedown", start);
+    btn.addEventListener("mouseup", stop);
+    btn.addEventListener("mouseleave", stop);
+  });
+
+  dom.zoomSlider.addEventListener("input", e =>
+    gameRenderer.zoomAtPoint(
+      Math.round(Math.pow(parseFloat(dom.zoomSlider.value), 2)),
+      window.innerWidth / 2,
+      window.innerHeight / 2
+    )
+  );
+}
 
 /**
  *
  */
 function initializeGame() {
+  /** @type {CanvasRenderingContext2D} */
+  const gridCtx = (dom.gridCanvas.getContext("2d"));
+  /** @type {CanvasRenderingContext2D} */
+  const cellCtx = (dom.cellCanvas.getContext("2d"));
+  /** @type {CanvasRenderingContext2D} */
+  const previewCtx = (dom.previewCanvas.getContext("2d"));
+
   const worker = new Worker("./worker.js");
 
   gameRenderer = createGameRenderer(
@@ -245,3 +252,5 @@ function handleMouseChange(panningMode, patternMode) {
   dom.defaultBtn.className = `btn btn-primary ${!patternMode && "active"}`;
   dom.patternBtn.className = `btn btn-primary ${patternMode && "active"}`;
 }
+
+init();
