@@ -3,7 +3,7 @@ import { createGameRenderer } from "./gameRenderer";
 import { createGameController } from "./gameController";
 import { createMouseTracker } from "./mouseTracker";
 import { createPanControls } from "./panControls";
-import { patternLibrary } from "./patterns";
+import { createPatternLibrary, generateListHTML } from "./patterns";
 
 const wasm = true;
 
@@ -19,6 +19,9 @@ let mouseTracker;
 
 /** @type {import('./panControls').PanControls} */
 let panControls;
+
+/** @type {Map} */
+let patternLibrary;
 
 const dom = {
   /**  @type {HTMLCanvasElement} */
@@ -108,7 +111,7 @@ dom.patternModal.addEventListener("click", e => {
   if (el.closest("button")?.className === "close") mouseTracker.clearPattern();
   else if (el.id === "pattern-modal") mouseTracker.clearPattern();
   else if (el.dataset.pattern) {
-    const patternData = patternLibrary.getPatternData(el.dataset.pattern);
+    const patternData = patternLibrary.get(el.dataset.pattern);
     console.log(patternData);
     mouseTracker.setPattern(patternData.array);
     mouseTracker.mouseMove(e);
@@ -159,8 +162,9 @@ const patternListObserver = new MutationObserver(mutationsList => {
 
 patternListObserver.observe(dom.patternList, { childList: true });
 
-patternLibrary.init().then(() => {
-  dom.patternList.innerHTML = patternLibrary.generateListHTML();
+createPatternLibrary().then(library => {
+  patternLibrary = library;
+  dom.patternList.innerHTML = generateListHTML(library);
 });
 
 initializeGame();

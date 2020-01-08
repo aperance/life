@@ -24,87 +24,42 @@ const categories = {
  * @property {number[][]} array
  */
 
-export const patternLibrary = {
-  /**
-   * @type {Map<string,PatternData>}
-   */
-  patternMap: new Map(),
+/**
+ *
+ * @async
+ * @returns {Promise}
+ */
+async function createPatternLibrary() {
+  try {
+    /** @type {Map<string,PatternData>} */
+    const library = new Map();
+    const patternList = Object.values(categories).flat();
 
-  /**
-   *
-   * @returns {Promise}
-   */
-  init() {
-    return Promise.all(
-      Object.values(categories)
-        .flat()
-        .map(id => this.loadFromFile(id))
-    ).catch(err => {
-      console.error(err);
-    });
-  },
-
-  /**
-   *
-   * @param {string} id
-   */
-  async loadFromFile(id) {
-    const file = await import(`../patterns/${id}.rle`);
-    const data = file.default.split(/x.*[sS]23/);
-    const rle = data[1].replace(/(\r\n|\n|\r)/gm, "");
-
-    this.patternMap.set(id, {
-      name: data[0].match(/(?<=#N ).*/)[0],
-      author: data[0].match(/(?<=#O ).*/)[0],
-      description: data[0].match(/(?<=#C ).*/g),
-      array: rleToArray(rle)
-    });
-  },
-
-  /**
-   *
-   * @param {string} id
-   * @returns {PatternData}
-   */
-  getPatternData(id) {
-    const patternData = this.patternMap.get(id);
-    if (!patternData) throw new Error(`No pattern found for id '${id}'`);
-    return patternData;
-  },
-
-  /**
-   *
-   * @returns {string}
-   */
-  generateListHTML() {
-    return `<div class="list-group">
-      ${Object.entries(categories)
-        .map(
-          ([category, contents], index) =>
-            `<a class="list-group-item list-group-item-action collapse-link"
-              data-toggle="collapse"
-              href="#category${index}">
-              ${category}
-            </a>
-            <div id="category${index}" class="collapse">
-              ${contents
-                .map(
-                  id =>
-                    `<a href="#"
-                      class="pattern-name list-group-item list-group-item-action"
-                      data-dismiss="modal"
-                      data-pattern="${id}"
-                    >
-                      ${this.patternMap.get(id)?.name}
-                    </a>`
-                )
-                .join("")}
-            </div>`
-        )
-        .join("")}
-    </div>`;
+    await Promise.all(patternList.map(id => loadFromFile(id, library)));
+    return library;
+  } catch (err) {
+    console.error(err);
   }
-};
+}
+
+/**
+ *
+ * @async
+ * @param {string} id
+ * @param {Map<string,PatternData>} library
+ */
+async function loadFromFile(id, library) {
+  const file = await import(`../patterns/${id}.rle`);
+  const data = file.default.split(/x.*[sS]23/);
+  const rle = data[1].replace(/(\r\n|\n|\r)/gm, "");
+
+  library.set(id, {
+    name: data[0].match(/(?<=#N ).*/)[0],
+    author: data[0].match(/(?<=#O ).*/)[0],
+    description: data[0].match(/(?<=#C ).*/g),
+    array: rleToArray(rle)
+  });
+}
 
 /**
  *
@@ -112,7 +67,7 @@ export const patternLibrary = {
  * @returns {number[][]}
  * @throws
  */
-const rleToArray = rle => {
+function rleToArray(rle) {
   /** @type {number[][]} */
   let outerArray = [];
   /** @type {number[]} */
@@ -136,4 +91,40 @@ const rleToArray = rle => {
   });
 
   return outerArray;
-};
+}
+
+/**
+ *
+ * @param {Map<string,PatternData>} library
+ * @returns {string}
+ */
+function generateListHTML(library) {
+  return `<div class="list-group">
+      ${Object.entries(categories)
+        .map(
+          ([category, contents], index) =>
+            `<a class="list-group-item list-group-item-action collapse-link"
+              data-toggle="collapse"
+              href="#category${index}">
+              ${category}
+            </a>
+            <div id="category${index}" class="collapse">
+              ${contents
+                .map(
+                  id =>
+                    `<a href="#"
+                      class="pattern-name list-group-item list-group-item-action"
+                      data-dismiss="modal"
+                      data-pattern="${id}"
+                    >
+                      ${library.get(id)?.name}
+                    </a>`
+                )
+                .join("")}
+            </div>`
+        )
+        .join("")}
+    </div>`;
+}
+
+export { createPatternLibrary, generateListHTML };
