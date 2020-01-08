@@ -146,12 +146,21 @@ dom.zoomSlider.addEventListener("input", e =>
   )
 );
 
+const patternListObserver = new MutationObserver(mutationsList => {
+  mutationsList.forEach(node => {
+    /** @type {HTMLElement} */
+    const el = (node.target);
+    if (el.id === "pattern-list") {
+      // @ts-ignore
+      el.querySelectorAll(".collapse-link").forEach(x => new Collapse(x));
+    }
+  });
+});
+
+patternListObserver.observe(dom.patternList, { childList: true });
+
 patternLibrary.init().then(() => {
   dom.patternList.innerHTML = patternLibrary.generateListHTML();
-  [...document.getElementsByClassName("collapse-link")].forEach(
-    // @ts-ignore
-    x => new Collapse(x)
-  );
 });
 
 initializeGame();
