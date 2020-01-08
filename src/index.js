@@ -42,8 +42,6 @@ const dom = {
   pauseBtn: (document.getElementById("pause-btn")),
   /** @type {HTMLButtonElement} */
   speedBtn: (document.getElementById("speed-btn")),
-  /** @type {HTMLDivElement} */
-  speedDropdown: (document.getElementById("speed-dropdown")),
   /** @type {HTMLButtonElement} */
   defaultBtn: (document.getElementById("default-btn")),
   /** @type {HTMLButtonElement} */
@@ -52,6 +50,8 @@ const dom = {
   patternModal: (document.getElementById("pattern-modal")),
   /** @type {HTMLUListElement} */
   patternList: (document.getElementById("pattern-list")),
+  /** @type {HTMLCollection} */
+  categoryLinks: (document.getElementsByClassName("collapse-link")),
   /** @type {HTMLDivElement} */
   panButtonGroup: (document.getElementById("pan-btn-group")),
   /** @type {HTMLInputElement} */
@@ -147,23 +147,12 @@ dom.zoomSlider.addEventListener("input", e =>
   )
 );
 
-const patternListObserver = new MutationObserver(mutationsList => {
-  mutationsList.forEach(node => {
-    /** @type {HTMLElement} */
-    const el = (node.target);
-    if (el.id === "pattern-list") {
-      // @ts-ignore
-      el.querySelectorAll(".collapse-link").forEach(x => new Collapse(x));
-    }
-  });
-});
-
-patternListObserver.observe(dom.patternList, { childList: true });
-
 createPatternLibrary()
   .then(library => {
     patternLibrary = library;
     dom.patternList.innerHTML = generateListHTML(library);
+    // @ts-ignore
+    [...dom.categoryLinks].forEach(el => new Collapse(el));
   })
   .catch(err => console.error(err));
 
