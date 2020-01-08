@@ -27,38 +27,40 @@ const categories = {
 /**
  *
  * @async
- * @returns {Promise}
+ * @returns {Promise<Map<string,PatternData>> }
  */
 async function createPatternLibrary() {
-  try {
-    /** @type {Map<string,PatternData>} */
-    const library = new Map();
-    const patternList = Object.values(categories).flat();
+  /** @type {Map<string,PatternData>} */
+  const library = new Map();
+  const patternList = Object.values(categories).flat();
 
-    await Promise.all(patternList.map(id => loadFromFile(id, library)));
-    return library;
-  } catch (err) {
-    console.error(err);
-  }
+  await Promise.all(
+    patternList.map(async id => {
+      const patternData = await readPatternFile(id);
+      library.set(id, patternData);
+    })
+  );
+
+  return library;
 }
 
 /**
  *
  * @async
  * @param {string} id
- * @param {Map<string,PatternData>} library
+ * @returns {Promise<PatternData>}
  */
-async function loadFromFile(id, library) {
+async function readPatternFile(id) {
   const file = await import(`../patterns/${id}.rle`);
   const data = file.default.split(/x.*[sS]23/);
   const rle = data[1].replace(/(\r\n|\n|\r)/gm, "");
 
-  library.set(id, {
+  return {
     name: data[0].match(/(?<=#N ).*/)[0],
     author: data[0].match(/(?<=#O ).*/)[0],
     description: data[0].match(/(?<=#C ).*/g),
-    array: rleToArray(rle)
-  });
+    array: rleParser(rle)
+  };
 }
 
 /**
@@ -67,7 +69,7 @@ async function loadFromFile(id, library) {
  * @returns {number[][]}
  * @throws
  */
-function rleToArray(rle) {
+function rleParser(rle) {
   /** @type {number[][]} */
   let outerArray = [];
   /** @type {number[]} */

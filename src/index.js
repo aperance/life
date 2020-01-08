@@ -162,10 +162,12 @@ const patternListObserver = new MutationObserver(mutationsList => {
 
 patternListObserver.observe(dom.patternList, { childList: true });
 
-createPatternLibrary().then(library => {
-  patternLibrary = library;
-  dom.patternList.innerHTML = generateListHTML(library);
-});
+createPatternLibrary()
+  .then(library => {
+    patternLibrary = library;
+    dom.patternList.innerHTML = generateListHTML(library);
+  })
+  .catch(err => console.error(err));
 
 initializeGame();
 
