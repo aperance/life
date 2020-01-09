@@ -11,126 +11,138 @@
     <link rel="stylesheet" type="text/css" href="styles.css" />
   </head>
   <body>
-    <div id="top-bar">
-      <div>
-        <button id="play-btn" type="button" class="btn btn-primary drop-shadow">
-          <i class="fas fa-play"></i>
-        </button>
-        <button
-          id="pause-btn"
-          type="button"
-          class="btn btn-primary drop-shadow"
-          hidden
-        >
-          <i class="fas fa-pause"></i>
-        </button>
-      </div>
-      <div class="dropdown">
-        <button
-          class="btn btn-primary dropdown-toggle drop-shadow"
-          type="button"
-          id="speed-btn"
-          data-toggle="dropdown"
-        >
-          <i class="fas fa-tachometer-alt"></i>
-          &nbsp;
-          <span></span>
-        </button>
-        <div id="speed-dropdown" class="dropdown-menu dropdown-menu-right">
-          <button class="dropdown-item" type="button" data-speed="0.25">
-            1/4x
+    <div id="main">
+      <div id="top-bar">
+        <div>
+          <button
+            id="play-btn"
+            type="button"
+            class="btn btn-primary drop-shadow"
+          >
+            <i class="fas fa-play"></i>
           </button>
-          <button class="dropdown-item" type="button" data-speed="0.5">
-            1/2x
+          <button
+            id="pause-btn"
+            type="button"
+            class="btn btn-primary drop-shadow"
+            hidden
+          >
+            <i class="fas fa-pause"></i>
           </button>
-          <button class="dropdown-item" type="button" data-speed="1">1x</button>
-          <button class="dropdown-item" type="button" data-speed="2">2x</button>
-          <button class="dropdown-item" type="button" data-speed="3">3x</button>
         </div>
-      </div>
-      <div id="mode-btn-group" class="btn-group drop-shadow">
-        <button id="default-btn" type="button" class="btn btn-primary active">
-          <i class="fas fa-pen"></i>
-        </button>
-        <button
-          id="pattern-btn"
-          type="button"
-          class="btn btn-primary"
-          data-toggle="modal"
-          data-target="#pattern-modal"
-        >
-          <svg
-            class="svg-inline--fa fa-pen fa-w-16"
-            aria-hidden="true"
-            focusable="false"
-            role="img"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 512 512"
+        <div class="dropdown">
+          <button
+            class="btn btn-primary dropdown-toggle drop-shadow"
+            type="button"
+            id="speed-btn"
+            data-toggle="dropdown"
+          >
+            <i class="fas fa-tachometer-alt"></i>
+            &nbsp;
+            <span></span>
+          </button>
+          <div id="speed-dropdown" class="dropdown-menu dropdown-menu-right">
+            <button class="dropdown-item" type="button" data-speed="0.25">
+              1/4x
+            </button>
+            <button class="dropdown-item" type="button" data-speed="0.5">
+              1/2x
+            </button>
+            <button class="dropdown-item" type="button" data-speed="1">
+              1x
+            </button>
+            <button class="dropdown-item" type="button" data-speed="2">
+              2x
+            </button>
+            <button class="dropdown-item" type="button" data-speed="3">
+              3x
+            </button>
+          </div>
+        </div>
+        <div id="mode-btn-group" class="btn-group drop-shadow">
+          <button id="default-btn" type="button" class="btn btn-primary active">
+            <i class="fas fa-pen"></i>
+          </button>
+          <button
+            id="pattern-btn"
+            type="button"
+            class="btn btn-primary"
             data-toggle="modal"
             data-target="#pattern-modal"
           >
-            <path
-              fill="currentColor"
-              d="M 174 0 v 164 h 164 v -164 h -164 z M 348 174 v 164 h 164 v -164 h -164 z M 0 348 v 164 h 164 v -164 h -164 z M 174 348 v 164 h 164 v -164 h -164 z M 348 348 v 164 h 164 v -164 h -164 z"
-            ></path>
-          </svg>
+            <svg
+              class="svg-inline--fa fa-pen fa-w-16"
+              aria-hidden="true"
+              focusable="false"
+              role="img"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 512 512"
+              data-toggle="modal"
+              data-target="#pattern-modal"
+            >
+              <path
+                fill="currentColor"
+                d="M 174 0 v 164 h 164 v -164 h -164 z M 348 174 v 164 h 164 v -164 h -164 z M 0 348 v 164 h 164 v -164 h -164 z M 174 348 v 164 h 164 v -164 h -164 z M 348 348 v 164 h 164 v -164 h -164 z"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div id="canvas-container">
+        <canvas id="grid-canvas"></canvas>
+        <canvas id="cell-canvas"></canvas>
+        <canvas id="preview-canvas"></canvas>
+      </div>
+      <div id="pan-btn-group">
+        <button
+          type="button"
+          class="btn btn-sm btn-primary drop-shadow"
+          data-direction="up"
+        >
+          <i class="fas fa-angle-up"></i>
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-primary drop-shadow"
+          data-direction="down"
+        >
+          <i class="fas fa-angle-down"></i>
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-primary drop-shadow"
+          data-direction="left"
+        >
+          <i class="fas fa-angle-left"></i>
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-primary drop-shadow"
+          data-direction="right"
+        >
+          <i class="fas fa-angle-right"></i>
         </button>
       </div>
-    </div>
-    <div id="canvas-container">
-      <canvas id="grid-canvas"></canvas>
-      <canvas id="cell-canvas"></canvas>
-      <canvas id="preview-canvas"></canvas>
-    </div>
-    <div id="pan-btn-group">
-      <button
-        type="button"
-        class="btn btn-sm btn-primary drop-shadow"
-        data-direction="up"
-      >
-        <i class="fas fa-angle-up"></i>
-      </button>
-      <button
-        type="button"
-        class="btn btn-sm btn-primary drop-shadow"
-        data-direction="down"
-      >
-        <i class="fas fa-angle-down"></i>
-      </button>
-      <button
-        type="button"
-        class="btn btn-sm btn-primary drop-shadow"
-        data-direction="left"
-      >
-        <i class="fas fa-angle-left"></i>
-      </button>
-      <button
-        type="button"
-        class="btn btn-sm btn-primary drop-shadow"
-        data-direction="right"
-      >
-        <i class="fas fa-angle-right"></i>
-      </button>
-    </div>
-    <div id="zoom-controls">
-      <input
-        id="zoom-slider"
-        type="range"
-        class="custom-range"
-        min="1"
-        max="10"
-        step="0.1"
-      />
-    </div>
-    <div id="bottom-bar">
-      <span id="left-status"></span>
-      <span id="right-status"></span>
+      <div id="zoom-controls">
+        <input
+          id="zoom-slider"
+          type="range"
+          class="custom-range"
+          min="1"
+          max="10"
+          step="0.1"
+        />
+      </div>
+      <div id="bottom-bar">
+        <span id="left-status"></span>
+        <span id="right-status"></span>
+      </div>
     </div>
   </body>
 </html>
 
 <div class="modal fade" id="pattern-modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">Pattern Library</h5>

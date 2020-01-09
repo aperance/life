@@ -51,6 +51,22 @@ body {
   border: 0;
 }
 
+#pattern-list {
+  flex: 0 0 182px;
+  padding-right: 8px;
+  overflow-y: scroll;
+  height: 72vh;
+}
+
+#pattern-details {
+  padding: 8px;
+}
+
+#pattern-details button {
+  width: 150px;
+  margin-top: 8px;
+}
+
 /* Top Bar */
 
 #top-bar {

@@ -20,6 +20,8 @@ let panControls;
 let patternLibrary;
 
 const dom = {
+  /**  @type {HTMLDivElement} */
+  main: (document.getElementById("main")),
   /**  @type {HTMLCanvasElement} */
   gridCanvas: (document.getElementById("grid-canvas")),
   /** @type {HTMLCanvasElement} */
@@ -90,18 +92,18 @@ function setEventListeners() {
     if (e.key.includes("Arrow")) panControls.stop();
   });
 
-  document.addEventListener("wheel", e => e.preventDefault(), {
-    passive: false
-  });
-
-  document.addEventListener("wheel", e => mouseTracker.mouseWheel(e), {
-    passive: true
-  });
-
   document.addEventListener("mouseup", e => mouseTracker.mouseUp(e));
   document.addEventListener("mousedown", e => mouseTracker.mouseDown(e));
   document.addEventListener("mousemove", e => mouseTracker.mouseMove(e));
   document.addEventListener("mouseleave", e => mouseTracker.mouseLeave());
+
+  dom.main.addEventListener("wheel", e => e.preventDefault(), {
+    passive: false
+  });
+
+  dom.main.addEventListener("wheel", e => mouseTracker.mouseWheel(e), {
+    passive: true
+  });
 
   dom.topBar.addEventListener("mousedown", e => e.preventDefault());
 
@@ -290,7 +292,7 @@ function generatePatternListHTML() {
                       data-pattern="${id}"
                       data-role="listItem"
                     >
-                      &nbsp;${patternLibrary.get(id)?.name}
+                      &nbsp;&nbsp;${patternLibrary.get(id)?.name}
                     </a>`
                 )
                 .join("")}
@@ -304,8 +306,8 @@ function generatePatternDetailsHTML(id) {
   const patternData = patternLibrary.get(id);
   return `
     <div>
-      <p>${patternData?.name}</p>
-      <p>${patternData?.author}</p>
+      <h4>${patternData?.name}</h4>
+      <p>Discovered by ${patternData?.author}</p>
       ${patternData?.description
         .map(string => {
           const link = string.match(/conwaylife.com.*/)?.[0];
@@ -323,7 +325,6 @@ function generatePatternDetailsHTML(id) {
       >
         Drag and Drop Pattern
       </button>
-      <br></br>
       <button type="button"
         class="btn btn-primary drop-shadow"
         data-dismiss="modal"
