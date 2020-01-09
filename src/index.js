@@ -306,7 +306,14 @@ function generatePatternDetailsHTML(id) {
     <div>
       <p>${patternData?.name}</p>
       <p>${patternData?.author}</p>
-      ${patternData?.description.map(line => `<p>${line}</p>`).join("")}
+      ${patternData?.description
+        .map(string => {
+          const link = string.match(/conwaylife.com.*/)?.[0];
+          return link
+            ? `<a target=”_blank” href="http://www.${link}">LifeWiki</a>`
+            : `<p>${string}</p>`;
+        })
+        .join("")}
       <br></br>
       <button type="button"
         class="btn btn-primary drop-shadow"
