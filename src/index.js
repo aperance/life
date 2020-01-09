@@ -3,7 +3,7 @@ import { createGameRenderer } from "./gameRenderer";
 import { createGameController } from "./gameController";
 import { createMouseTracker } from "./mouseTracker";
 import { createPanControls } from "./panControls";
-import { patternCategories, createPatternLibrary } from "./patterns";
+import { patternCategories, createPatternLibrary } from "./patternLibrary";
 
 const wasm = true;
 
@@ -16,7 +16,7 @@ let gameController;
 let mouseTracker;
 /** @type {import('./panControls').PanControls} */
 let panControls;
-/** @type {Map<string,import('./patterns').PatternData>} */
+/** @type {Map<string,import('./patternLibrary').PatternData>} */
 let patternLibrary;
 
 const dom = {
