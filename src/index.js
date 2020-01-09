@@ -107,8 +107,8 @@ function setEventListeners() {
     /** @type {HTMLElement} */
     const el = (e.target);
     const btn = el.closest("button");
-    // @ts-ignore
-    if (btn?.dataset.speed) gameController.setSpeed(btn.dataset.speed);
+    if (btn?.dataset.speed)
+      gameController.setSpeed(parseFloat(btn.dataset.speed));
     else if (btn?.id === "play-btn") gameController.play();
     else if (btn?.id === "pause-btn") gameController.pause();
     else if (btn?.id === "default-btn") mouseTracker.clearPattern();
@@ -137,16 +137,19 @@ function setEventListeners() {
   [...dom.panButtonGroup.children].forEach(child => {
     /** @type {HTMLButtonElement} */
     const btn = (child);
-    const start = () => {
-      if (btn.dataset.direction) panControls.start(btn.dataset.direction);
-    };
-    const stop = () => {
+    btn.addEventListener("mousedown", () => {
+      /** @type {string} */
+      const direction = (btn.dataset.direction);
+      panControls.start(direction);
+    });
+    btn.addEventListener("mouseup", () => {
       btn.blur();
       panControls.stop();
-    };
-    btn.addEventListener("mousedown", start);
-    btn.addEventListener("mouseup", stop);
-    btn.addEventListener("mouseleave", stop);
+    });
+    btn.addEventListener("mouseleave", () => {
+      btn.blur();
+      panControls.stop();
+    });
   });
 
   dom.zoomSlider.addEventListener("input", e =>
@@ -162,14 +165,14 @@ function setEventListeners() {
  *
  */
 function initializeGame() {
+  const worker = new Worker("./worker.js");
+
   /** @type {CanvasRenderingContext2D} */
   const gridCtx = (dom.gridCanvas.getContext("2d"));
   /** @type {CanvasRenderingContext2D} */
   const cellCtx = (dom.cellCanvas.getContext("2d"));
   /** @type {CanvasRenderingContext2D} */
   const previewCtx = (dom.previewCanvas.getContext("2d"));
-
-  const worker = new Worker("./worker.js");
 
   gameRenderer = createGameRenderer(
     gridCtx,
