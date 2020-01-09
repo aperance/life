@@ -155,6 +155,27 @@ const createGameRenderer = (
       }
 
       gridCtx.stroke();
+
+      gridCtx.setTransform(1, 0, 0, 1, 0, 0);
+      gridCtx.strokeStyle = "gray";
+      gridCtx.lineWidth = 0.02;
+      gridCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
+      gridCtx.beginPath();
+
+      for (let col = startCol + 1; col <= endCol; col++) {
+        if (col % 10 === 0) {
+          gridCtx.moveTo(col, startRow);
+          gridCtx.lineTo(col, endRow + 1);
+        }
+      }
+      for (let row = startRow + 1; row <= endRow; row++) {
+        if (row % 10 === 0) {
+          gridCtx.moveTo(startCol, row);
+          gridCtx.lineTo(endCol + 1, row);
+        }
+      }
+
+      gridCtx.stroke();
     },
 
     /**
