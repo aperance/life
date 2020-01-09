@@ -3,7 +3,7 @@ import { createGameRenderer } from "./gameRenderer";
 import { createGameController } from "./gameController";
 import { createMouseTracker } from "./mouseTracker";
 import { createPanControls } from "./panControls";
-import { createPatternLibrary, generateListHTML } from "./patterns";
+import { patternCategories, createPatternLibrary } from "./patterns";
 
 const wasm = true;
 
@@ -44,8 +44,10 @@ const dom = {
   patternBtn: (document.getElementById("pattern-btn")),
   /** @type {HTMLDivElement} */
   patternModal: (document.getElementById("pattern-modal")),
-  /** @type {HTMLUListElement} */
+  /** @type {HTMLDivElement} */
   patternList: (document.getElementById("pattern-list")),
+  /** @type {HTMLDivElement} */
+  patternDetails: (document.getElementById("pattern-details")),
   /** @type {HTMLCollection} */
   categoryLinks: (document.getElementsByClassName("collapse-link")),
   /** @type {HTMLDivElement} */
@@ -62,7 +64,7 @@ async function init() {
     setEventListeners();
     initializeGame();
     patternLibrary = await createPatternLibrary();
-    dom.patternList.innerHTML = generateListHTML(patternLibrary);
+    dom.patternList.innerHTML = generatePatternListHTML();
     // @ts-ignore
     [...dom.categoryLinks].forEach(el => new Collapse(el));
   } catch (err) {
@@ -117,13 +119,23 @@ function setEventListeners() {
   dom.patternModal.addEventListener("click", e => {
     /** @type {HTMLElement} */
     const el = (e.target);
-    if (el.closest("button")?.className === "close")
-      mouseTracker.clearPattern();
-    else if (el.id === "pattern-modal") mouseTracker.clearPattern();
-    else if (el.dataset.pattern) {
-      const patternData = patternLibrary.get(el.dataset.pattern);
-      if (patternData) mouseTracker.setPattern(e, patternData.array);
-    }
+    if (el.dataset.pattern) {
+      const id = el.dataset.pattern;
+      const patternArray = patternLibrary.get(id)?.array;
+      if (!patternArray) console.error("No pattern data found for " + id);
+      else if (el.dataset.role === "listItem")
+        dom.patternDetails.innerHTML = generatePatternDetailsHTML(id);
+      else if (el.dataset.role === "addBtn")
+        mouseTracker.setPattern(e, patternArray);
+      else if (el.dataset.role === "replaceBtn") {
+        const { row, col } = gameRenderer.xyToRowCol(
+          window.innerWidth / 2,
+          window.innerHeight / 2
+        );
+        gameController.clearAliveCells();
+        gameController.placeElement(row, col, patternArray);
+      }
+    } else mouseTracker.clearPattern();
   });
 
   dom.patternModal.addEventListener("show.bs.modal", e =>
@@ -254,6 +266,67 @@ function handleMouseChange(panningMode, patternMode) {
   document.body.style.cursor = panningMode ? "all-scroll" : "default";
   dom.defaultBtn.className = `btn btn-primary ${!patternMode && "active"}`;
   dom.patternBtn.className = `btn btn-primary ${patternMode && "active"}`;
+}
+
+/**
+ * @returns {string}
+ */
+function generatePatternListHTML() {
+  return `<div class="list-group">
+      ${Object.entries(patternCategories)
+        .map(
+          ([category, contents], index) =>
+            `<a class="list-group-item list-group-item-action collapse-link"
+              data-toggle="collapse"
+              href="#category${index}">
+              <strong>${category}</strong>
+            </a>
+            <div id="category${index}" class="collapse">
+              ${contents
+                .map(
+                  id =>
+                    `<a href="#"
+                      class="pattern-name list-group-item list-group-item-action"
+                      data-pattern="${id}"
+                      data-role="listItem"
+                    >
+                      &nbsp;${patternLibrary.get(id)?.name}
+                    </a>`
+                )
+                .join("")}
+            </div>`
+        )
+        .join("")}
+    </div>`;
+}
+
+function generatePatternDetailsHTML(id) {
+  const patternData = patternLibrary.get(id);
+  return `
+    <div>
+      <p>${patternData?.name}</p>
+      <p>${patternData?.author}</p>
+      ${patternData?.description.map(line => `<p>${line}</p>`).join("")}
+      <br></br>
+      <button type="button"
+        class="btn btn-primary drop-shadow"
+        data-dismiss="modal"
+        data-pattern="${id}"
+        data-role="addBtn"
+      >
+        Drag and Drop Pattern
+      </button>
+      <br></br>
+      <button type="button"
+        class="btn btn-primary drop-shadow"
+        data-dismiss="modal"
+        data-pattern="${id}"
+        data-role="replaceBtn"
+      >
+        Replace All With Pattern
+      </button>
+    </div>
+    `;
 }
 
 init();

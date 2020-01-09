@@ -18,6 +18,7 @@ const bufferSize = 50;
  * @property {function(number): void} toggleCell
  * @property {function(number, number, Array<Array<number>>): void} placeElement
  * @property {function(number, number, Array<Array<number>>): void} placePreview
+ * @property {function(): void} clearAliveCells
  * @property {function(): void} clearPreview
  * @property {function(): void} play
  * @property {function(): void} pause
@@ -126,6 +127,14 @@ const createGameController = (
         });
       });
 
+      this.cellsChanged = true;
+    },
+
+    /**
+     *
+     */
+    clearAliveCells() {
+      this.alive.clear();
       this.cellsChanged = true;
     },
 

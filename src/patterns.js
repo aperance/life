@@ -1,4 +1,4 @@
-const categories = {
+const patternCategories = {
   Spaceships: ["copperhead", "glider", "loafer", "lwss", "mwss", "hwss"],
   Guns: ["bigun", "gosperglidergun", "p41660p5h2v0gun", "simkinglidergun"],
   Oscillators: [
@@ -32,7 +32,7 @@ const categories = {
 async function createPatternLibrary() {
   /** @type {Map<string,PatternData>} */
   const library = new Map();
-  const patternList = Object.values(categories).flat();
+  const patternList = Object.values(patternCategories).flat();
 
   await Promise.all(
     patternList.map(async id => {
@@ -95,38 +95,4 @@ function rleParser(rle) {
   return outerArray;
 }
 
-/**
- *
- * @param {Map<string,PatternData>} library
- * @returns {string}
- */
-function generateListHTML(library) {
-  return `<div class="list-group">
-      ${Object.entries(categories)
-        .map(
-          ([category, contents], index) =>
-            `<a class="list-group-item list-group-item-action collapse-link"
-              data-toggle="collapse"
-              href="#category${index}">
-              ${category}
-            </a>
-            <div id="category${index}" class="collapse">
-              ${contents
-                .map(
-                  id =>
-                    `<a href="#"
-                      class="pattern-name list-group-item list-group-item-action"
-                      data-dismiss="modal"
-                      data-pattern="${id}"
-                    >
-                      ${library.get(id)?.name}
-                    </a>`
-                )
-                .join("")}
-            </div>`
-        )
-        .join("")}
-    </div>`;
-}
-
-export { createPatternLibrary, generateListHTML };
+export { patternCategories, createPatternLibrary };
