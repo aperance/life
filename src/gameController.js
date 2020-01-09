@@ -85,14 +85,17 @@ const createGameController = (
 
     /**
      *
-     * @param {number} startRow
-     * @param {number} startCol
+     * @param {number} row
+     * @param {number} col
      * @param {Array<Array<number>>} pattern
      */
-    placeElement(startRow, startCol, pattern) {
+    placeElement(row, col, pattern) {
       if (this.playing) return;
 
       this.alivePreview.clear();
+
+      const startRow = row + 1 - Math.round(pattern.length / 2);
+      const startCol = col + 1 - Math.round(pattern[0].length / 2);
 
       pattern.forEach((rowData, relativeRow) => {
         rowData.forEach((cellState, relativeCol) => {
@@ -109,14 +112,17 @@ const createGameController = (
 
     /**
      *
-     * @param {number} startRow
-     * @param {number} startCol
+     * @param {number} row
+     * @param {number} col
      * @param {Array<Array<number>>} pattern
      */
-    placePreview(startRow, startCol, pattern) {
+    placePreview(row, col, pattern) {
       if (this.playing) return;
 
       this.alivePreview.clear();
+
+      const startRow = row + 1 - Math.round(pattern.length / 2);
+      const startCol = col + 1 - Math.round(pattern[0].length / 2);
 
       pattern.forEach((rowData, relativeRow) => {
         rowData.forEach((cellState, relativeCol) => {
