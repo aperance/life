@@ -251,11 +251,11 @@ function handleGameChange(isPlaying, isPaused, generation, population, speed) {
 /**
  *
  * @param {number} zoom
- * @param {number} panX
- * @param {number} panY
+ * @param {number} centerRow
+ * @param {number} centerCol
  */
-function handleViewChange(zoom, panX, panY) {
-  dom.rightStatus.textContent = `Zoom: ${zoom}, Position: (${panX},${panY})`;
+function handleViewChange(zoom, centerRow, centerCol) {
+  dom.rightStatus.textContent = `Zoom: ${zoom}, Position: (${centerCol},${centerRow})`;
   dom.zoomSlider.value = Math.sqrt(zoom).toString();
 }
 

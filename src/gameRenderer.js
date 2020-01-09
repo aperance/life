@@ -23,6 +23,7 @@
  * @property {function(): number} getMinZoom
  * @property {function(): number} getMaxPanX
  * @property {function(): number} getMaxPanY
+ * @property {function(): {row: number, col: number}} getCenterRowCol
  * @property {function(number): {row: number, col: number}} indexToRowCol
  * @property {function(number, number): {row: number, col: number}} xyToRowCol
  * @property {function(number, number): number} xyToIndex
@@ -68,8 +69,8 @@ const createGameRenderer = (
       if (typeof this.view === "undefined") {
         this.view = {};
         this.view.zoom = 10;
-        this.view.panX = Math.round(this.getMaxPanY() / 2);
-        this.view.panY = Math.round(this.getMaxPanX() / 2);
+        this.view.panX = Math.round(this.getMaxPanX() / 2);
+        this.view.panY = Math.round(this.getMaxPanY() / 2);
       }
 
       if (newView) this.view = { ...this.view, ...newView };
@@ -80,7 +81,8 @@ const createGameRenderer = (
 
       this.redrawGrid = true;
 
-      onViewChange(this.view.zoom, this.view.panX, this.view.panY);
+      const { row, col } = this.getCenterRowCol();
+      onViewChange(this.view.zoom, row, col);
     },
 
     /**
@@ -228,6 +230,14 @@ const createGameRenderer = (
      */
     getMaxPanY() {
       return cellCount * this.view.zoom - this.window.height;
+    },
+
+    getCenterRowCol() {
+      const { row, col } = this.xyToRowCol(
+        this.window.width / 2,
+        this.window.height / 2
+      );
+      return { row: row - cellCount / 2, col: col - cellCount / 2 };
     },
 
     /**
