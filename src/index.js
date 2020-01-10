@@ -119,6 +119,10 @@ function setEventListeners() {
     else if (btn?.id === "play-btn") gameController?.play();
     else if (btn?.id === "pause-btn") gameController?.pause();
     else if (btn?.id === "default-btn") mouseTracker?.clearPattern();
+    else if (btn?.id === "reset-btn") {
+      terminateGame();
+      initializeGame();
+    }
   });
 
   dom.patternModal.addEventListener("click", e => {
@@ -261,6 +265,8 @@ function handleGameChange(isPlaying, isPaused, generation, population, speed) {
 
   dom.playBtn.hidden = isPlaying && !isPaused;
   dom.pauseBtn.hidden = !isPlaying || isPaused;
+  dom.defaultBtn.disabled = isPlaying;
+  dom.patternBtn.disabled = isPlaying;
 
   //@ts-ignore
   dom.speedBtn.querySelector("span").textContent =

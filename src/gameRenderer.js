@@ -171,7 +171,7 @@ const createGameRenderer = (
       gridCtx.stroke();
 
       gridCtx.setTransform(1, 0, 0, 1, 0, 0);
-      gridCtx.strokeStyle = "gray";
+      gridCtx.strokeStyle = "darkgray";
       gridCtx.lineWidth = 0.02;
       gridCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
       gridCtx.beginPath();

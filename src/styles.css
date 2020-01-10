@@ -73,10 +73,24 @@ body {
   position: absolute;
   z-index: 2;
   display: flex;
+  width: 100%;
+  padding: 8px 16px 8px 16px;
 }
 
 #top-bar > div {
   margin: 8px;
+}
+
+#top-bar > div > button {
+  border-radius: 0;
+}
+
+#top-bar > div:last-child {
+  flex-grow: 1;
+}
+
+#top-bar > div:last-child > button {
+  float: right;
 }
 
 .dropdown-menu {
@@ -89,12 +103,12 @@ body {
   position: absolute;
   bottom: 0;
   width: 100vw;
+  padding: 6px 18px 6px 18px;
 }
 
 #bottom-bar > span {
   font-family: monospace;
-  padding-left: 8px;
-  padding-right: 8px;
+  font-size: 1.2rem;
 }
 
 #right-status {
@@ -106,7 +120,7 @@ body {
 #pan-btn-group {
   position: absolute;
   bottom: 200px;
-  right: 21px;
+  right: 26px;
   height: 54px;
   width: 54px;
   z-index: 5;
@@ -143,8 +157,8 @@ body {
 
 #zoom-controls {
   position: absolute;
-  bottom: 100px;
-  right: -20px;
+  bottom: 104px;
+  right: -15px;
   transform: rotate(-90deg);
   z-index: 5;
 }
