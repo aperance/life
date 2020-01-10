@@ -14,6 +14,7 @@ const bufferSize = 50;
  * @property {boolean} cellsChanged
  * @property {{cyclesPerRender: number, currentCycle: number, paused: boolean}} speed
  * @property {number} generation
+ * @property {boolean} isTerminated
  * @property {{born: Array<number>, died: Array<number>}?} nextResult
  * @property {function(number): void} toggleCell
  * @property {function(number, number, Array<Array<number>>): void} placeElement
@@ -23,6 +24,7 @@ const bufferSize = 50;
  * @property {function(): void} play
  * @property {function(): void} pause
  * @property {function(number): void} setSpeed
+ * @property {function(): void} terminate
  * @property {function(): void} animationCycle
  * @property {function(MessageEvent): void} handleWorkerMessage
  */
@@ -53,6 +55,7 @@ const createGameController = (
     cellsChanged: true,
     speed: { cyclesPerRender: 6, currentCycle: 1, paused: false },
     generation: 0,
+    isTerminated: false,
 
     /**
      *
@@ -190,7 +193,17 @@ const createGameController = (
     /**
      *
      */
+    terminate() {
+      worker.terminate();
+      this.isTerminated = true;
+    },
+
+    /**
+     *
+     */
     animationCycle() {
+      if (this.isTerminated) return;
+
       let born = null;
       let died = null;
 

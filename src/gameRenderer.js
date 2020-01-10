@@ -15,6 +15,7 @@
  * @property {function(number, number)} setWindow
  * @property {function(View?)} setView
  * @property {function(number, number, number): void} zoomAtPoint
+ * @property {function(): void} clearAll
  * @property {function(Array<number>, Array<number>?, Array<number>?, Array<number>, boolean): void} render
  * @property {function(): void} renderGrid
  * @property {function(Array<number>): void} renderAllCells
@@ -98,6 +99,19 @@ const createGameRenderer = (
       const newPanX = Math.round(oldPanX + scale * (oldPanX + x));
       const newPanY = Math.round(oldPanY + scale * (oldPanY + y));
       this.setView({ zoom: newZoom, panX: newPanX, panY: newPanY });
+    },
+
+    /**
+     *
+     */
+    clearAll() {
+      if (this.window && this.view) {
+        const { width, height } = this.window;
+        const { panX, panY } = this.view;
+        gridCtx.clearRect(0, 0, width + panX, height + panY);
+        cellCtx.clearRect(0, 0, width + panX, height + panY);
+        previewCtx.clearRect(0, 0, width + panX, height + panY);
+      }
     },
 
     /**

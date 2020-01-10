@@ -7,17 +7,17 @@ import { patternCategories, createPatternLibrary } from "./patternLibrary";
 
 const wasm = true;
 
-/** @type {import('./gameRenderer').GameRenderer} */
-let gameRenderer;
-/** @type {import('./gameController').GameController} */
-let gameController;
-/** @type {import('./mouseTracker').MouseTracker} */
+/** @type {import('./gameRenderer').GameRenderer?} */
+let gameRenderer = null;
+/** @type {import('./gameController').GameController?} */
+let gameController = null;
+/** @type {import('./mouseTracker').MouseTracker?} */
 // eslint-disable-next-line no-unused-vars
-let mouseTracker;
-/** @type {import('./panControls').PanControls} */
-let panControls;
-/** @type {Map<string,import('./patternLibrary').PatternData>} */
-let patternLibrary;
+let mouseTracker = null;
+/** @type {import('./panControls').PanControls?} */
+let panControls = null;
+/** @type {Map<string,import('./patternLibrary').PatternData>?} */
+let patternLibrary = null;
 
 const dom = {
   /**  @type {HTMLDivElement} */
@@ -66,7 +66,7 @@ async function init() {
     setEventListeners();
     initializeGame();
     patternLibrary = await createPatternLibrary();
-    dom.patternList.innerHTML = generatePatternListHTML();
+    generatePatternListHTML();
     // @ts-ignore
     [...dom.categoryLinks].forEach(el => new Collapse(el));
   } catch (err) {
@@ -81,27 +81,27 @@ function setEventListeners() {
   window.addEventListener("resize", handleResize);
 
   document.addEventListener("keydown", e => {
-    if (e.key === "Escape") mouseTracker.clearPattern();
+    if (e.key === "Escape") mouseTracker?.clearPattern();
     else if (e.key.includes("Arrow")) {
       const direction = e.key.replace("Arrow", "").toLowerCase();
-      panControls.start(direction);
+      panControls?.start(direction);
     }
   });
 
   document.addEventListener("keyup", e => {
-    if (e.key.includes("Arrow")) panControls.stop();
+    if (e.key.includes("Arrow")) panControls?.stop();
   });
 
-  document.addEventListener("mouseup", e => mouseTracker.mouseUp(e));
-  document.addEventListener("mousedown", e => mouseTracker.mouseDown(e));
-  document.addEventListener("mousemove", e => mouseTracker.mouseMove(e));
-  document.addEventListener("mouseleave", e => mouseTracker.mouseLeave());
+  document.addEventListener("mouseup", e => mouseTracker?.mouseUp(e));
+  document.addEventListener("mousedown", e => mouseTracker?.mouseDown(e));
+  document.addEventListener("mousemove", e => mouseTracker?.mouseMove(e));
+  document.addEventListener("mouseleave", e => mouseTracker?.mouseLeave());
 
   dom.main.addEventListener("wheel", e => e.preventDefault(), {
     passive: false
   });
 
-  dom.main.addEventListener("wheel", e => mouseTracker.mouseWheel(e), {
+  dom.main.addEventListener("wheel", e => mouseTracker?.mouseWheel(e), {
     passive: true
   });
 
@@ -112,21 +112,22 @@ function setEventListeners() {
     const el = (e.target);
     const btn = el.closest("button");
     if (btn?.dataset.speed)
-      gameController.setSpeed(parseFloat(btn.dataset.speed));
-    else if (btn?.id === "play-btn") gameController.play();
-    else if (btn?.id === "pause-btn") gameController.pause();
-    else if (btn?.id === "default-btn") mouseTracker.clearPattern();
+      gameController?.setSpeed(parseFloat(btn.dataset.speed));
+    else if (btn?.id === "play-btn") gameController?.play();
+    else if (btn?.id === "pause-btn") gameController?.pause();
+    else if (btn?.id === "default-btn") mouseTracker?.clearPattern();
   });
 
   dom.patternModal.addEventListener("click", e => {
+    if (!gameController || !gameRenderer || !mouseTracker) return;
+
     /** @type {HTMLElement} */
     const el = (e.target);
     if (el.dataset.pattern) {
       const id = el.dataset.pattern;
-      const patternArray = patternLibrary.get(id)?.array;
+      const patternArray = patternLibrary?.get(id)?.array;
       if (!patternArray) console.error("No pattern data found for " + id);
-      else if (el.dataset.role === "listItem")
-        dom.patternDetails.innerHTML = generatePatternDetailsHTML(id);
+      else if (el.dataset.role === "listItem") generatePatternDetailsHTML(id);
       else if (el.dataset.role === "addBtn")
         mouseTracker.setPattern(e, patternArray);
       else if (el.dataset.role === "replaceBtn") {
@@ -154,20 +155,20 @@ function setEventListeners() {
     btn.addEventListener("mousedown", () => {
       /** @type {string} */
       const direction = (btn.dataset.direction);
-      panControls.start(direction);
+      panControls?.start(direction);
     });
     btn.addEventListener("mouseup", () => {
       btn.blur();
-      panControls.stop();
+      panControls?.stop();
     });
     btn.addEventListener("mouseleave", () => {
       btn.blur();
-      panControls.stop();
+      panControls?.stop();
     });
   });
 
   dom.zoomSlider.addEventListener("input", e =>
-    gameRenderer.zoomAtPoint(
+    gameRenderer?.zoomAtPoint(
       Math.round(Math.pow(parseFloat(dom.zoomSlider.value), 2)),
       window.innerWidth / 2,
       window.innerHeight / 2
@@ -218,8 +219,21 @@ function initializeGame() {
 /**
  *
  */
+function terminateGame() {
+  gameController?.terminate();
+  gameRenderer?.clearAll();
+  panControls?.stop();
+  gameRenderer = null;
+  gameController = null;
+  mouseTracker = null;
+  panControls = null;
+}
+
+/**
+ *
+ */
 function handleResize() {
-  gameRenderer.setWindow(window.innerWidth, window.innerHeight);
+  gameRenderer?.setWindow(window.innerWidth, window.innerHeight);
 
   [dom.gridCanvas, dom.cellCanvas, dom.previewCanvas].forEach(canvas => {
     canvas.width = window.innerWidth;
@@ -270,11 +284,9 @@ function handleMouseChange(panningMode, patternMode) {
   dom.patternBtn.className = `btn btn-primary ${patternMode && "active"}`;
 }
 
-/**
- * @returns {string}
- */
 function generatePatternListHTML() {
-  return `<div class="list-group">
+  dom.patternList.innerHTML = `
+    <div class="list-group">
       ${Object.entries(patternCategories)
         .map(
           ([category, contents], index) =>
@@ -285,26 +297,36 @@ function generatePatternListHTML() {
             </a>
             <div id="category${index}" class="collapse">
               ${contents
-                .map(
-                  id =>
-                    `<a href="#"
+                .map(id => {
+                  const patternData = patternLibrary?.get(id);
+                  if (!patternData) {
+                    console.error("No pattern data found for " + id);
+                    return;
+                  }
+                  return `
+                    <a href="#"
                       class="pattern-name list-group-item list-group-item-action"
                       data-pattern="${id}"
                       data-role="listItem"
                     >
-                      &nbsp;&nbsp;${patternLibrary.get(id)?.name}
-                    </a>`
-                )
+                      &nbsp;&nbsp;${patternData.name}
+                    </a>`;
+                })
                 .join("")}
             </div>`
         )
         .join("")}
-    </div>`;
+    </div>
+  `;
 }
 
 function generatePatternDetailsHTML(id) {
-  const patternData = patternLibrary.get(id);
-  return `
+  const patternData = patternLibrary?.get(id);
+  if (!patternData) {
+    console.error("No pattern data found for " + id);
+    return;
+  }
+  dom.patternDetails.innerHTML = `
     <div>
       <h4>${patternData?.name}</h4>
       <p>Discovered by ${patternData?.author}</p>
