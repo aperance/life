@@ -71,6 +71,7 @@ async function init() {
     [...dom.categoryLinks].forEach(el => new Collapse(el));
   } catch (err) {
     console.error(err);
+    terminateGame();
   }
 }
 
@@ -78,6 +79,8 @@ async function init() {
  *
  */
 function setEventListeners() {
+  window.addEventListener("error", terminateGame);
+
   window.addEventListener("resize", handleResize);
 
   document.addEventListener("keydown", e => {
@@ -95,7 +98,7 @@ function setEventListeners() {
   document.addEventListener("mouseup", e => mouseTracker?.mouseUp(e));
   document.addEventListener("mousedown", e => mouseTracker?.mouseDown(e));
   document.addEventListener("mousemove", e => mouseTracker?.mouseMove(e));
-  document.addEventListener("mouseleave", e => mouseTracker?.mouseLeave());
+  document.addEventListener("mouseleave", () => mouseTracker?.mouseLeave());
 
   dom.main.addEventListener("wheel", e => e.preventDefault(), {
     passive: false
@@ -213,6 +216,8 @@ function initializeGame() {
 
   panControls = createPanControls(gameRenderer);
 
+  document.body.hidden = false;
+
   handleResize();
 }
 
@@ -223,10 +228,13 @@ function terminateGame() {
   gameController?.terminate();
   gameRenderer?.clearAll();
   panControls?.stop();
+
   gameRenderer = null;
   gameController = null;
   mouseTracker = null;
   panControls = null;
+
+  document.body.hidden = true;
 }
 
 /**
@@ -298,18 +306,18 @@ function generatePatternListHTML() {
             <div id="category${index}" class="collapse">
               ${contents
                 .map(id => {
-                  const patternData = patternLibrary?.get(id);
-                  if (!patternData) {
-                    console.error("No pattern data found for " + id);
-                    return;
-                  }
+                  const patternName = patternLibrary?.get(id)?.name;
+
+                  if (!patternName)
+                    throw new Error(`No pattern data found for '${id}'`);
+
                   return `
                     <a href="#"
                       class="pattern-name list-group-item list-group-item-action"
                       data-pattern="${id}"
                       data-role="listItem"
                     >
-                      &nbsp;&nbsp;${patternData.name}
+                      &nbsp;&nbsp;${patternName}
                     </a>`;
                 })
                 .join("")}
@@ -322,10 +330,9 @@ function generatePatternListHTML() {
 
 function generatePatternDetailsHTML(id) {
   const patternData = patternLibrary?.get(id);
-  if (!patternData) {
-    console.error("No pattern data found for " + id);
-    return;
-  }
+
+  if (!patternData) throw new Error(`No pattern data found for '${id}'`);
+
   dom.patternDetails.innerHTML = `
     <div>
       <h4>${patternData?.name}</h4>
