@@ -84,7 +84,11 @@ function setEventListeners() {
   window.addEventListener("resize", handleResize);
 
   document.addEventListener("keydown", e => {
+    console.log(e.key);
+
     if (e.key === "Escape") mouseTracker?.clearPattern();
+    else if (e.key === "r") mouseTracker?.rotatePattern();
+    else if (e.key === "f") mouseTracker?.flipPattern();
     else if (e.key.includes("Arrow")) {
       const direction = e.key.replace("Arrow", "").toLowerCase();
       panControls?.start(direction);

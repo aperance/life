@@ -10,6 +10,8 @@
  * @property {number | null} lastY
  * @property {function(MouseEvent, Array<Array<number>>): void} setPattern
  * @property {function(): void} clearPattern
+ * @property {function(): void} rotatePattern
+ * @property {function(): void} flipPattern
  * @property {function(MouseEvent): void} mouseUp
  * @property {function(MouseEvent): void} mouseDown
  * @property {function(MouseEvent): void} mouseMove
@@ -56,6 +58,39 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
 
     /**
      *
+     */
+    rotatePattern() {
+      if (this.pattern && this.lastX && this.lastY) {
+        const width = this.pattern.length;
+        const height = this.pattern[0].length;
+
+        let newArray = new Array(height);
+        for (let row = 0; row < height; row++) {
+          newArray[row] = new Array(width);
+          for (let col = 0; col < width; col++) {
+            newArray[row][col] = this.pattern[width - col - 1][row];
+          }
+        }
+
+        this.pattern = newArray;
+        gameController.placePattern(this.lastX, this.lastY, this.pattern, true);
+      }
+    },
+
+    /**
+     *
+     */
+    flipPattern() {
+      if (this.pattern && this.lastX && this.lastY) {
+        for (let i = 0; i < this.pattern.length; i++) {
+          this.pattern[i].reverse();
+        }
+        gameController.placePattern(this.lastX, this.lastY, this.pattern, true);
+      }
+    },
+
+    /**
+     *
      * @param {MouseEvent} e
      */
     mouseUp(e) {
@@ -74,16 +109,7 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
 
         this.panning = false;
         this.downOnCanvas = false;
-        this.lastX = null;
-        this.lastY = null;
       }
-      // else if (e.button === 2 && this.pattern) {
-      //   // for (let i = 0; i < this.pattern.length; i++) {
-      //   //   this.pattern[i].reverse();
-      //   // }
-
-      //   this.pattern = rotate(this.pattern);
-      // }
 
       this.updateObserver();
     },
@@ -95,8 +121,6 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
     mouseDown(e) {
       if (e.button === 0 && isPointerOverCanvas(e)) {
         this.downOnCanvas = true;
-        this.lastX = e.clientX;
-        this.lastY = e.clientY;
       }
     },
 
@@ -109,7 +133,7 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
         const deltaX = this.lastX - e.clientX;
         const deltaY = this.lastY - e.clientY;
 
-        if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
+        if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
           if (this.pattern !== null) gameController.clearPreview();
           this.panning = true;
           this.updateObserver();
@@ -120,9 +144,6 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
             panX: Math.round(gameRenderer.view.panX + deltaX),
             panY: Math.round(gameRenderer.view.panY + deltaY)
           });
-
-          this.lastX = e.clientX;
-          this.lastY = e.clientY;
         }
       }
 
@@ -131,6 +152,9 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
           gameController.placePattern(e.clientX, e.clientY, this.pattern, true);
         else gameController.clearPreview();
       }
+
+      this.lastX = e.clientX;
+      this.lastY = e.clientY;
     },
 
     /**
@@ -173,23 +197,6 @@ const isPointerOverCanvas = e => {
   /** @type {HTMLElement} */
   const target = (e.target);
   return target.tagName === "CANVAS";
-};
-
-const rotate = oldArray => {
-  const width = oldArray.length;
-  const height = oldArray[0].length;
-
-  let newArray = new Array(height);
-
-  for (let row = 1; row <= height; row++) {
-    newArray[row] = new Array(width);
-
-    for (let col = 1; col <= width; col++) {
-      newArray[row][col] = oldArray[width - col][row];
-    }
-  }
-
-  return newArray;
 };
 
 export { createMouseTracker };
