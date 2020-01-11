@@ -26,8 +26,7 @@
  * @property {function(): number} getMaxPanY
  * @property {function(): {row: number, col: number}} getCenterRowCol
  * @property {function(number): {row: number, col: number}} indexToRowCol
- * @property {function(number, number): {row: number, col: number}} xyToRowCol
- * @property {function(number, number): number} xyToIndex
+ * @property {function(number, number): {row: number, col: number, index: number}} xyToRowColIndex
  */
 
 /**
@@ -149,8 +148,8 @@ const createGameRenderer = (
     renderGrid() {
       const { width, height } = this.window;
       const { zoom, panX, panY } = this.view;
-      const { row: startRow, col: startCol } = this.xyToRowCol(0, 0);
-      const { row: endRow, col: endCol } = this.xyToRowCol(width, height);
+      const { row: startRow, col: startCol } = this.xyToRowColIndex(0, 0);
+      const { row: endRow, col: endCol } = this.xyToRowColIndex(width, height);
 
       gridCtx.setTransform(1, 0, 0, 1, 0, 0);
       gridCtx.strokeStyle = "lightgrey";
@@ -268,7 +267,7 @@ const createGameRenderer = (
     },
 
     getCenterRowCol() {
-      const { row, col } = this.xyToRowCol(
+      const { row, col } = this.xyToRowColIndex(
         this.window.width / 2,
         this.window.height / 2
       );
@@ -288,24 +287,13 @@ const createGameRenderer = (
      *
      * @param {number} x
      * @param {number} y
-     * @returns {{row: number, col: number}}
+     * @returns {{row: number, col: number, index: number}}
      */
-    xyToRowCol(x, y) {
-      return {
-        row: Math.floor((y + this.view.panY) / this.view.zoom),
-        col: Math.floor((x + this.view.panX) / this.view.zoom)
-      };
-    },
-
-    /**
-     *
-     * @param {number} x
-     * @param {number} y
-     * @returns {number}
-     */
-    xyToIndex(x, y) {
-      const { row, col } = this.xyToRowCol(x, y);
-      return cellCount * row + col;
+    xyToRowColIndex(x, y) {
+      const row = Math.floor((y + this.view.panY) / this.view.zoom);
+      const col = Math.floor((x + this.view.panX) / this.view.zoom);
+      const index = cellCount * row + col;
+      return { row, col, index };
     }
   };
 

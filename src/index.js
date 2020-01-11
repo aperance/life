@@ -144,7 +144,7 @@ function setEventListeners() {
       else if (el.dataset.role === "addBtn")
         mouseTracker.setPattern(e, patternArray);
       else if (el.dataset.role === "replaceBtn") {
-        const { row, col } = gameRenderer.xyToRowCol(
+        const { row, col } = gameRenderer.xyToRowColIndex(
           window.innerWidth / 2,
           window.innerHeight / 2
         );

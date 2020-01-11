@@ -81,7 +81,7 @@ const createGameController = (
     toggleCell(x, y) {
       if (this.playing) return;
 
-      const index = gameRenderer.xyToIndex(x, y);
+      const { index } = gameRenderer.xyToRowColIndex(x, y);
 
       this.alive.has(index) ? this.alive.delete(index) : this.alive.add(index);
       this.cellsChanged = true;
@@ -99,7 +99,7 @@ const createGameController = (
 
       this.alivePreview.clear();
 
-      const { row, col } = gameRenderer.xyToRowCol(x, y);
+      const { row, col } = gameRenderer.xyToRowColIndex(x, y);
       const startRow = row + 1 - Math.round(pattern.length / 2);
       const startCol = col + 1 - Math.round(pattern[0].length / 2);
 
