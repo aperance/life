@@ -95,6 +95,8 @@ function setEventListeners() {
     if (e.key.includes("Arrow")) panControls?.stop();
   });
 
+  document.addEventListener("contextmenu", e => e.preventDefault());
+
   document.addEventListener("mouseup", e => mouseTracker?.mouseUp(e));
   document.addEventListener("mousedown", e => mouseTracker?.mouseDown(e));
   document.addEventListener("mousemove", e => mouseTracker?.mouseMove(e));
@@ -143,7 +145,7 @@ function setEventListeners() {
           window.innerHeight / 2
         );
         gameController.clearAliveCells();
-        gameController.placeElement(row, col, patternArray);
+        gameController.placePattern(row, col, patternArray, false);
       }
     } else mouseTracker.clearPattern();
   });

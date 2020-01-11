@@ -16,9 +16,8 @@ const bufferSize = 50;
  * @property {number} generation
  * @property {boolean} isTerminated
  * @property {{born: Array<number>, died: Array<number>}?} nextResult
- * @property {function(number): void} toggleCell
- * @property {function(number, number, Array<Array<number>>): void} placeElement
- * @property {function(number, number, Array<Array<number>>): void} placePreview
+ * @property {function(number, number): void} toggleCell
+ * @property {function(number, number, Array<Array<number>>, boolean): void} placePattern
  * @property {function(): void} clearAliveCells
  * @property {function(): void} clearPreview
  * @property {function(): void} play
@@ -79,8 +78,10 @@ const createGameController = (
      *
      * @param {number} index
      */
-    toggleCell(index) {
+    toggleCell(x, y) {
       if (this.playing) return;
+
+      const index = gameRenderer.xyToIndex(x, y);
 
       this.alive.has(index) ? this.alive.delete(index) : this.alive.add(index);
       this.cellsChanged = true;
@@ -88,15 +89,17 @@ const createGameController = (
 
     /**
      *
-     * @param {number} row
-     * @param {number} col
+     * @param {number} x
+     * @param {number} y
      * @param {Array<Array<number>>} pattern
+     * @param {boolean} isPreview
      */
-    placeElement(row, col, pattern) {
+    placePattern(x, y, pattern, isPreview) {
       if (this.playing) return;
 
       this.alivePreview.clear();
 
+      const { row, col } = gameRenderer.xyToRowCol(x, y);
       const startRow = row + 1 - Math.round(pattern.length / 2);
       const startCol = col + 1 - Math.round(pattern[0].length / 2);
 
@@ -105,34 +108,12 @@ const createGameController = (
           const index =
             cellCount * (startRow + relativeRow) + (startCol + relativeCol);
 
-          if (cellState === 1) this.alive.add(index);
-          else this.alive.delete(index);
-        });
-      });
-
-      this.cellsChanged = true;
-    },
-
-    /**
-     *
-     * @param {number} row
-     * @param {number} col
-     * @param {Array<Array<number>>} pattern
-     */
-    placePreview(row, col, pattern) {
-      if (this.playing) return;
-
-      this.alivePreview.clear();
-
-      const startRow = row + 1 - Math.round(pattern.length / 2);
-      const startCol = col + 1 - Math.round(pattern[0].length / 2);
-
-      pattern.forEach((rowData, relativeRow) => {
-        rowData.forEach((cellState, relativeCol) => {
-          const index =
-            cellCount * (startRow + relativeRow) + (startCol + relativeCol);
-
-          if (cellState === 1) this.alivePreview.add(index);
+          if (isPreview) {
+            if (cellState === 1) this.alivePreview.add(index);
+          } else {
+            if (cellState === 1) this.alive.add(index);
+            else this.alive.delete(index);
+          }
         });
       });
 

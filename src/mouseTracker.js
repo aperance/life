@@ -41,8 +41,7 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
      */
     setPattern(e, pattern) {
       this.pattern = pattern;
-      const { row, col } = gameRenderer.xyToRowCol(e.clientX, e.clientY);
-      gameController.placePreview(row, col, this.pattern);
+      gameController.placePattern(e.clientX, e.clientY, this.pattern, true);
       this.updateObserver();
     },
 
@@ -60,23 +59,31 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
      * @param {MouseEvent} e
      */
     mouseUp(e) {
-      if (isPointerOverCanvas(e) && this.downOnCanvas) {
-        if (this.pattern) {
-          const { row, col } = gameRenderer.xyToRowCol(e.clientX, e.clientY);
-          if (this.panning) gameController.placePreview(row, col, this.pattern);
-          else gameController.placeElement(row, col, this.pattern);
+      if (e.button === 0) {
+        if (isPointerOverCanvas(e) && this.downOnCanvas) {
+          if (this.pattern)
+            gameController.placePattern(
+              e.clientX,
+              e.clientY,
+              this.pattern,
+              this.panning
+            );
+          else if (!this.panning)
+            gameController.toggleCell(e.clientX, e.clientY);
         }
 
-        if (!this.pattern && !this.panning) {
-          const index = gameRenderer.xyToIndex(e.clientX, e.clientY);
-          gameController.toggleCell(index);
-        }
+        this.panning = false;
+        this.downOnCanvas = false;
+        this.lastX = null;
+        this.lastY = null;
       }
+      // else if (e.button === 2 && this.pattern) {
+      //   // for (let i = 0; i < this.pattern.length; i++) {
+      //   //   this.pattern[i].reverse();
+      //   // }
 
-      this.panning = false;
-      this.downOnCanvas = false;
-      this.lastX = null;
-      this.lastY = null;
+      //   this.pattern = rotate(this.pattern);
+      // }
 
       this.updateObserver();
     },
@@ -86,7 +93,7 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
      * @param {MouseEvent} e
      */
     mouseDown(e) {
-      if (isPointerOverCanvas(e)) {
+      if (e.button === 0 && isPointerOverCanvas(e)) {
         this.downOnCanvas = true;
         this.lastX = e.clientX;
         this.lastY = e.clientY;
@@ -120,10 +127,9 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
       }
 
       if (this.pattern && !this.panning) {
-        if (isPointerOverCanvas(e)) {
-          const { row, col } = gameRenderer.xyToRowCol(e.clientX, e.clientY);
-          gameController.placePreview(row, col, this.pattern);
-        } else gameController.clearPreview();
+        if (isPointerOverCanvas(e))
+          gameController.placePattern(e.clientX, e.clientY, this.pattern, true);
+        else gameController.clearPreview();
       }
     },
 
@@ -167,6 +173,23 @@ const isPointerOverCanvas = e => {
   /** @type {HTMLElement} */
   const target = (e.target);
   return target.tagName === "CANVAS";
+};
+
+const rotate = oldArray => {
+  const width = oldArray.length;
+  const height = oldArray[0].length;
+
+  let newArray = new Array(height);
+
+  for (let row = 1; row <= height; row++) {
+    newArray[row] = new Array(width);
+
+    for (let col = 1; col <= width; col++) {
+      newArray[row][col] = oldArray[width - col][row];
+    }
+  }
+
+  return newArray;
 };
 
 export { createMouseTracker };
