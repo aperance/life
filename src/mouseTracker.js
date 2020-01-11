@@ -109,9 +109,8 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
 
         this.panning = false;
         this.downOnCanvas = false;
+        this.updateObserver();
       }
-
-      this.updateObserver();
     },
 
     /**
