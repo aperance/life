@@ -298,7 +298,7 @@ function handlePatternChange(isPatternSelected) {
     "active"}`;
   dom.patternBtn.className = `btn btn-primary ${isPatternSelected && "active"}`;
 
-  mouseTracker?.recheckPreview();
+  mouseTracker?.forcePreviewCheck();
 }
 
 function generatePatternListHTML() {
@@ -307,9 +307,10 @@ function generatePatternListHTML() {
       ${Object.entries(patternLibrary.categories)
         .map(
           ([category, contents], index) =>
-            `<a class="list-group-item list-group-item-action collapse-link"
+            `<a href="#category${index}"
+              class="list-group-item list-group-item-action collapse-link"
               data-toggle="collapse"
-              href="#category${index}">
+            >
               <strong>${category}</strong>
             </a>
             <div id="category${index}" class="collapse">
@@ -317,7 +318,7 @@ function generatePatternListHTML() {
                 .map(
                   id =>
                     `<a href="#"
-                      class="pattern-name list-group-item list-group-item-action"
+                      class="list-group-item list-group-item-action"
                       data-pattern="${id}"
                       data-role="listItem"
                     >
@@ -342,9 +343,9 @@ function generatePatternDetailsHTML(id) {
       ${description
         .map(string => {
           const link = string.match(/conwaylife.com.*/)?.[0];
-          return link
-            ? `<a target=”_blank” href="http://www.${link}">LifeWiki</a>`
-            : `<p>${string}</p>`;
+          if (link)
+            return `<a target=”_blank” href="http://www.${link}">LifeWiki</a>`;
+          else return `<p>${string}</p>`;
         })
         .join("")}
       <br></br>

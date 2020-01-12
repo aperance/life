@@ -26,14 +26,14 @@ const patternCategories = {
 
 /**
  * @typedef {Object} PatternLibrary
- * @property {Map<string,PatternData>?} map
+ * @property {Map<string,PatternData>} _map
  * @property {Object} categories
  * @property {number[][]?} selected
- * @property {function} loadDataFromFiles
- * @property {function} getData
- * @property {function} setSelected
- * @property {function} rotateSelected
- * @property {function} flipSelected
+ * @property {function(): Promise<void>} loadDataFromFiles
+ * @property {function(string): PatternData} getData
+ * @property {function(string?): void} setSelected
+ * @property {function(): void} rotateSelected
+ * @property {function(): void} flipSelected
  */
 
 /**
@@ -43,7 +43,7 @@ const patternCategories = {
 export const createPatternLibrary = observer => {
   /** @type {PatternLibrary} */
   const patternLibrary = {
-    map: null,
+    _map: new Map(),
     categories: patternCategories,
     selected: null,
 
@@ -52,18 +52,14 @@ export const createPatternLibrary = observer => {
      * @returns {Promise<void>}
      */
     async loadDataFromFiles() {
-      /** @type {Map<string,PatternData>} */
-      const library = new Map();
       const patternList = Object.values(this.categories).flat();
 
       await Promise.all(
         patternList.map(async id => {
           const patternData = await readPatternFile(id);
-          library.set(id, patternData);
+          this._map.set(id, patternData);
         })
       );
-
-      this.map = library;
     },
 
     /**
@@ -73,7 +69,7 @@ export const createPatternLibrary = observer => {
      * @throws
      */
     getData(id) {
-      const data = this.map?.get(id);
+      const data = this._map.get(id);
       if (data) return data;
       else throw new Error(`No pattern data found for '${id}'`);
     },
@@ -89,6 +85,9 @@ export const createPatternLibrary = observer => {
       observer(this.selected ? true : false);
     },
 
+    /**
+     *
+     */
     rotateSelected() {
       if (!this.selected) return;
 
@@ -108,6 +107,9 @@ export const createPatternLibrary = observer => {
       observer(this.selected ? true : false);
     },
 
+    /**
+     *
+     */
     flipSelected() {
       if (!this.selected) return;
 

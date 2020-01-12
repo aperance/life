@@ -13,14 +13,14 @@
  * @property {function(MouseEvent): void} mouseMove
  * @property {function(): void} mouseLeave
  * @property {function(MouseEvent): void} mouseWheel
- * @property {function(): void} recheckPreview
+ * @property {function(): void} forcePreviewCheck
  */
 
 /**
  *
  * @param {import('./gameRenderer').GameRenderer} gameRenderer
  * @param {import('./gameController').GameController} gameController
- * @param {*} patternLibrary
+ * @param {import('./patternLibrary').PatternLibrary} patternLibrary
  * @param  {function(boolean): void} observer
  * @returns {MouseTracker}
  */
@@ -133,7 +133,7 @@ const createMouseTracker = (
     /**
      *
      */
-    recheckPreview() {
+    forcePreviewCheck() {
       if (this.lastX === null || this.lastY === null) return;
 
       if (patternLibrary.selected) {
