@@ -3,21 +3,7 @@ import { createGameRenderer } from "./gameRenderer";
 import { createGameController } from "./gameController";
 import { createMouseTracker } from "./mouseTracker";
 import { createPanControls } from "./panControls";
-import { patternCategories, createPatternLibrary } from "./patternLibrary";
-
-const wasm = true;
-
-/** @type {import('./gameRenderer').GameRenderer?} */
-let gameRenderer = null;
-/** @type {import('./gameController').GameController?} */
-let gameController = null;
-/** @type {import('./mouseTracker').MouseTracker?} */
-// eslint-disable-next-line no-unused-vars
-let mouseTracker = null;
-/** @type {import('./panControls').PanControls?} */
-let panControls = null;
-/** @type {Map<string,import('./patternLibrary').PatternData>?} */
-let patternLibrary = null;
+import { createPatternLibrary } from "./patternLibrary";
 
 const dom = {
   /**  @type {HTMLDivElement} */
@@ -58,6 +44,21 @@ const dom = {
   zoomSlider: (document.getElementById("zoom-slider"))
 };
 
+const wasm = true;
+
+/** @type {import('./patternLibrary').PatternLibrary} */
+const patternLibrary = createPatternLibrary(handlePatternChange);
+
+/** @type {import('./gameRenderer').GameRenderer?} */
+let gameRenderer = null;
+/** @type {import('./gameController').GameController?} */
+let gameController = null;
+/** @type {import('./mouseTracker').MouseTracker?} */
+// eslint-disable-next-line no-unused-vars
+let mouseTracker = null;
+/** @type {import('./panControls').PanControls?} */
+let panControls = null;
+
 /**
  *
  */
@@ -65,7 +66,7 @@ async function init() {
   try {
     setEventListeners();
     initializeGame();
-    patternLibrary = await createPatternLibrary();
+    await patternLibrary.loadDataFromFiles();
     generatePatternListHTML();
     // @ts-ignore
     [...dom.categoryLinks].forEach(el => new Collapse(el));
@@ -84,11 +85,9 @@ function setEventListeners() {
   window.addEventListener("resize", handleResize);
 
   document.addEventListener("keydown", e => {
-    console.log(e.key);
-
-    if (e.key === "Escape") mouseTracker?.clearPattern();
-    else if (e.key === "r") mouseTracker?.rotatePattern();
-    else if (e.key === "f") mouseTracker?.flipPattern();
+    if (e.key === "Escape") patternLibrary.setSelected(null);
+    else if (e.key === "r") patternLibrary.rotateSelected();
+    else if (e.key === "f") patternLibrary.flipSelected();
     else if (e.key.includes("Arrow")) {
       const direction = e.key.replace("Arrow", "").toLowerCase();
       panControls?.start(direction);
@@ -124,7 +123,7 @@ function setEventListeners() {
       gameController?.setSpeed(parseFloat(btn.dataset.speed));
     else if (btn?.id === "play-btn") gameController?.play();
     else if (btn?.id === "pause-btn") gameController?.pause();
-    else if (btn?.id === "default-btn") mouseTracker?.clearPattern();
+    else if (btn?.id === "default-btn") patternLibrary.setSelected(null);
     else if (btn?.id === "reset-btn") {
       terminateGame();
       initializeGame();
@@ -132,31 +131,19 @@ function setEventListeners() {
   });
 
   dom.patternModal.addEventListener("click", e => {
-    if (!gameController || !gameRenderer || !mouseTracker) return;
-
     /** @type {HTMLElement} */
     const el = (e.target);
-    if (el.dataset.pattern) {
+    if (!el.dataset.pattern) patternLibrary.setSelected(null);
+    else {
       const id = el.dataset.pattern;
-      const patternArray = patternLibrary?.get(id)?.array;
-      if (!patternArray) console.error("No pattern data found for " + id);
-      else if (el.dataset.role === "listItem") generatePatternDetailsHTML(id);
-      else if (el.dataset.role === "addBtn")
-        mouseTracker.setPattern(e, patternArray);
-      else if (el.dataset.role === "replaceBtn") {
-        const { row, col } = gameRenderer.xyToRowColIndex(
-          window.innerWidth / 2,
-          window.innerHeight / 2
-        );
-        gameController.clearAliveCells();
-        gameController.placePattern(row, col, patternArray, false);
-      }
-    } else mouseTracker.clearPattern();
+      if (el.dataset.role === "listItem") generatePatternDetailsHTML(id);
+      else if (el.dataset.role === "selectBtn") patternLibrary.setSelected(id);
+    }
   });
 
-  dom.patternModal.addEventListener("show.bs.modal", e =>
-    dom.patternBtn.classList.add("active")
-  );
+  dom.patternModal.addEventListener("show.bs.modal", e => {
+    dom.patternBtn.classList.add("active");
+  });
 
   dom.patternModal.addEventListener("hidden.bs.modal", e =>
     dom.patternBtn.blur()
@@ -221,6 +208,7 @@ function initializeGame() {
   mouseTracker = createMouseTracker(
     gameRenderer,
     gameController,
+    patternLibrary,
     handleMouseChange
   );
 
@@ -295,19 +283,28 @@ function handleViewChange(zoom, centerRow, centerCol) {
 
 /**
  *
- * @param {boolean} panningMode
- * @param {boolean} patternMode
+ * @param {boolean} isPanning
  */
-function handleMouseChange(panningMode, patternMode) {
-  document.body.style.cursor = panningMode ? "all-scroll" : "default";
-  dom.defaultBtn.className = `btn btn-primary ${!patternMode && "active"}`;
-  dom.patternBtn.className = `btn btn-primary ${patternMode && "active"}`;
+function handleMouseChange(isPanning) {
+  document.body.style.cursor = isPanning ? "all-scroll" : "default";
+}
+
+/**
+ *
+ * @param {boolean} isPatternSelected
+ */
+function handlePatternChange(isPatternSelected) {
+  dom.defaultBtn.className = `btn btn-primary ${!isPatternSelected &&
+    "active"}`;
+  dom.patternBtn.className = `btn btn-primary ${isPatternSelected && "active"}`;
+
+  mouseTracker?.recheckPreview();
 }
 
 function generatePatternListHTML() {
   dom.patternList.innerHTML = `
     <div class="list-group">
-      ${Object.entries(patternCategories)
+      ${Object.entries(patternLibrary.categories)
         .map(
           ([category, contents], index) =>
             `<a class="list-group-item list-group-item-action collapse-link"
@@ -317,21 +314,16 @@ function generatePatternListHTML() {
             </a>
             <div id="category${index}" class="collapse">
               ${contents
-                .map(id => {
-                  const patternName = patternLibrary?.get(id)?.name;
-
-                  if (!patternName)
-                    throw new Error(`No pattern data found for '${id}'`);
-
-                  return `
-                    <a href="#"
+                .map(
+                  id =>
+                    `<a href="#"
                       class="pattern-name list-group-item list-group-item-action"
                       data-pattern="${id}"
                       data-role="listItem"
                     >
-                      &nbsp;&nbsp;${patternName}
-                    </a>`;
-                })
+                      &nbsp;&nbsp;${patternLibrary.getData(id).name}
+                    </a>`
+                )
                 .join("")}
             </div>`
         )
@@ -341,15 +333,13 @@ function generatePatternListHTML() {
 }
 
 function generatePatternDetailsHTML(id) {
-  const patternData = patternLibrary?.get(id);
-
-  if (!patternData) throw new Error(`No pattern data found for '${id}'`);
+  const { name, author, description } = patternLibrary.getData(id);
 
   dom.patternDetails.innerHTML = `
     <div>
-      <h4>${patternData?.name}</h4>
-      <p>Discovered by ${patternData?.author}</p>
-      ${patternData?.description
+      <h4>${name}</h4>
+      <p>Discovered by ${author}</p>
+      ${description
         .map(string => {
           const link = string.match(/conwaylife.com.*/)?.[0];
           return link
@@ -362,17 +352,9 @@ function generatePatternDetailsHTML(id) {
         class="btn btn-primary drop-shadow"
         data-dismiss="modal"
         data-pattern="${id}"
-        data-role="addBtn"
+        data-role="selectBtn"
       >
-        Drag and Drop Pattern
-      </button>
-      <button type="button"
-        class="btn btn-primary drop-shadow"
-        data-dismiss="modal"
-        data-pattern="${id}"
-        data-role="replaceBtn"
-      >
-        Replace All With Pattern
+        Select Pattern
       </button>
     </div>
     `;

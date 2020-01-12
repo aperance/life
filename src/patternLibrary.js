@@ -25,24 +25,102 @@ const patternCategories = {
  */
 
 /**
- *
- * @async
- * @returns {Promise<Map<string,PatternData>> }
+ * @typedef {Object} PatternLibrary
+ * @property {Map<string,PatternData>?} map
+ * @property {Object} categories
+ * @property {number[][]?} selected
+ * @property {function} loadDataFromFiles
+ * @property {function} getData
+ * @property {function} setSelected
+ * @property {function} rotateSelected
+ * @property {function} flipSelected
  */
-async function createPatternLibrary() {
-  /** @type {Map<string,PatternData>} */
-  const library = new Map();
-  const patternList = Object.values(patternCategories).flat();
 
-  await Promise.all(
-    patternList.map(async id => {
-      const patternData = await readPatternFile(id);
-      library.set(id, patternData);
-    })
-  );
+/**
+ *
+ * @param {function} observer
+ */
+export const createPatternLibrary = observer => {
+  /** @type {PatternLibrary} */
+  const patternLibrary = {
+    map: null,
+    categories: patternCategories,
+    selected: null,
 
-  return library;
-}
+    /**
+     * @async
+     * @returns {Promise<void>}
+     */
+    async loadDataFromFiles() {
+      /** @type {Map<string,PatternData>} */
+      const library = new Map();
+      const patternList = Object.values(this.categories).flat();
+
+      await Promise.all(
+        patternList.map(async id => {
+          const patternData = await readPatternFile(id);
+          library.set(id, patternData);
+        })
+      );
+
+      this.map = library;
+    },
+
+    /**
+     *
+     * @param {string} id
+     * @returns {PatternData}
+     * @throws
+     */
+    getData(id) {
+      const data = this.map?.get(id);
+      if (data) return data;
+      else throw new Error(`No pattern data found for '${id}'`);
+    },
+
+    /**
+     *
+     * @param {string?} id
+     */
+    setSelected(id) {
+      if (!id) this.selected = null;
+      else this.selected = this.getData(id).array;
+
+      observer(this.selected ? true : false);
+    },
+
+    rotateSelected() {
+      if (!this.selected) return;
+
+      const width = this.selected.length;
+      const height = this.selected[0].length;
+
+      let newArray = new Array(height);
+      for (let row = 0; row < height; row++) {
+        newArray[row] = new Array(width);
+        for (let col = 0; col < width; col++) {
+          newArray[row][col] = this.selected[width - col - 1][row];
+        }
+      }
+
+      this.selected = newArray;
+
+      observer(this.selected ? true : false);
+    },
+
+    flipSelected() {
+      if (!this.selected) return;
+
+      for (let i = 0; i < this.selected.length; i++) {
+        this.selected[i].reverse();
+      }
+
+      observer(this.selected ? true : false);
+    }
+  };
+
+  return patternLibrary;
+};
 
 /**
  *
@@ -94,5 +172,3 @@ function rleParser(rle) {
 
   return outerArray;
 }
-
-export { patternCategories, createPatternLibrary };
