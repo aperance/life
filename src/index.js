@@ -67,7 +67,7 @@ async function init() {
     setEventListeners();
     initializeGame();
     await patternLibrary.loadDataFromFiles();
-    generatePatternListHTML();
+    dom.patternList.innerHTML = patternLibrary.generateListHTML();
     // @ts-ignore
     [...dom.categoryLinks].forEach(el => new Collapse(el));
   } catch (err) {
@@ -80,10 +80,19 @@ async function init() {
  *
  */
 function setEventListeners() {
+  /**
+   *
+   */
   window.addEventListener("error", terminateGame);
 
+  /**
+   *
+   */
   window.addEventListener("resize", handleResize);
 
+  /**
+   *
+   */
   document.addEventListener("keydown", e => {
     if (e.key === "Escape") patternLibrary.setSelected(null);
     else if (e.key === "r") patternLibrary.rotateSelected();
@@ -94,27 +103,43 @@ function setEventListeners() {
     }
   });
 
+  /**
+   *
+   */
   document.addEventListener("keyup", e => {
     if (e.key.includes("Arrow")) panControls?.stop();
   });
 
-  document.addEventListener("contextmenu", e => e.preventDefault());
-
+  /**
+   *
+   */
   document.addEventListener("mouseup", e => mouseTracker?.mouseUp(e));
   document.addEventListener("mousedown", e => mouseTracker?.mouseDown(e));
   document.addEventListener("mousemove", e => mouseTracker?.mouseMove(e));
   document.addEventListener("mouseleave", () => mouseTracker?.mouseLeave());
 
+  /**
+   *
+   */
   dom.main.addEventListener("wheel", e => e.preventDefault(), {
     passive: false
   });
 
+  /**
+   *
+   */
   dom.main.addEventListener("wheel", e => mouseTracker?.mouseWheel(e), {
     passive: true
   });
 
+  /**
+   *
+   */
   dom.topBar.addEventListener("mousedown", e => e.preventDefault());
 
+  /**
+   *
+   */
   dom.topBar.addEventListener("click", e => {
     /** @type {HTMLElement} */
     const el = (e.target);
@@ -130,43 +155,57 @@ function setEventListeners() {
     }
   });
 
+  /**
+   *
+   */
+  dom.patternBtn.addEventListener("focus", () => dom.patternBtn.blur());
+
+  /**
+   *
+   */
   dom.patternModal.addEventListener("click", e => {
-    /** @type {HTMLElement} */
-    const el = (e.target);
-    if (!el.dataset.pattern) patternLibrary.setSelected(null);
-    else {
-      const id = el.dataset.pattern;
-      if (el.dataset.role === "listItem") generatePatternDetailsHTML(id);
-      else if (el.dataset.role === "selectBtn") patternLibrary.setSelected(id);
-    }
+    const el = /** @type {HTMLElement} */ (e.target);
+    const { pattern, role } = el.dataset;
+
+    if (pattern && role === "listItem")
+      dom.patternDetails.innerHTML = patternLibrary.generateDetailHTML(pattern);
+    else if (pattern && role === "selectBtn")
+      patternLibrary.setSelected(pattern);
   });
 
+  /**
+   *
+   */
   dom.patternModal.addEventListener("show.bs.modal", e => {
+    patternLibrary.setSelected(null);
     dom.patternBtn.classList.add("active");
   });
 
-  dom.patternModal.addEventListener("hidden.bs.modal", e =>
-    dom.patternBtn.blur()
-  );
-
-  [...dom.panButtonGroup.children].forEach(child => {
-    /** @type {HTMLButtonElement} */
-    const btn = (child);
-    btn.addEventListener("mousedown", () => {
-      /** @type {string} */
-      const direction = (btn.dataset.direction);
-      panControls?.start(direction);
-    });
-    btn.addEventListener("mouseup", () => {
-      btn.blur();
-      panControls?.stop();
-    });
-    btn.addEventListener("mouseleave", () => {
-      btn.blur();
-      panControls?.stop();
-    });
+  /**
+   *
+   */
+  dom.patternModal.addEventListener("hide.bs.modal", e => {
+    if (patternLibrary.selected === null)
+      dom.patternBtn.classList.remove("active");
   });
 
+  /**
+   *
+   */
+  [...dom.panButtonGroup.children].forEach(child => {
+    const btn = /** @type {HTMLButtonElement} */ (child);
+    btn.addEventListener("focus", () => btn.blur());
+    btn.addEventListener("mousedown", () => {
+      const direction = btn.dataset.direction;
+      if (direction) panControls?.start(direction);
+    });
+    btn.addEventListener("mouseup", () => panControls?.stop());
+    btn.addEventListener("mouseleave", () => panControls?.stop());
+  });
+
+  /**
+   *
+   */
   dom.zoomSlider.addEventListener("input", e =>
     gameRenderer?.zoomAtPoint(
       Math.round(Math.pow(parseFloat(dom.zoomSlider.value), 2)),
@@ -299,66 +338,6 @@ function handlePatternChange(isPatternSelected) {
   dom.patternBtn.className = `btn btn-primary ${isPatternSelected && "active"}`;
 
   mouseTracker?.forcePreviewCheck();
-}
-
-function generatePatternListHTML() {
-  dom.patternList.innerHTML = `
-    <div class="list-group">
-      ${Object.entries(patternLibrary.categories)
-        .map(
-          ([category, contents], index) =>
-            `<a href="#category${index}"
-              class="list-group-item list-group-item-action collapse-link"
-              data-toggle="collapse"
-            >
-              <strong>${category}</strong>
-            </a>
-            <div id="category${index}" class="collapse">
-              ${contents
-                .map(
-                  id =>
-                    `<a href="#"
-                      class="list-group-item list-group-item-action"
-                      data-pattern="${id}"
-                      data-role="listItem"
-                    >
-                      &nbsp;&nbsp;${patternLibrary.getData(id).name}
-                    </a>`
-                )
-                .join("")}
-            </div>`
-        )
-        .join("")}
-    </div>
-  `;
-}
-
-function generatePatternDetailsHTML(id) {
-  const { name, author, description } = patternLibrary.getData(id);
-
-  dom.patternDetails.innerHTML = `
-    <div>
-      <h4>${name}</h4>
-      <p>Discovered by ${author}</p>
-      ${description
-        .map(string => {
-          const link = string.match(/conwaylife.com.*/)?.[0];
-          if (link)
-            return `<a target=”_blank” href="http://www.${link}">LifeWiki</a>`;
-          else return `<p>${string}</p>`;
-        })
-        .join("")}
-      <br></br>
-      <button type="button"
-        class="btn btn-primary drop-shadow"
-        data-dismiss="modal"
-        data-pattern="${id}"
-        data-role="selectBtn"
-      >
-        Select Pattern
-      </button>
-    </div>
-    `;
 }
 
 init();

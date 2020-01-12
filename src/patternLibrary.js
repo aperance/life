@@ -34,6 +34,8 @@ const patternCategories = {
  * @property {function(string?): void} setSelected
  * @property {function(): void} rotateSelected
  * @property {function(): void} flipSelected
+ * @property {function(): string} generateListHTML
+ * @property {function(string): string} generateDetailHTML
  */
 
 /**
@@ -118,6 +120,74 @@ export const createPatternLibrary = observer => {
       }
 
       observer(this.selected ? true : false);
+    },
+
+    /**
+     *
+     * @returns {string}
+     */
+    generateListHTML() {
+      return `
+        <div class="list-group">
+          ${Object.entries(this.categories)
+            .map(
+              ([category, contents], index) =>
+                `<a href="#category${index}"
+                  class="list-group-item list-group-item-action collapse-link"
+                  data-toggle="collapse"
+                >
+                  <strong>${category}</strong>
+                </a>
+                <div id="category${index}" class="collapse">
+                  ${contents
+                    .map(
+                      id =>
+                        `<a href="#"
+                          class="list-group-item list-group-item-action"
+                          data-pattern="${id}"
+                          data-role="listItem"
+                        >
+                          &nbsp;&nbsp;${this.getData(id).name}
+                        </a>`
+                    )
+                    .join("")}
+                </div>`
+            )
+            .join("")}
+        </div>
+      `;
+    },
+
+    /**
+     *
+     * @returns {string}
+     */
+    generateDetailHTML(id) {
+      const { name, author, description } = this.getData(id);
+
+      return `
+        <div>
+          <h4>${name}</h4>
+          <p>Discovered by ${author}</p>
+          ${description
+            .map(string => {
+              const link = string.match(/conwaylife.com.*/)?.[0];
+              if (link)
+                return `<a target=”_blank” href="http://www.${link}">LifeWiki</a>`;
+              else return `<p>${string}</p>`;
+            })
+            .join("")}
+          <br></br>
+          <button type="button"
+            class="btn btn-primary drop-shadow"
+            data-dismiss="modal"
+            data-pattern="${id}"
+            data-role="selectBtn"
+          >
+            Select Pattern
+          </button>
+        </div>
+      `;
     }
   };
 
