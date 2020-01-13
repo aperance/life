@@ -1,7 +1,8 @@
-/** @module */
+/**
+ * @module
+ */
 
 /**
- *
  * @typedef {Object} MouseTracker
  * @property {boolean} onCanvas
  * @property {boolean} downOnCanvas
@@ -17,7 +18,7 @@
  */
 
 /**
- *
+ * Factory function for MouseTracker object.
  * @param {import('./gameRenderer').GameRenderer} gameRenderer
  * @param {import('./gameController').GameController} gameController
  * @param {import('./patternLibrary').PatternLibrary} patternLibrary
@@ -39,7 +40,8 @@ const createMouseTracker = (
     lastY: null,
 
     /**
-     *
+     * Updates object state and determines cell toggling
+     * or pattern placement on mouse up event.
      * @param {MouseEvent} e
      */
     mouseUp(e) {
@@ -63,7 +65,7 @@ const createMouseTracker = (
     },
 
     /**
-     *
+     * Updates object state on mouse down event.
      * @param {MouseEvent} e
      */
     mouseDown(e) {
@@ -72,7 +74,8 @@ const createMouseTracker = (
     },
 
     /**
-     *
+     * Updates object state and determines view panning
+     * or pattern preview rendering on mouse move event.
      * @param {MouseEvent} e
      */
     mouseMove(e) {
@@ -109,7 +112,8 @@ const createMouseTracker = (
     },
 
     /**
-     *
+     * Updates onCanvas property and clears pattern
+     * preview rendering when mouse leaves window.
      */
     mouseLeave() {
       this.onCanvas = false;
@@ -117,7 +121,7 @@ const createMouseTracker = (
     },
 
     /**
-     *
+     * Updates game zoom value on mouse wheel event over canvas.
      * @param {WheelEvent} e
      */
     mouseWheel(e) {
@@ -130,7 +134,8 @@ const createMouseTracker = (
     },
 
     /**
-     *
+     * Re-evaluates the selected pattern preview rendering. Called
+     * externally if pattern state changes without a new mouse event.
      */
     forcePreviewCheck() {
       if (this.lastX === null || this.lastY === null) return;
@@ -150,13 +155,13 @@ const createMouseTracker = (
 };
 
 /**
- *
+ * Determines if the mouse pointer is directly over the canvas,
+ * and not a button or modal, based on the provided event object.
  * @param {WheelEvent | MouseEvent} e
  * @returns {boolean}
  */
 const isPointerOverCanvas = e => {
-  /** @type {HTMLElement} */
-  const target = (e.target);
+  const target = /** @type {HTMLElement} */ (e.target);
   return target.id === "cell-canvas" || target.id === "top-bar";
 };
 
