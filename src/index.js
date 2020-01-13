@@ -110,11 +110,11 @@ function setEventListeners() {
   });
 
   /** Forward all mouse events to mouseTracker object (except on modal) */
-  dom.main.addEventListener("mouseup", e => mouseTracker?.mouseUp(e));
-  dom.main.addEventListener("mousedown", e => mouseTracker?.mouseDown(e));
-  dom.main.addEventListener("mousemove", e => mouseTracker?.mouseMove(e));
-  dom.main.addEventListener("mouseleave", () => mouseTracker?.mouseLeave());
-  dom.main.addEventListener("wheel", e => mouseTracker?.mouseWheel(e), {
+  document.addEventListener("mouseup", e => mouseTracker?.mouseUp(e));
+  document.addEventListener("mousedown", e => mouseTracker?.mouseDown(e));
+  document.addEventListener("mousemove", e => mouseTracker?.mouseMove(e));
+  document.addEventListener("mouseleave", () => mouseTracker?.mouseLeave());
+  document.addEventListener("wheel", e => mouseTracker?.mouseWheel(e), {
     passive: true
   });
 
