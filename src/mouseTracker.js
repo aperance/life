@@ -67,9 +67,8 @@ const createMouseTracker = (
      * @param {MouseEvent} e
      */
     mouseDown(e) {
-      if (e.button === 0 && this.onCanvas) {
-        this.downOnCanvas = true;
-      }
+      this.onCanvas = isPointerOverCanvas(e);
+      if (e.button === 0 && this.onCanvas) this.downOnCanvas = true;
     },
 
     /**
