@@ -5,6 +5,7 @@ import { createMouseTracker } from "./mouseTracker";
 import { createPanControls } from "./panControls";
 import { createPatternLibrary } from "./patternLibrary";
 
+/** Stores refrences to used DOM elements with JSDoc type casting */
 const dom = {
   /**  @type {HTMLDivElement} */
   main: (document.getElementById("main")),
@@ -56,13 +57,13 @@ let gameRenderer = null;
 /** @type {import('./gameController').GameController?} */
 let gameController = null;
 /** @type {import('./mouseTracker').MouseTracker?} */
-// eslint-disable-next-line no-unused-vars
 let mouseTracker = null;
 /** @type {import('./panControls').PanControls?} */
 let panControls = null;
 
 /**
  * Perform all actions required on page load to bring game to a working state.
+ * @async
  */
 async function init() {
   try {
@@ -77,7 +78,7 @@ async function init() {
     // @ts-ignore
     [...dom.categoryLinks].forEach(el => new Collapse(el));
   } catch (err) {
-    /** Terminate game on error (most likely from pattern library) */
+    /** Terminate game on error (most likely from pattern library). */
     console.error(err);
     terminateGame();
   }
@@ -87,13 +88,13 @@ async function init() {
  * Sets all necessary DOM element event listeners.
  */
 function setEventListeners() {
-  /** Terminate game after any unhandled errors */
+  /** Terminate game after any unhandled errors. */
   window.addEventListener("error", terminateGame);
 
-  /** Update game state on window resize */
+  /** Update game state on window resize. */
   window.addEventListener("resize", handleResize);
 
-  /** Global keypress handler */
+  /** Global keypress handler. */
   document.addEventListener("keydown", e => {
     if (e.key === "Escape") patternLibrary.setSelected(null);
     else if (e.key === "r") patternLibrary.rotateSelected();
@@ -104,12 +105,12 @@ function setEventListeners() {
     }
   });
 
-  /** Stop panning on keyup of arrow buttons */
+  /** Stop panning on keyup of arrow buttons. */
   document.addEventListener("keyup", e => {
     if (e.key.includes("Arrow")) panControls?.stop();
   });
 
-  /** Forward all mouse events to mouseTracker object (except on modal) */
+  /** Forward all mouse events to mouseTracker object (except on modal). */
   document.addEventListener("mouseup", e => mouseTracker?.mouseUp(e));
   document.addEventListener("mousedown", e => mouseTracker?.mouseDown(e));
   document.addEventListener("mousemove", e => mouseTracker?.mouseMove(e));
@@ -118,57 +119,62 @@ function setEventListeners() {
     passive: true
   });
 
-  /** Disable all scrolling (except on modal) */
+  /** Disable all scrolling (except on modal). */
   dom.main.addEventListener("wheel", e => e.preventDefault(), {
     passive: false
   });
 
-  /** Handle all clicks on top bar buttons */
+  /** Handle all clicks on top bar buttons/dropdowns. */
   dom.topBar.addEventListener("click", e => {
     // @ts-ignore
     const btn = e.target?.closest("button");
 
-    if (btn?.dataset.speed)
+    if (btn?.dataset.speed) {
+      /** Update game speed on selection of new spped in dropdown. */
       gameController?.setSpeed(parseFloat(btn.dataset.speed));
-    else if (btn?.id === "play-btn") gameController?.play();
-    else if (btn?.id === "pause-btn") gameController?.pause();
-    else if (btn?.id === "default-btn") patternLibrary.setSelected(null);
-    else if (btn?.id === "reset-btn") {
-      terminateGame();
-      initializeGame();
+    } else {
+      /** Perform intended action on click of top bar buttons. */
+      if (btn?.id === "play-btn") gameController?.play();
+      else if (btn?.id === "pause-btn") gameController?.pause();
+      else if (btn?.id === "default-btn") patternLibrary.setSelected(null);
+      else if (btn?.id === "reset-btn") {
+        terminateGame();
+        initializeGame();
+      }
     }
   });
 
-  /** Prevent focus on top bar buttons */
+  /** Prevent focus on top bar buttons. */
   dom.topBar.addEventListener("mousedown", e => e.preventDefault());
 
-  /** Prevent focus of pattern button after modal close */
+  /** Prevent focus of pattern button after modal close. */
   dom.patternBtn.addEventListener("focus", () => dom.patternBtn.blur());
 
-  /** Handle all clicks on pattern library modal */
+  /** Handle all clicks on pattern library modal. */
   dom.patternModal.addEventListener("click", e => {
     // @ts-ignore
     const { pattern, role } = e.target?.dataset;
 
+    /** Update details section on selection of pattern from list. */
     if (pattern && role === "listItem")
       dom.patternDetails.innerHTML = patternLibrary.generateDetailHTML(pattern);
-    else if (pattern && role === "selectBtn")
-      patternLibrary.setSelected(pattern);
+    /** Set a new selected pattern on confirmation button click. */
+    if (pattern && role === "selectBtn") patternLibrary.setSelected(pattern);
   });
 
-  /**  */
+  /** On modal open, clear previously selected pattern and activate pattern button. */
   dom.patternModal.addEventListener("show.bs.modal", e => {
     patternLibrary.setSelected(null);
     dom.patternBtn.classList.add("active");
   });
 
-  /**  */
+  /** On modal close, set pattern button as inactive if no pattern was selected. */
   dom.patternModal.addEventListener("hide.bs.modal", e => {
     if (patternLibrary.selected === null)
       dom.patternBtn.classList.remove("active");
   });
 
-  /** Add necessary event listeners for each pan buttons */
+  /** Add necessary event listeners for each pan buttons. */
   [...dom.panButtonGroup.children].forEach(child => {
     const btn = /** @type {HTMLButtonElement} */ (child);
     btn.addEventListener("focus", () => btn.blur());
@@ -179,7 +185,7 @@ function setEventListeners() {
     btn.addEventListener("mouseleave", () => panControls?.stop());
   });
 
-  /** Handle change in zoon slider position */
+  /** Update game zoom value on change in zoon slider position. */
   dom.zoomSlider.addEventListener("input", e =>
     gameRenderer?.zoomAtPoint(
       Math.round(Math.pow(parseFloat(dom.zoomSlider.value), 2)),
