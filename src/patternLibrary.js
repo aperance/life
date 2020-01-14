@@ -1,3 +1,11 @@
+/**
+ * @typedef {Object} PatternData
+ * @property {string} name
+ * @property {string} author
+ * @property {string[]} description
+ * @property {number[][]} array
+ */
+
 const patternCategories = {
   Spaceships: ["copperhead", "glider", "loafer", "lwss", "mwss", "hwss"],
   Guns: ["bigun", "gosperglidergun", "p41660p5h2v0gun", "simkinglidergun"],
@@ -16,118 +24,95 @@ const patternCategories = {
   "Gardens of Eden": ["gardenofeden1", "gardenofeden4", "gardenofeden5"]
 };
 
-/**
- * @typedef {Object} PatternData
- * @property {string} name
- * @property {string} author
- * @property {string[]} description
- * @property {number[][]} array
- */
+export class PatternLibrary {
+  _map = new Map();
+  categories = patternCategories;
+  selected = null;
+  observer;
 
-/**
- * @typedef {Object} PatternLibrary
- * @property {Map<string,PatternData>} _map
- * @property {Object} categories
- * @property {number[][]?} selected
- * @property {function(): Promise<void>} loadDataFromFiles
- * @property {function(string): PatternData} getData
- * @property {function(string?): void} setSelected
- * @property {function(): void} rotateSelected
- * @property {function(): void} flipSelected
- * @property {function(): string} generateListHTML
- * @property {function(string): string} generateDetailHTML
- */
+  constructor(observer) {
+    this.observer = observer;
+  }
 
-/**
- *
- * @param {function} observer
- */
-export const createPatternLibrary = observer => {
-  /** @type {PatternLibrary} */
-  const patternLibrary = {
-    _map: new Map(),
-    categories: patternCategories,
-    selected: null,
+  /**
+   * @async
+   * @returns {Promise<void>}
+   */
+  async loadDataFromFiles() {
+    const patternList = Object.values(this.categories).flat();
 
-    /**
-     * @async
-     * @returns {Promise<void>}
-     */
-    async loadDataFromFiles() {
-      const patternList = Object.values(this.categories).flat();
+    await Promise.all(
+      patternList.map(async id => {
+        const patternData = await readPatternFile(id);
+        this._map.set(id, patternData);
+      })
+    );
+  }
 
-      await Promise.all(
-        patternList.map(async id => {
-          const patternData = await readPatternFile(id);
-          this._map.set(id, patternData);
-        })
-      );
-    },
+  /**
+   *
+   * @param {string} id
+   * @returns {PatternData}
+   * @throws
+   */
+  getData(id) {
+    const data = this._map.get(id);
+    if (data) return data;
+    else throw new Error(`No pattern data found for '${id}'`);
+  }
 
-    /**
-     *
-     * @param {string} id
-     * @returns {PatternData}
-     * @throws
-     */
-    getData(id) {
-      const data = this._map.get(id);
-      if (data) return data;
-      else throw new Error(`No pattern data found for '${id}'`);
-    },
+  /**
+   *
+   * @param {string?} id
+   */
+  setSelected(id) {
+    if (!id) this.selected = null;
+    else this.selected = this.getData(id).array;
 
-    /**
-     *
-     * @param {string?} id
-     */
-    setSelected(id) {
-      if (!id) this.selected = null;
-      else this.selected = this.getData(id).array;
+    this.observer(this.selected ? true : false);
+  }
 
-      observer(this.selected ? true : false);
-    },
+  /**
+   *
+   */
+  rotateSelected() {
+    if (!this.selected) return;
 
-    /**
-     *
-     */
-    rotateSelected() {
-      if (!this.selected) return;
+    const width = this.selected.length;
+    const height = this.selected[0].length;
 
-      const width = this.selected.length;
-      const height = this.selected[0].length;
-
-      let newArray = new Array(height);
-      for (let row = 0; row < height; row++) {
-        newArray[row] = new Array(width);
-        for (let col = 0; col < width; col++) {
-          newArray[row][col] = this.selected[width - col - 1][row];
-        }
+    let newArray = new Array(height);
+    for (let row = 0; row < height; row++) {
+      newArray[row] = new Array(width);
+      for (let col = 0; col < width; col++) {
+        newArray[row][col] = this.selected[width - col - 1][row];
       }
+    }
 
-      this.selected = newArray;
+    this.selected = newArray;
 
-      observer(this.selected ? true : false);
-    },
+    this.observer(this.selected ? true : false);
+  }
 
-    /**
-     *
-     */
-    flipSelected() {
-      if (!this.selected) return;
+  /**
+   *
+   */
+  flipSelected() {
+    if (!this.selected) return;
 
-      for (let i = 0; i < this.selected.length; i++) {
-        this.selected[i].reverse();
-      }
+    for (let i = 0; i < this.selected.length; i++) {
+      this.selected[i].reverse();
+    }
 
-      observer(this.selected ? true : false);
-    },
+    this.observer(this.selected ? true : false);
+  }
 
-    /**
-     *
-     * @returns {string}
-     */
-    generateListHTML() {
-      return `
+  /**
+   *
+   * @returns {string}
+   */
+  generateListHTML() {
+    return `
         <div class="list-group">
           ${Object.entries(this.categories)
             .map(
@@ -156,16 +141,16 @@ export const createPatternLibrary = observer => {
             .join("")}
         </div>
       `;
-    },
+  }
 
-    /**
-     *
-     * @returns {string}
-     */
-    generateDetailHTML(id) {
-      const { name, author, description } = this.getData(id);
+  /**
+   *
+   * @returns {string}
+   */
+  generateDetailHTML(id) {
+    const { name, author, description } = this.getData(id);
 
-      return `
+    return `
         <div>
           <h4>${name}</h4>
           <p>Discovered by ${author}</p>
@@ -188,11 +173,8 @@ export const createPatternLibrary = observer => {
           </button>
         </div>
       `;
-    }
-  };
-
-  return patternLibrary;
-};
+  }
+}
 
 /**
  *

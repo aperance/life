@@ -1,9 +1,9 @@
 import "@fortawesome/fontawesome-free/js/all";
 import { createGameRenderer } from "./gameRenderer";
 import { createGameController } from "./gameController";
-import { createMouseTracker } from "./mouseTracker";
-import { createPanControls } from "./panControls";
-import { createPatternLibrary } from "./patternLibrary";
+import { MouseTracker } from "./mouseTracker";
+import { PanControls } from "./panControls";
+import { PatternLibrary } from "./patternLibrary";
 
 /** Stores refrences to used DOM elements with JSDoc type casting */
 const dom = {
@@ -48,17 +48,17 @@ const dom = {
 const wasm = true;
 
 /** Factory function for PatternLibrary object. */
-/** @type {import('./patternLibrary').PatternLibrary} */
-const patternLibrary = createPatternLibrary(handlePatternChange);
+/** @type {PatternLibrary} */
+const patternLibrary = new PatternLibrary(handlePatternChange);
 
 /** Variables for most game related objects. To be set by initializeGame function. */
 /** @type {import('./gameRenderer').GameRenderer?} */
 let gameRenderer = null;
 /** @type {import('./gameController').GameController?} */
 let gameController = null;
-/** @type {import('./mouseTracker').MouseTracker?} */
+/** @type {MouseTracker?} */
 let mouseTracker = null;
-/** @type {import('./panControls').PanControls?} */
+/** @type {PanControls?} */
 let panControls = null;
 
 /**
@@ -226,14 +226,14 @@ function initializeGame() {
     handleGameChange
   );
   /** Factory function for MouseTracker object. */
-  mouseTracker = createMouseTracker(
+  mouseTracker = new MouseTracker(
     gameRenderer,
     gameController,
     patternLibrary,
     handleMouseChange
   );
   /** Factory function for PanControls object. */
-  panControls = createPanControls(gameRenderer);
+  panControls = new PanControls(gameRenderer);
 
   /** Ensure all UI elements are visible */
   document.body.hidden = false;

@@ -1,7 +1,7 @@
-import { createPanControls } from "../panControls";
+import { PanControls } from "../panControls";
 
 const gameRenderer = { view: { panX: 100, panY: 100 }, setView: jest.fn() };
-const panControls = createPanControls(gameRenderer);
+const panControls = new PanControls(gameRenderer);
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -35,6 +35,12 @@ describe.each([
   it("no additional panning occurs", () => {
     jest.advanceTimersByTime(1000);
     expect(gameRenderer.setView).toHaveBeenCalledTimes(0);
+  });
+
+  it("no effect when additional stop method called", () => {
+    panControls.stop();
+    expect(panControls.direction).toBe(null);
+    expect(panControls.intervalID).toBe(null);
   });
 });
 

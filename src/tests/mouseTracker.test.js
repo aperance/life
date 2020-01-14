@@ -1,21 +1,33 @@
-import { createMouseTracker } from "../mouseTracker";
+//@ts-ignore
+
+import { MouseTracker } from "../mouseTracker";
 
 const gameRenderer = {
   view: { zoom: 10, panX: 100, panY: 100 },
   setView: jest.fn(),
   zoomAtPoint: jest.fn(),
-  xyToIndex: jest.fn().mockReturnValue(0),
-  xyToRowCol: jest.fn().mockReturnValue({ row: 0, col: 0 })
+  xyToRowColIndex: jest.fn().mockReturnValue({ row: 0, col: 0, index: 0 })
 };
 const gameController = {
   toggleCell: jest.fn(),
-  placeElement: jest.fn(),
-  placePreview: jest.fn(),
+  placePattern: jest.fn(),
+  clearAliveCells: jest.fn(),
   clearPreview: jest.fn()
 };
+
+const patternLibrary = {
+  /** @type {number[][]?} */
+  selected: null
+};
+
 const observer = jest.fn();
 
-const mouseTracker = createMouseTracker(gameRenderer, gameController, observer);
+const mouseTracker = new MouseTracker(
+  gameRenderer,
+  gameController,
+  patternLibrary,
+  observer
+);
 
 describe("For wheel spin", () => {
   beforeEach(() => {
@@ -26,12 +38,14 @@ describe("For wheel spin", () => {
     test.each([-100, -10, 10, 100])(
       "with deltaY of %i, calls zoom requested with correct arguments",
       val => {
-        mouseTracker.mouseWheel({
+        /** @type {*} */
+        const e = {
           deltaY: val,
           clientX: 100,
           clientY: 100,
-          target: { tagName: "CANVAS" }
-        });
+          target: { id: "cell-canvas" }
+        };
+        mouseTracker.mouseWheel(e);
         expect(gameRenderer.zoomAtPoint).toHaveBeenCalledTimes(1);
         expect(gameRenderer.zoomAtPoint).toHaveBeenCalledWith(
           10 + Math.sign(val),
@@ -46,12 +60,14 @@ describe("For wheel spin", () => {
     test.each([-100, -10, 10, 100])(
       "with deltaY of %i, zoom not requested",
       val => {
-        mouseTracker.mouseWheel({
+        /** @type {*} */
+        const e = {
           deltaY: val,
           clientX: 100,
           clientY: 100,
-          target: { tagName: "BUTTON" }
-        });
+          target: { id: "default-btn" }
+        };
+        mouseTracker.mouseWheel(e);
         expect(gameRenderer.zoomAtPoint).not.toHaveBeenCalled();
       }
     );
@@ -64,35 +80,25 @@ describe("With pattern selected", () => {
     [0, 1, 0],
     [1, 0, 1]
   ];
-  test("pattern is saved and observer updated", () => {
-    mouseTracker.setPattern(testPattern);
-    expect(mouseTracker.pattern).toEqual(testPattern);
-    expect(observer).toHaveBeenCalled();
-  });
+
+  patternLibrary.selected = testPattern;
 
   describe("Moving over canvas", () => {
-    const e = { clientX: 500, clientY: 500, target: { tagName: "CANVAS" } };
+    /** @type {*} */
+    const e = { clientX: 500, clientY: 500, target: { id: "cell-canvas" } };
     beforeAll(() => {
       jest.clearAllMocks();
       mouseTracker.mouseMove(e);
     });
-    test("Conversion function called with correct coordinates", () => {
-      expect(gameRenderer.xyToRowCol).toHaveBeenCalledWith(
-        e.clientX,
-        e.clientY
-      );
-    });
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
-    test("Place element not requested", () => {
-      expect(gameController.placeElement).not.toHaveBeenCalled();
-    });
-    test("Place preview is requested with coordinates and pattern", () => {
-      expect(gameController.placePreview).toHaveBeenCalledWith(
-        0,
-        0,
-        testPattern
+    test("Place pattern is requested with coordinates and pattern", () => {
+      expect(gameController.placePattern).toHaveBeenCalledWith(
+        500,
+        500,
+        testPattern,
+        true
       );
     });
     test("Clear preview not requested", () => {
@@ -107,7 +113,8 @@ describe("With pattern selected", () => {
   });
 
   describe("Moving over button", () => {
-    const e = { clientX: 500, clientY: 500, target: { tagName: "BUTTON" } };
+    /** @type {*} */
+    const e = { clientX: 500, clientY: 500, target: { id: "default-btn" } };
     beforeAll(() => {
       jest.clearAllMocks();
       mouseTracker.mouseMove(e);
@@ -115,11 +122,8 @@ describe("With pattern selected", () => {
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
-    test("Place element not requested", () => {
-      expect(gameController.placeElement).not.toHaveBeenCalled();
-    });
-    test("Place preview not requested", () => {
-      expect(gameController.placePreview).not.toHaveBeenCalled();
+    test("Place pattern not requested", () => {
+      expect(gameController.placePattern).not.toHaveBeenCalled();
     });
     test("Clear preview is requested", () => {
       expect(gameController.clearPreview).toHaveBeenCalled();
@@ -140,11 +144,8 @@ describe("With pattern selected", () => {
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
-    test("Place element not requested", () => {
-      expect(gameController.placeElement).not.toHaveBeenCalled();
-    });
-    test("Place preview not requested", () => {
-      expect(gameController.placePreview).not.toHaveBeenCalled();
+    test("Place pattern not requested", () => {
+      expect(gameController.placePattern).not.toHaveBeenCalled();
     });
     test("Clear preview is requested", () => {
       expect(gameController.clearPreview).toHaveBeenCalled();
@@ -163,7 +164,13 @@ describe("With pattern selected", () => {
     [0, 2],
     [0, -2]
   ])("Dragging from canvas < 3px (%i,%i)", (deltaX, deltaY) => {
-    const e = { clientX: 500, clientY: 500, target: { tagName: "CANVAS" } };
+    /** @type {*} */
+    const e = {
+      clientX: 500,
+      clientY: 500,
+      button: 0,
+      target: { id: "cell-canvas" }
+    };
     beforeAll(() => {
       jest.clearAllMocks();
       mouseTracker.mouseDown(e);
@@ -172,27 +179,28 @@ describe("With pattern selected", () => {
       mouseTracker.mouseMove(e);
       mouseTracker.mouseUp(e);
     });
-    test("Conversion function called with correct coordinates", () => {
-      expect(gameRenderer.xyToRowCol).toHaveBeenCalledWith(
-        e.clientX,
-        e.clientY
-      );
-    });
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
-    test("Place element is requested", () => {
-      expect(gameController.placeElement).toHaveBeenCalledWith(
-        0,
-        0,
-        testPattern
+    test("Place pattern is requested twice", () => {
+      expect(gameController.placePattern).toBeCalledTimes(2);
+    });
+    test("Place pattern is requested as preview", () => {
+      expect(gameController.placePattern).toHaveBeenNthCalledWith(
+        1,
+        e.clientX,
+        e.clientY,
+        testPattern,
+        true
       );
     });
-    test("Place preview is requested", () => {
-      expect(gameController.placePreview).toHaveBeenCalledWith(
-        0,
-        0,
-        testPattern
+    test("Place pattern is requested as not preview", () => {
+      expect(gameController.placePattern).toHaveBeenNthCalledWith(
+        2,
+        e.clientX,
+        e.clientY,
+        testPattern,
+        false
       );
     });
     test("Clear preview not requested", () => {
@@ -212,7 +220,13 @@ describe("With pattern selected", () => {
     [0, 3],
     [0, -3]
   ])("Dragging from canvas to canvas >= 3px (%i,%i)", (deltaX, deltaY) => {
-    const e = { clientX: 500, clientY: 500, target: { tagName: "CANVAS" } };
+    /** @type {*} */
+    const e = {
+      clientX: 500,
+      clientY: 500,
+      button: 0,
+      target: { id: "cell-canvas" }
+    };
     beforeAll(() => {
       jest.clearAllMocks();
       mouseTracker.mouseDown(e);
@@ -221,23 +235,18 @@ describe("With pattern selected", () => {
       mouseTracker.mouseMove(e);
       mouseTracker.mouseUp(e);
     });
-    test("Conversion function called with correct coordinates", () => {
-      expect(gameRenderer.xyToRowCol).toHaveBeenCalledWith(
-        e.clientX,
-        e.clientY
-      );
-    });
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
-    test("Place element not requested", () => {
-      expect(gameController.placeElement).not.toHaveBeenCalled();
+    test("Place pattern is requested once", () => {
+      expect(gameController.placePattern).toBeCalledTimes(1);
     });
-    test("Place preview is requested", () => {
-      expect(gameController.placePreview).toHaveBeenCalledWith(
-        0,
-        0,
-        testPattern
+    test("Place pattern is requested as preview", () => {
+      expect(gameController.placePattern).toHaveBeenCalledWith(
+        e.clientX,
+        e.clientY,
+        testPattern,
+        true
       );
     });
     test("Clear preview is requested", () => {
@@ -260,24 +269,27 @@ describe("With pattern selected", () => {
     [0, 3],
     [0, -3]
   ])("Dragging from canvas to button >= 3px (%i,%i)", (deltaX, deltaY) => {
-    const e = { clientX: 500, clientY: 500, target: { tagName: "CANVAS" } };
+    /** @type {*} */
+    const e = {
+      clientX: 500,
+      clientY: 500,
+      button: 0,
+      target: { id: "cell-canvas" }
+    };
     beforeAll(() => {
       jest.clearAllMocks();
       mouseTracker.mouseDown(e);
       e.clientX += deltaX;
       e.clientY += deltaY;
-      e.target.tagName = "BUTTON";
+      e.target.id = "default-btn";
       mouseTracker.mouseMove(e);
       mouseTracker.mouseUp(e);
     });
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
-    test("Place element not requested", () => {
-      expect(gameController.placeElement).not.toHaveBeenCalled();
-    });
-    test("Place preview not requested", () => {
-      expect(gameController.placePreview).not.toHaveBeenCalled();
+    test("Place pattern not requested", () => {
+      expect(gameController.placePattern).not.toHaveBeenCalled();
     });
     test("Clear preview is requested", () => {
       expect(gameController.clearPreview).toHaveBeenCalled();
@@ -299,33 +311,34 @@ describe("With pattern selected", () => {
     [0, 3],
     [0, -3]
   ])("Dragging from button to canvas >= 3px (%i,%i)", (deltaX, deltaY) => {
-    const e = { clientX: 500, clientY: 500, target: { tagName: "BUTTON" } };
+    /** @type {*} */
+    const e = {
+      clientX: 500,
+      clientY: 500,
+      button: 0,
+      target: { id: "default-btn" }
+    };
     beforeAll(() => {
       jest.clearAllMocks();
       mouseTracker.mouseDown(e);
       e.clientX += deltaX;
       e.clientY += deltaY;
-      e.target.tagName = "CANVAS";
+      e.target.id = "cell-canvas";
       mouseTracker.mouseMove(e);
       mouseTracker.mouseUp(e);
-    });
-    test("Conversion function called with correct coordinates", () => {
-      expect(gameRenderer.xyToRowCol).toHaveBeenCalledWith(
-        e.clientX,
-        e.clientY
-      );
     });
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
-    test("Place element not requested", () => {
-      expect(gameController.placeElement).not.toHaveBeenCalled();
+    test("Place pattern is requested once", () => {
+      expect(gameController.placePattern).toBeCalledTimes(1);
     });
-    test("Place preview is requested", () => {
-      expect(gameController.placePreview).toHaveBeenCalledWith(
-        0,
-        0,
-        testPattern
+    test("Place pattern is requested as preview", () => {
+      expect(gameController.placePattern).toHaveBeenCalledWith(
+        e.clientX,
+        e.clientY,
+        testPattern,
+        true
       );
     });
     test("Clear preview not requested", () => {
@@ -341,30 +354,25 @@ describe("With pattern selected", () => {
 });
 
 describe("With pattern cleared", () => {
-  test("pattern is cleared and observer updated", () => {
-    mouseTracker.clearPattern();
-    expect(mouseTracker.pattern).toEqual(null);
-    expect(observer).toHaveBeenCalled();
-  });
-
   describe("Clicking on canvas", () => {
-    const e = { clientX: 500, clientY: 500, target: { tagName: "CANVAS" } };
+    /** @type {*} */
+    const e = {
+      clientX: 500,
+      clientY: 500,
+      button: 0,
+      target: { id: "cell-canvas" }
+    };
     beforeAll(() => {
+      patternLibrary.selected = null;
       jest.clearAllMocks();
       mouseTracker.mouseDown(e);
       mouseTracker.mouseUp(e);
     });
-    test("Conversion function called with correct coordinates", () => {
-      expect(gameRenderer.xyToIndex).toHaveBeenCalledWith(e.clientX, e.clientY);
-    });
     test("Toggle cell requested with correct coordinates", () => {
-      expect(gameController.toggleCell).toHaveBeenCalledWith(0);
+      expect(gameController.toggleCell).toHaveBeenCalledWith(500, 500);
     });
-    test("Place element not requested", () => {
-      expect(gameController.placeElement).not.toHaveBeenCalled();
-    });
-    test("Place preview not requested", () => {
-      expect(gameController.placePreview).not.toHaveBeenCalled();
+    test("Place pattern not requested", () => {
+      expect(gameController.placePattern).not.toHaveBeenCalled();
     });
     test("Clear preview not requested", () => {
       expect(gameController.clearPreview).not.toHaveBeenCalled();
@@ -378,7 +386,13 @@ describe("With pattern cleared", () => {
   });
 
   describe("Clicking off canvas", () => {
-    const e = { clientX: 500, clientY: 500, target: { tagName: "BUTTON" } };
+    /** @type {*} */
+    const e = {
+      clientX: 500,
+      clientY: 500,
+      button: 0,
+      target: { id: "default-btn" }
+    };
     beforeAll(() => {
       jest.clearAllMocks();
       mouseTracker.mouseDown(e);
@@ -387,11 +401,8 @@ describe("With pattern cleared", () => {
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
-    test("Place element not requested", () => {
-      expect(gameController.placeElement).not.toHaveBeenCalled();
-    });
-    test("Place preview not requested", () => {
-      expect(gameController.placePreview).not.toHaveBeenCalled();
+    test("Place pattern not requested", () => {
+      expect(gameController.placePattern).not.toHaveBeenCalled();
     });
     test("Clear preview not requested", () => {
       expect(gameController.clearPreview).not.toHaveBeenCalled();
@@ -410,7 +421,13 @@ describe("With pattern cleared", () => {
     [0, 2],
     [0, -2]
   ])("Dragging from canvas < 3px (%i,%i)", (deltaX, deltaY) => {
-    const e = { clientX: 500, clientY: 500, target: { tagName: "CANVAS" } };
+    /** @type {*} */
+    const e = {
+      clientX: 500,
+      clientY: 500,
+      button: 0,
+      target: { id: "cell-canvas" }
+    };
     beforeAll(() => {
       jest.clearAllMocks();
       mouseTracker.mouseDown(e);
@@ -420,16 +437,16 @@ describe("With pattern cleared", () => {
       mouseTracker.mouseUp(e);
     });
     test("Toggle cell requested with correct coordinates", () => {
-      expect(gameController.toggleCell).toHaveBeenCalledWith(0);
+      expect(gameController.toggleCell).toHaveBeenCalledWith(
+        e.clientX,
+        e.clientY
+      );
     });
-    test("Place element not requested", () => {
-      expect(gameController.placeElement).not.toHaveBeenCalled();
-    });
-    test("Place preview not requested", () => {
-      expect(gameController.placePreview).not.toHaveBeenCalled();
+    test("Place pattern not requested", () => {
+      expect(gameController.placePattern).not.toHaveBeenCalled();
     });
     test("Clear preview not requested", () => {
-      expect(gameController.clearPreview).not.toHaveBeenCalled();
+      expect(gameController.clearPreview).toHaveBeenCalled();
     });
     test("Set view not requested", () => {
       expect(gameRenderer.setView).not.toHaveBeenCalled();
@@ -444,28 +461,72 @@ describe("With pattern cleared", () => {
     [-3, 0],
     [0, 3],
     [0, -3]
-  ])("Dragging from canvas to button >= 3px (%i,%i)", (deltaX, deltaY) => {
-    const e = { clientX: 500, clientY: 500, target: { tagName: "CANVAS" } };
+  ])("Dragging from canvas to canvas >= 3px (%i,%i)", (deltaX, deltaY) => {
+    /** @type {*} */
+    const e = {
+      clientX: 500,
+      clientY: 500,
+      button: 0,
+      target: { id: "cell-canvas" }
+    };
     beforeAll(() => {
       jest.clearAllMocks();
       mouseTracker.mouseDown(e);
       e.clientX += deltaX;
       e.clientY += deltaY;
-      e.target.tagName = "BUTTON";
       mouseTracker.mouseMove(e);
       mouseTracker.mouseUp(e);
     });
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
-    test("Place element not requested", () => {
-      expect(gameController.placeElement).not.toHaveBeenCalled();
+    test("Place pattern not requested", () => {
+      expect(gameController.placePattern).not.toHaveBeenCalled();
     });
-    test("Place preview not requested", () => {
-      expect(gameController.placePreview).not.toHaveBeenCalled();
+    test("Clear preview is requested", () => {
+      expect(gameController.clearPreview).toHaveBeenCalled();
     });
-    test("Clear preview not requested", () => {
-      expect(gameController.clearPreview).not.toHaveBeenCalled();
+    test("Set view requested with correct values", () => {
+      expect(gameRenderer.setView).toHaveBeenCalledWith({
+        panX: gameRenderer.view.panX - deltaX,
+        panY: gameRenderer.view.panY - deltaY
+      });
+    });
+    test("Observer function is called", () => {
+      expect(observer).toHaveBeenCalled();
+    });
+  });
+
+  describe.each([
+    [3, 0],
+    [-3, 0],
+    [0, 3],
+    [0, -3]
+  ])("Dragging from canvas to button >= 3px (%i,%i)", (deltaX, deltaY) => {
+    /** @type {*} */
+    const e = {
+      clientX: 500,
+      clientY: 500,
+      button: 0,
+      target: { id: "cell-canvas" }
+    };
+    beforeAll(() => {
+      jest.clearAllMocks();
+      mouseTracker.mouseDown(e);
+      e.clientX += deltaX;
+      e.clientY += deltaY;
+      e.target.id = "default-btn";
+      mouseTracker.mouseMove(e);
+      mouseTracker.mouseUp(e);
+    });
+    test("Toggle cell not requested", () => {
+      expect(gameController.toggleCell).not.toHaveBeenCalled();
+    });
+    test("Place pattern not requested", () => {
+      expect(gameController.placePattern).not.toHaveBeenCalled();
+    });
+    test("Clear preview is requested", () => {
+      expect(gameController.clearPreview).toHaveBeenCalled();
     });
     test("Set view requested with correct values", () => {
       expect(gameRenderer.setView).toHaveBeenCalledWith({
@@ -484,27 +545,30 @@ describe("With pattern cleared", () => {
     [0, 3],
     [0, -3]
   ])("Dragging from button to canvas >= 3px (%i,%i)", (deltaX, deltaY) => {
-    const e = { clientX: 500, clientY: 500, target: { tagName: "BUTTON" } };
+    /** @type {*} */
+    const e = {
+      clientX: 500,
+      clientY: 500,
+      button: 0,
+      target: { id: "default-btn" }
+    };
     beforeAll(() => {
       jest.clearAllMocks();
       mouseTracker.mouseDown(e);
       e.clientX += deltaX;
       e.clientY += deltaY;
-      e.target.tagName = "CANVAS";
+      e.target.id = "cell-canvas";
       mouseTracker.mouseMove(e);
       mouseTracker.mouseUp(e);
     });
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
-    test("Place element not requested", () => {
-      expect(gameController.placeElement).not.toHaveBeenCalled();
+    test("Place pattern not requested", () => {
+      expect(gameController.placePattern).not.toHaveBeenCalled();
     });
-    test("Place preview not requested", () => {
-      expect(gameController.placePreview).not.toHaveBeenCalled();
-    });
-    test("Clear preview not requested", () => {
-      expect(gameController.clearPreview).not.toHaveBeenCalled();
+    test("Clear preview is requested", () => {
+      expect(gameController.clearPreview).toHaveBeenCalled();
     });
     test("Set view not requested", () => {
       expect(gameRenderer.setView).not.toHaveBeenCalled();
