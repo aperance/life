@@ -183,7 +183,7 @@ describe("With pattern selected", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
     test("Place pattern is requested twice", () => {
-      expect(gameController.placePattern).toBeCalledTimes(3);
+      expect(gameController.placePattern).toBeCalledTimes(2);
     });
     test("Place pattern is requested as preview", () => {
       expect(gameController.placePattern).toHaveBeenNthCalledWith(
