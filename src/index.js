@@ -1,6 +1,6 @@
 import "@fortawesome/fontawesome-free/js/all";
-import { createGameRenderer } from "./gameRenderer";
-import { createGameController } from "./gameController";
+import { GameRenderer } from "./gameRenderer";
+import { GameController } from "./gameController";
 import { MouseTracker } from "./mouseTracker";
 import { PanControls } from "./panControls";
 import { PatternLibrary } from "./patternLibrary";
@@ -210,7 +210,7 @@ function initializeGame() {
   const previewCtx = (dom.previewCanvas.getContext("2d"));
 
   /** Factory function for GameRenderer object. */
-  gameRenderer = createGameRenderer(
+  gameRenderer = new GameRenderer(
     gridCtx,
     cellCtx,
     previewCtx,
@@ -218,7 +218,7 @@ function initializeGame() {
     handleViewChange
   );
   /** Factory function for GameController object. */
-  gameController = createGameController(
+  gameController = new GameController(
     worker,
     gameRenderer,
     5000,

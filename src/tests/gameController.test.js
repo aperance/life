@@ -1,7 +1,10 @@
-import { createGameController } from "../gameController";
+import { GameController } from "../gameController";
 
 const worker = { postMessage: jest.fn() };
-const gameRenderer = { render: jest.fn(), xyToRowCol: jest.fn() };
+const gameRenderer = {
+  render: jest.fn(),
+  xyToRowColIndex: jest.fn().mockReturnValue({ row: 5, col: 5, index: 55 })
+};
 const observer = jest.fn();
 
 let gameController;
@@ -9,7 +12,7 @@ let gameController;
 describe("Starting game", () => {
   const testAlive = [3, 24, 49, 75];
   beforeAll(() => {
-    gameController = createGameController(
+    gameController = new GameController(
       worker,
       gameRenderer,
       100,
@@ -20,7 +23,7 @@ describe("Starting game", () => {
   });
   beforeEach(() => {
     jest.clearAllMocks();
-    gameController.start();
+    gameController.play();
   });
   describe("With game not running", () => {
     test("Start message to worker is sent", () => {
@@ -45,7 +48,7 @@ describe("With game not running", () => {
     [1, 0, 1]
   ];
   beforeAll(() => {
-    gameController = createGameController(
+    gameController = new GameController(
       worker,
       gameRenderer,
       10,
@@ -63,59 +66,66 @@ describe("With game not running", () => {
     [92, [44]],
     [44, []]
   ])("Toggling cell %i", (index, aliveArray) => {
-    beforeAll(() => gameController.toggleCell(index));
-    test("Render called on next cycle with changed flag set to true", () => {
-      expect(gameRenderer.render).toHaveBeenCalledWith(
-        aliveArray,
-        null,
-        null,
-        [],
-        true
-      );
-    });
-    test("Render called on following cycle with changed flag set to false", () => {
-      expect(gameRenderer.render).toHaveBeenCalledWith(
-        aliveArray,
-        null,
-        null,
-        [],
-        false
-      );
-    });
-  });
-
-  describe.each([
-    [0, 0, [0, 2, 11, 20, 22]],
-    [7, 7, [77, 79, 88, 97, 99]]
-  ])("Placing element preview at %i and %i", (row, col, previewArray) => {
-    beforeAll(() => gameController.placePreview(row, col, testPattern));
-    test("Render called on next cycle with changed flag set to true", () => {
-      expect(gameRenderer.render).toHaveBeenCalledWith(
-        [],
-        null,
-        null,
-        previewArray,
-        true
-      );
-    });
-    test("Render called on following cycle with changed flag set to false", () => {
-      expect(gameRenderer.render).toHaveBeenCalledWith(
-        [],
-        null,
-        null,
-        previewArray,
-        false
-      );
-    });
-  });
-
-  describe.each([
-    [0, 0, [0, 2, 11, 20, 22]],
-    [7, 7, [0, 2, 11, 20, 22, 77, 79, 88, 97, 99]]
-  ])("Placing element at %i and %i", (row, col, aliveArray) => {
     beforeAll(() => {
-      gameController.placePreview(row, col, testPattern);
-      gameController.placeElement(row, col, testPattern);
+      gameRenderer.xyToRowColIndex.mockReturnValue({ row: 5, col: 5, index });
+      gameController.toggleCell(0, 0);
+    });
+    test("Render called on next cycle with changed flag set to true", () => {
+      expect(gameRenderer.render).toHaveBeenCalledWith(
+        aliveArray,
+        null,
+        null,
+        [],
+        true
+      );
+    });
+    test("Render called on following cycle with changed flag set to false", () => {
+      expect(gameRenderer.render).toHaveBeenCalledWith(
+        aliveArray,
+        null,
+        null,
+        [],
+        false
+      );
+    });
+  });
+
+  describe.each([
+    [1, 1, [0, 2, 11, 20, 22]],
+    [8, 8, [77, 79, 88, 97, 99]]
+  ])("Placing pattern preview at %i and %i", (row, col, previewArray) => {
+    beforeAll(() => {
+      gameRenderer.xyToRowColIndex.mockReturnValue({ row, col, index: 0 });
+      gameController.placePattern(row, col, testPattern, true);
+    });
+    test("Render called on next cycle with changed flag set to true", () => {
+      expect(gameRenderer.render).toHaveBeenCalledWith(
+        [],
+        null,
+        null,
+        previewArray,
+        true
+      );
+    });
+    test("Render called on following cycle with changed flag set to false", () => {
+      expect(gameRenderer.render).toHaveBeenCalledWith(
+        [],
+        null,
+        null,
+        previewArray,
+        false
+      );
+    });
+  });
+
+  describe.each([
+    [1, 1, [0, 2, 11, 20, 22]],
+    [8, 8, [0, 2, 11, 20, 22, 77, 79, 88, 97, 99]]
+  ])("Placing pattern at %i and %i", (row, col, aliveArray) => {
+    beforeAll(() => {
+      gameRenderer.xyToRowColIndex.mockReturnValue({ row, col, index: 0 });
+      gameController.placePattern(row, col, testPattern, true);
+      gameController.placePattern(row, col, testPattern, false);
     });
     test("Render called on next cycle with changed flag set to true", () => {
       expect(gameRenderer.render).toHaveBeenCalledWith(
@@ -145,13 +155,14 @@ describe("With game running", () => {
     [1, 0, 1]
   ];
   beforeAll(() => {
-    gameController = createGameController(
+    gameController = new GameController(
       worker,
       gameRenderer,
       10,
       true,
       observer
     );
+    //@ts-ignore
     gameController.handleWorkerMessage({ data: "started" });
   });
   beforeEach(() => {
@@ -172,7 +183,7 @@ describe("With game running", () => {
   });
 
   describe("Placing element preview", () => {
-    beforeAll(() => gameController.placePreview(0, 0, testPattern));
+    beforeAll(() => gameController.placePattern(0, 0, testPattern, true));
     test("Render called on next cycle without pattern added", () => {
       expect(gameRenderer.render).toHaveBeenCalledWith(
         [],
@@ -186,8 +197,8 @@ describe("With game running", () => {
 
   describe("Placing element", () => {
     beforeAll(() => {
-      gameController.placePreview(0, 0, testPattern);
-      gameController.placeElement(0, 0, testPattern);
+      gameController.placePattern(0, 0, testPattern, true);
+      gameController.placePattern(0, 0, testPattern, false);
     });
     test("Render called on next cycle without pattern added", () => {
       expect(gameRenderer.render).toHaveBeenCalledWith(

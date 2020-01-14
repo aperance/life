@@ -1,4 +1,4 @@
-import { createGameRenderer } from "../gameRenderer";
+import { GameRenderer } from "../gameRenderer";
 
 const gridCtx = {};
 const cellCtx = {};
@@ -16,7 +16,7 @@ describe("Initialize window size and view", () => {
   ])("For window width and height of %i", (size, zoom, pan) => {
     beforeAll(() => {
       jest.clearAllMocks();
-      gameRenderer = createGameRenderer(
+      gameRenderer = new GameRenderer(
         gridCtx,
         cellCtx,
         previewCtx,
@@ -26,14 +26,14 @@ describe("Initialize window size and view", () => {
       gameRenderer.setWindow(size, size);
     });
     test("Observer function called with correct view parameters", () => {
-      expect(observer).toHaveBeenCalledWith(zoom, pan, pan);
+      expect(gameRenderer.view).toEqual({ panX: pan, panY: pan, zoom });
     });
   });
 });
 
 describe("Update window size and view", () => {
   beforeAll(() => {
-    gameRenderer = createGameRenderer(
+    gameRenderer = new GameRenderer(
       gridCtx,
       cellCtx,
       previewCtx,
@@ -52,7 +52,7 @@ describe("Update window size and view", () => {
       gameRenderer.setWindow(size, size);
     });
     test("Observer function called with correct view parameters", () => {
-      expect(observer).toHaveBeenCalledWith(zoom, pan, pan);
+      expect(gameRenderer.view).toEqual({ panX: pan, panY: pan, zoom });
     });
   });
 });
