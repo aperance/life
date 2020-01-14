@@ -1,5 +1,3 @@
-/** @module */
-
 const batchSize = 25;
 const bufferSize = 50;
 

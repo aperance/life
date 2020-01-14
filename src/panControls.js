@@ -1,7 +1,6 @@
-/** @module */
-
 /**
  * Controls panning of the game view.
+ * @class
  */
 export class PanControls {
   /** @type {NodeJS.Timeout?} */
@@ -19,7 +18,7 @@ export class PanControls {
   }
 
   /**
-   *
+   * Starts a timer to gradually pan in the specified direction.
    * @param {string} direction
    */
   start(direction) {

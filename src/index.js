@@ -52,9 +52,9 @@ const wasm = true;
 const patternLibrary = new PatternLibrary(handlePatternChange);
 
 /** Variables for most game related objects. To be set by initializeGame function. */
-/** @type {import('./gameRenderer').GameRenderer?} */
+/** @type {GameRenderer?} */
 let gameRenderer = null;
-/** @type {import('./gameController').GameController?} */
+/** @type {GameController?} */
 let gameController = null;
 /** @type {MouseTracker?} */
 let mouseTracker = null;
@@ -247,7 +247,7 @@ function initializeGame() {
 function terminateGame() {
   /** Call methods necessary to stop game fumctionality. */
   gameController?.terminate();
-  gameRenderer?.clearAll();
+  gameRenderer?.clearCanvases();
   panControls?.stop();
   /** Delete references to relevant object to ensure they are garbage collected */
   gameRenderer = null;

@@ -1,5 +1,3 @@
-/** @module */
-
 /**
  * @typedef {Object} View
  * @property {number} [zoom]
@@ -27,7 +25,8 @@ export class GameRenderer {
   }
 
   /**
-   *
+   * Receives the current window dimensions and stores it in object state. Triggers
+   * setView method to calculate view parameters using updated window dimensions.
    * @param {number} width
    * @param {number} height
    */
@@ -37,7 +36,8 @@ export class GameRenderer {
   }
 
   /**
-   *
+   * Updates the zoom and panning properties with the provided object, and ensures the values are
+   * within acceptable bounds. If parameter is null, current zoom and panning properties are rechecked.
    * @param {View?} newView
    */
   setView(newView) {
@@ -64,7 +64,8 @@ export class GameRenderer {
   }
 
   /**
-   *
+   * Updates zoom property with the specified value, and adjusts
+   * panning properties so that the specified point is stationary.
    * @param {number} zoom
    * @param {number} x
    * @param {number} y
@@ -79,9 +80,9 @@ export class GameRenderer {
   }
 
   /**
-   *
+   * Clears any drawing on all canvases.
    */
-  clearAll() {
+  clearCanvases() {
     if (this.window && this.view) {
       const { width, height } = this.window;
       const { panX, panY } = this.view;
@@ -92,9 +93,9 @@ export class GameRenderer {
   }
 
   /**
-   *
-   * @function
-   * @name render
+   * Public method to initiate rendering of the game area. Triggered by the
+   * animation cycle running in GameController. If necessary, all cells and
+   * grid lines will be redrawn. Otherwise only changes cells will be edited.
    * @param {Array<number>} alive
    * @param {Array<number>?} born
    * @param {Array<number>?} died
@@ -118,7 +119,7 @@ export class GameRenderer {
   }
 
   /**
-   *
+   * Redraws all grid lines based on the current zoom and panning properties.
    */
   renderGrid() {
     const { width, height } = this.window;
@@ -167,7 +168,7 @@ export class GameRenderer {
   }
 
   /**
-   *
+   * Redraws all cells in the game area.
    * @param {Array<number>} alive
    */
   renderAllCells(alive) {
@@ -184,7 +185,7 @@ export class GameRenderer {
   }
 
   /**
-   *
+   * Draws or clears the modified cells in the game area.
    * @param {Array<number>} born
    * @param {Array<number>} died
    */
@@ -200,7 +201,7 @@ export class GameRenderer {
   }
 
   /**
-   *
+   * Draws a translucent preview of a pattern selected from the pattern library.
    * @param {Array<number>} alive
    */
   renderPreview(alive) {
@@ -219,6 +220,7 @@ export class GameRenderer {
   /*** Utility Methods ***/
 
   /**
+   * Calculates the minimum zoom value where the game area is not smaller than the window.
    * @returns {number}
    */
   getMinZoom() {
@@ -228,6 +230,7 @@ export class GameRenderer {
   }
 
   /**
+   * Calculates the maximum pan value in the x direction that dosen't extend off the game area.
    * @returns {number}
    */
   getMaxPanX() {
@@ -235,12 +238,17 @@ export class GameRenderer {
   }
 
   /**
+   * Calculates the maximum pan value in the y direction that dosen't extend off the game area.
    * @returns {number}
    */
   getMaxPanY() {
     return this.cellCount * this.view.zoom - this.window.height;
   }
 
+  /**
+   * Gets the row and column on the game area at the current center of the window. Adjusted
+   * so that the center of the game area is 0,0 (internally 0,0 is the top left corner).
+   */
   getCenterRowCol() {
     const { row, col } = this.xyToRowColIndex(
       this.window.width / 2,
@@ -250,7 +258,7 @@ export class GameRenderer {
   }
 
   /**
-   *
+   * Converts an index from the game area to the equivilant row and column.
    * @param {number} i
    * @returns {{row: number, col: number}}
    */
@@ -259,7 +267,7 @@ export class GameRenderer {
   }
 
   /**
-   *
+   * Converts coordinates from the window to the row, column, and index on the game area.
    * @param {number} x
    * @param {number} y
    * @returns {{row: number, col: number, index: number}}
@@ -272,7 +280,7 @@ export class GameRenderer {
   }
 
   /**
-   *
+   * Restricts a value between a minimum and maximum.
    * @param {number} val
    * @param {number} min
    * @param {number} max

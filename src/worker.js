@@ -1,11 +1,21 @@
-/** @type {Object|Generator} */
+/** @namespace worker */
+
+/**
+ * @memberof worker
+ * @type {Object|Generator}
+ */
 let generator;
 
+/**
+ * @memberof worker
+ * @function
+ */
 onmessage = messageHandler;
 
 /**
  *
  * @async
+ * @memberof worker
  * @param {MessageEvent} e
  */
 async function messageHandler(e) {
@@ -35,6 +45,7 @@ async function messageHandler(e) {
 
 /**
  *
+ * @memberof worker
  * @param {number} count
  * @returns {Array<Object>}
  */
@@ -49,6 +60,7 @@ function batchResults(count) {
 
 /**
  *
+ * @memberof worker
  * @param {number} size
  * @param {Array<number>} initialAlive
  * @returns {Generator}
@@ -116,6 +128,7 @@ function* createGenerator(size, initialAlive) {
 
 /**
  *
+ * @memberof worker
  * @param {number} index
  * @param {number} size
  * @returns {Array<number>}

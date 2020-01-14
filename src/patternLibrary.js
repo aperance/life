@@ -24,6 +24,7 @@ const patternCategories = {
   "Gardens of Eden": ["gardenofeden1", "gardenofeden4", "gardenofeden5"]
 };
 
+/** @class */
 export class PatternLibrary {
   _map = new Map();
   categories = patternCategories;
@@ -53,7 +54,7 @@ export class PatternLibrary {
    *
    * @param {string} id
    * @returns {PatternData}
-   * @throws
+   * @throws {Error}
    */
   getData(id) {
     const data = this._map.get(id);
@@ -199,7 +200,7 @@ async function readPatternFile(id) {
  *
  * @param {string} rle
  * @returns {number[][]}
- * @throws
+ * @throws {Error}
  */
 function rleParser(rle) {
   /** @type {number[][]} */

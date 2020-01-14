@@ -1,7 +1,3 @@
-/**
- * @module
- */
-
 /** @class */
 export class MouseTracker {
   onCanvas = false;
