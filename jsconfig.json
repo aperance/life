@@ -5,6 +5,9 @@
     "checkJs": true,
     "strictNullChecks": true
   },
+  "typeAcquisition": {
+    "include": ["jest"]
+  },
   "include": ["src/**/*"],
   "exclude": ["src/wasm"]
 }
