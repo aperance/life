@@ -1,8 +1,8 @@
 import "@fortawesome/fontawesome-free/js/all";
-import { GameRenderer } from "./gameRenderer";
-import { GameController } from "./gameController";
-import { MouseTracker } from "./mouseTracker";
-import { PanControls } from "./panControls";
+import { GameRenderer, createGameRenderer } from "./gameRenderer";
+import { GameController, createGameController } from "./gameController";
+import { MouseTracker, createMouseTracker } from "./mouseTracker";
+import { PanControls, createPanControls } from "./panControls";
 import { PatternLibrary } from "./patternLibrary";
 
 /** Stores refrences to used DOM elements with JSDoc type casting */
@@ -210,7 +210,7 @@ function initializeGame() {
   const previewCtx = (dom.previewCanvas.getContext("2d"));
 
   /** Factory function for GameRenderer object. */
-  gameRenderer = new GameRenderer(
+  gameRenderer = createGameRenderer(
     gridCtx,
     cellCtx,
     previewCtx,
@@ -218,7 +218,7 @@ function initializeGame() {
     handleViewChange
   );
   /** Factory function for GameController object. */
-  gameController = new GameController(
+  gameController = createGameController(
     worker,
     gameRenderer,
     5000,
@@ -226,14 +226,14 @@ function initializeGame() {
     handleGameChange
   );
   /** Factory function for MouseTracker object. */
-  mouseTracker = new MouseTracker(
+  mouseTracker = createMouseTracker(
     gameRenderer,
     gameController,
     patternLibrary,
     handleMouseChange
   );
   /** Factory function for PanControls object. */
-  panControls = new PanControls(gameRenderer);
+  panControls = createPanControls(gameRenderer);
 
   /** Ensure all UI elements are visible */
   document.body.hidden = false;

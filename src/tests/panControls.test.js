@@ -1,7 +1,7 @@
-import { PanControls } from "../panControls";
+import { createPanControls } from "../panControls";
 
 const gameRenderer = { view: { panX: 100, panY: 100 }, setView: jest.fn() };
-const panControls = new PanControls(gameRenderer);
+const panControls = createPanControls(gameRenderer);
 
 beforeEach(() => {
   jest.useFakeTimers();

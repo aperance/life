@@ -1,6 +1,6 @@
 //@ts-ignore
 
-import { MouseTracker } from "../mouseTracker";
+import { MouseTracker, createMouseTracker } from "../mouseTracker";
 
 const gameRenderer = {
   view: { zoom: 10, panX: 100, panY: 100 },
@@ -22,7 +22,7 @@ const patternLibrary = {
 
 const observer = jest.fn();
 
-const mouseTracker = new MouseTracker(
+const mouseTracker = createMouseTracker(
   gameRenderer,
   gameController,
   patternLibrary,

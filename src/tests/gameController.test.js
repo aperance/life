@@ -1,4 +1,4 @@
-import { GameController } from "../gameController";
+import { createGameController } from "../gameController";
 
 const worker = { postMessage: jest.fn() };
 const gameRenderer = {
@@ -12,7 +12,7 @@ let gameController;
 describe("Starting game", () => {
   const testAlive = [3, 24, 49, 75];
   beforeAll(() => {
-    gameController = new GameController(
+    gameController = createGameController(
       worker,
       gameRenderer,
       100,
@@ -48,7 +48,7 @@ describe("With game not running", () => {
     [1, 0, 1]
   ];
   beforeAll(() => {
-    gameController = new GameController(
+    gameController = createGameController(
       worker,
       gameRenderer,
       10,
@@ -155,7 +155,7 @@ describe("With game running", () => {
     [1, 0, 1]
   ];
   beforeAll(() => {
-    gameController = new GameController(
+    gameController = createGameController(
       worker,
       gameRenderer,
       10,

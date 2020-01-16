@@ -1,4 +1,4 @@
-import { GameRenderer } from "../gameRenderer";
+import { createGameRenderer } from "../gameRenderer";
 
 const gridCtx = {};
 const cellCtx = {};
@@ -16,7 +16,7 @@ describe("Initialize window size and view", () => {
   ])("For window width and height of %i", (size, zoom, pan) => {
     beforeAll(() => {
       jest.clearAllMocks();
-      gameRenderer = new GameRenderer(
+      gameRenderer = createGameRenderer(
         gridCtx,
         cellCtx,
         previewCtx,
@@ -33,7 +33,7 @@ describe("Initialize window size and view", () => {
 
 describe("Update window size and view", () => {
   beforeAll(() => {
-    gameRenderer = new GameRenderer(
+    gameRenderer = createGameRenderer(
       gridCtx,
       cellCtx,
       previewCtx,
