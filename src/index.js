@@ -111,12 +111,23 @@ function setEventListeners() {
   });
 
   /** Forward all mouse events to mouseTracker object (except on modal). */
-  document.addEventListener("mouseup", e => mouseTracker?.mouseUp(e));
-  document.addEventListener("mousedown", e => mouseTracker?.mouseDown(e));
-  document.addEventListener("mousemove", e => mouseTracker?.mouseMove(e));
-  document.addEventListener("mouseleave", () => mouseTracker?.mouseLeave());
-  document.addEventListener("wheel", e => mouseTracker?.mouseWheel(e), {
-    passive: true
+  document.addEventListener("mouseup", e => {
+    mouseTracker?.mouseUp(e, isOnCanvas(e), patternLibrary.isSelected);
+  });
+  document.addEventListener("mousedown", e => {
+    mouseTracker?.mouseDown(e, isOnCanvas(e));
+  });
+  document.addEventListener("mousemove", e => {
+    mouseTracker?.mouseMove(e, isOnCanvas(e), patternLibrary.isSelected);
+  });
+  document.addEventListener("mouseleave", () => {
+    mouseTracker?.mouseLeave();
+  });
+  document.addEventListener("wheel", e => {
+    mouseTracker?.mouseWheel(e, isOnCanvas(e)),
+      {
+        passive: true
+      };
   });
 
   /** Disable all scrolling (except on modal). */
@@ -221,6 +232,7 @@ function initializeGame() {
   gameController = createGameController(
     worker,
     gameRenderer,
+    patternLibrary,
     5000,
     wasm,
     handleGameChange
@@ -229,7 +241,6 @@ function initializeGame() {
   mouseTracker = createMouseTracker(
     gameRenderer,
     gameController,
-    patternLibrary,
     handleMouseChange
   );
   /** Factory function for PanControls object. */
@@ -333,7 +344,18 @@ function handlePatternChange(isPatternSelected) {
   dom.patternBtn.className = `btn btn-primary ${isPatternSelected && "active"}`;
 
   /** Force mouseTracker to reevaluate due to change in selected pattern. */
-  mouseTracker?.forcePreviewCheck();
+  mouseTracker?.forcePreviewCheck(isPatternSelected);
+}
+
+/**
+ * Determines if the mouse pointer is directly over the canvas,
+ * and not a button or modal, based on the provided event object.
+ * @param {WheelEvent | MouseEvent} e
+ * @returns {boolean}
+ */
+function isOnCanvas(e) {
+  const target = /** @type {HTMLElement} */ (e.target);
+  return target.id === "cell-canvas" || target.id === "top-bar";
 }
 
 /** Call init function on file load. */

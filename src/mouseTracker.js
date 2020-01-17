@@ -4,36 +4,28 @@
 
 /**
  * @typedef {Object} MouseTracker
- * @property {boolean} onCanvas
  * @property {boolean} downOnCanvas
  * @property {boolean} panning
  * @property {number | null} lastX
  * @property {number | null} lastY
- * @property {function(MouseEvent): void} mouseUp
- * @property {function(MouseEvent): void} mouseDown
- * @property {function(MouseEvent): void} mouseMove
+ * @property {function(MouseEvent, boolean, boolean): void} mouseUp
+ * @property {function(MouseEvent, boolean): void} mouseDown
+ * @property {function(MouseEvent, boolean, boolean): void} mouseMove
  * @property {function(): void} mouseLeave
- * @property {function(MouseEvent): void} mouseWheel
- * @property {function(): void} forcePreviewCheck
+ * @property {function(MouseEvent, boolean): void} mouseWheel
+ * @property {function(boolean): void} forcePreviewCheck
  */
 
 /**
  * Factory function for MouseTracker object.
  * @param {import('./gameRenderer').GameRenderer} gameRenderer
  * @param {import('./gameController').GameController} gameController
- * @param {import('./patternLibrary').PatternLibrary} patternLibrary
  * @param  {function(boolean): void} observer
  * @returns {MouseTracker}
  */
-const createMouseTracker = (
-  gameRenderer,
-  gameController,
-  patternLibrary,
-  observer
-) => {
+const createMouseTracker = (gameRenderer, gameController, observer) => {
   /** @type {MouseTracker} */
   const mouseTracker = {
-    onCanvas: false,
     downOnCanvas: false,
     panning: false,
     lastX: null,
@@ -43,46 +35,51 @@ const createMouseTracker = (
      * Updates object state and determines cell toggling
      * or pattern placement on mouse up event.
      * @param {MouseEvent} e
+     * @param {boolean} isOnCanvas
+     * @param {boolean} isPatternSelected
      */
-    mouseUp(e) {
-      if (e.button === 0) {
-        if (this.onCanvas && this.downOnCanvas) {
-          if (patternLibrary.selected)
-            gameController.placePattern(
-              e.clientX,
-              e.clientY,
-              patternLibrary.selected,
-              this.panning
-            );
-          else if (!this.panning)
-            gameController.toggleCell(e.clientX, e.clientY);
-        }
+    mouseUp(e, isOnCanvas, isPatternSelected) {
+      if (e.button !== 0) return;
 
-        this.panning = false;
-        this.downOnCanvas = false;
-        observer(this.panning);
+      if (isOnCanvas && this.downOnCanvas) {
+        if (this.panning) {
+          // When panning is ending, restore preview if pattern is selected.
+          if (isPatternSelected)
+            gameController.placePattern(e.clientX, e.clientY, true);
+        } else {
+          // When not panning, place pattern if selected, otherwise toggle cell.
+          if (isPatternSelected)
+            gameController.placePattern(e.clientX, e.clientY, false);
+          else gameController.toggleCell(e.clientX, e.clientY);
+        }
       }
+
+      this.panning = false;
+      this.downOnCanvas = false;
+      observer(this.panning);
     },
 
     /**
      * Updates object state on mouse down event.
      * @param {MouseEvent} e
+     * @param {boolean} isOnCanvas
      */
-    mouseDown(e) {
-      this.onCanvas = isPointerOverCanvas(e);
+    mouseDown(e, isOnCanvas) {
+      if (e.button !== 0) return;
+
+      if (isOnCanvas) this.downOnCanvas = true;
       this.lastX = e.clientX;
       this.lastY = e.clientY;
-      if (e.button === 0 && this.onCanvas) this.downOnCanvas = true;
     },
 
     /**
      * Updates object state and determines view panning
      * or pattern preview rendering on mouse move event.
      * @param {MouseEvent} e
+     * @param {boolean} isOnCanvas
+     * @param {boolean} isPatternSelected
      */
-    mouseMove(e) {
-      this.onCanvas = isPointerOverCanvas(e);
-
+    mouseMove(e, isOnCanvas, isPatternSelected) {
       if (this.downOnCanvas && this.lastX && this.lastY) {
         const deltaX = this.lastX - e.clientX;
         const deltaY = this.lastY - e.clientY;
@@ -103,13 +100,8 @@ const createMouseTracker = (
       this.lastX = e.clientX;
       this.lastY = e.clientY;
 
-      if (this.onCanvas && !this.panning && patternLibrary.selected) {
-        gameController.placePattern(
-          this.lastX,
-          this.lastY,
-          patternLibrary.selected,
-          true
-        );
+      if (isOnCanvas && !this.panning && isPatternSelected) {
+        gameController.placePattern(e.clientX, e.clientY, true);
       } else gameController.clearPreview();
     },
 
@@ -118,17 +110,16 @@ const createMouseTracker = (
      * preview rendering when mouse leaves window.
      */
     mouseLeave() {
-      this.onCanvas = false;
       gameController.clearPreview();
     },
 
     /**
      * Updates game zoom value on mouse wheel event over canvas.
      * @param {WheelEvent} e
+     * @param {boolean} isOnCanvas
      */
-    mouseWheel(e) {
-      this.onCanvas = isPointerOverCanvas(e);
-      if (this.onCanvas) {
+    mouseWheel(e, isOnCanvas) {
+      if (isOnCanvas) {
         const newZoom =
           gameRenderer.view.zoom +
           Math.ceil(gameRenderer.view.zoom / 25) * Math.sign(e.deltaY);
@@ -139,33 +130,18 @@ const createMouseTracker = (
     /**
      * Re-evaluates the selected pattern preview rendering. Called
      * externally if pattern state changes without a new mouse event.
+     * @param {boolean} isPatternSelected
      */
-    forcePreviewCheck() {
+    forcePreviewCheck(isPatternSelected) {
       if (this.lastX === null || this.lastY === null) return;
 
-      if (patternLibrary.selected) {
-        gameController.placePattern(
-          this.lastX,
-          this.lastY,
-          patternLibrary.selected,
-          true
-        );
+      if (isPatternSelected) {
+        gameController.placePattern(this.lastX, this.lastY, true);
       } else gameController.clearPreview();
     }
   };
 
   return mouseTracker;
-};
-
-/**
- * Determines if the mouse pointer is directly over the canvas,
- * and not a button or modal, based on the provided event object.
- * @param {WheelEvent | MouseEvent} e
- * @returns {boolean}
- */
-const isPointerOverCanvas = e => {
-  const target = /** @type {HTMLElement} */ (e.target);
-  return target.id === "cell-canvas" || target.id === "top-bar";
 };
 
 export { createMouseTracker };

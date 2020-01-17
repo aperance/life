@@ -17,7 +17,7 @@ const bufferSize = 50;
  * @property {boolean} isTerminated
  * @property {{born: Array<number>, died: Array<number>}?} nextResult
  * @property {function(number, number): void} toggleCell
- * @property {function(number, number, Array<Array<number>>, boolean): void} placePattern
+ * @property {function(number, number, boolean): void} placePattern
  * @property {function(): void} clearAliveCells
  * @property {function(): void} clearPreview
  * @property {function(): void} play
@@ -32,6 +32,7 @@ const bufferSize = 50;
  *  Factory function to create GameController object.
  * @param {Worker} worker
  * @param {import('./gameRenderer.js').GameRenderer} gameRenderer
+ * @param {import('./patternLibrary').PatternLibrary} patternLibrary
  * @param {number} cellCount
  * @param {boolean} wasm
  * @param {function(boolean, boolean, number, number, number): void} observer
@@ -40,6 +41,7 @@ const bufferSize = 50;
 const createGameController = (
   worker,
   gameRenderer,
+  patternLibrary,
   cellCount,
   wasm,
   observer
@@ -92,11 +94,15 @@ const createGameController = (
      *
      * @param {number} x
      * @param {number} y
-     * @param {Array<Array<number>>} pattern
      * @param {boolean} isPreview
      */
-    placePattern(x, y, pattern, isPreview) {
+    placePattern(x, y, isPreview) {
       if (this.playing) return;
+
+      /** @type {number[][]?} */
+      const pattern = patternLibrary.selected;
+
+      if (!pattern) return;
 
       this.alivePreview.clear();
 

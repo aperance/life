@@ -33,6 +33,10 @@ export class PatternLibrary {
     this.observer = observer;
   }
 
+  get isSelected() {
+    return this.selected !== null ? true : false;
+  }
+
   /**
    * @async
    * @returns {Promise<void>}
@@ -68,7 +72,7 @@ export class PatternLibrary {
     if (!id) this.selected = null;
     else this.selected = this.getData(id).array;
 
-    this.observer(this.selected ? true : false);
+    this.observer(this.isSelected);
   }
 
   /**
@@ -90,7 +94,7 @@ export class PatternLibrary {
 
     this.selected = newArray;
 
-    this.observer(this.selected ? true : false);
+    this.observer(this.isSelected);
   }
 
   /**
@@ -103,7 +107,7 @@ export class PatternLibrary {
       this.selected[i].reverse();
     }
 
-    this.observer(this.selected ? true : false);
+    this.observer(this.isSelected);
   }
 
   /**
