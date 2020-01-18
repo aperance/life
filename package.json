@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "parcel index.html",
+    "build": "npx webpack",
     "test": "jest --coverage"
   },
   "repository": {
