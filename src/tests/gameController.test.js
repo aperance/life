@@ -1,10 +1,17 @@
 import { createGameController } from "../gameController";
 
 const worker = { postMessage: jest.fn() };
+
 const gameRenderer = {
   render: jest.fn(),
   xyToRowColIndex: jest.fn().mockReturnValue({ row: 5, col: 5, index: 55 })
 };
+
+const patternLibrary = {
+  /** @type {number[][]?} */
+  selected: null
+};
+
 const observer = jest.fn();
 
 let gameController;
@@ -15,6 +22,7 @@ describe("Starting game", () => {
     gameController = createGameController(
       worker,
       gameRenderer,
+      patternLibrary,
       100,
       true,
       observer
@@ -51,6 +59,7 @@ describe("With game not running", () => {
     gameController = createGameController(
       worker,
       gameRenderer,
+      patternLibrary,
       10,
       true,
       observer
@@ -95,8 +104,9 @@ describe("With game not running", () => {
     [8, 8, [77, 79, 88, 97, 99]]
   ])("Placing pattern preview at %i and %i", (row, col, previewArray) => {
     beforeAll(() => {
+      patternLibrary.selected = testPattern;
       gameRenderer.xyToRowColIndex.mockReturnValue({ row, col, index: 0 });
-      gameController.placePattern(row, col, testPattern, true);
+      gameController.placePattern(row, col, true);
     });
     test("Render called on next cycle with changed flag set to true", () => {
       expect(gameRenderer.render).toHaveBeenCalledWith(
@@ -123,9 +133,10 @@ describe("With game not running", () => {
     [8, 8, [0, 2, 11, 20, 22, 77, 79, 88, 97, 99]]
   ])("Placing pattern at %i and %i", (row, col, aliveArray) => {
     beforeAll(() => {
+      patternLibrary.selected = testPattern;
       gameRenderer.xyToRowColIndex.mockReturnValue({ row, col, index: 0 });
-      gameController.placePattern(row, col, testPattern, true);
-      gameController.placePattern(row, col, testPattern, false);
+      gameController.placePattern(row, col, true);
+      gameController.placePattern(row, col, false);
     });
     test("Render called on next cycle with changed flag set to true", () => {
       expect(gameRenderer.render).toHaveBeenCalledWith(
@@ -158,6 +169,7 @@ describe("With game running", () => {
     gameController = createGameController(
       worker,
       gameRenderer,
+      patternLibrary,
       10,
       true,
       observer
