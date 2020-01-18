@@ -1,28 +1,42 @@
-/** @module */
+/** @namespace PanControls */
+
+/** @module panControls */
 
 /**
- *
  * @typedef {Object} PanControls
  * @property {*} intervalID
  * @property {string?} direction
  * @property {function(string): void} start
  * @property {function(): void} stop
  * @property {function(): void} updateView
+ * @ignore
  */
+
+import { GameRenderer } from "./gameRenderer";
 
 /**
  * Controls panning of the game view.
- * @param {import('./gameRenderer.js').GameRenderer} gameRenderer
+ * @param {GameRenderer} gameRenderer
  * @returns {PanControls}
  */
 const createPanControls = gameRenderer => {
   /** @type {PanControls} */
   const panControls = {
+    /**
+     * @memberof PanControls
+     * @type {*}
+     */
     intervalID: null,
+
+    /**
+     * @memberof PanControls
+     * @type {string?}
+     */
     direction: null,
 
     /**
      * Starts a timer to gradually pan in the specified direction.
+     * @memberof PanControls
      * @param {string} direction
      */
     start(direction) {
@@ -33,6 +47,7 @@ const createPanControls = gameRenderer => {
 
     /**
      * Resets state and clears timer to prevent additional panning.
+     * @memberof PanControls
      */
     stop() {
       if (this.intervalID) clearInterval(this.intervalID);
@@ -42,6 +57,7 @@ const createPanControls = gameRenderer => {
 
     /**
      * Updates view position by 2px in the previously specified direction.
+     * @memberof PanControls
      */
     updateView() {
       switch (this.direction) {

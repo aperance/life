@@ -1,11 +1,11 @@
-/**
- * @module
- */
+/** @namespace MouseTracker */
+
+/** @module mouseTracker */
 
 /**
  * @typedef {Object} MouseTracker
- * @property {boolean} downOnCanvas
- * @property {boolean} panning
+ * @property {boolean} isMouseDownOnCanvas
+ * @property {boolean} isPanning
  * @property {number | null} lastX
  * @property {number | null} lastY
  * @property {function(MouseEvent, boolean, boolean): void} mouseUp
@@ -14,35 +14,63 @@
  * @property {function(): void} mouseLeave
  * @property {function(MouseEvent, boolean): void} mouseWheel
  * @property {function(boolean): void} forcePreviewCheck
+ * @ignore
  */
 
+import { GameRenderer } from "./gameRenderer";
+import { GameController } from "./gameController";
+
 /**
- * Factory function for MouseTracker object.
- * @param {import('./gameRenderer').GameRenderer} gameRenderer
- * @param {import('./gameController').GameController} gameController
+ * Factory function for MouseTracker object with dependency injection.
+ * @param {GameRenderer} gameRenderer
+ * @param {GameController} gameController
  * @param  {function(boolean): void} observer
  * @returns {MouseTracker}
  */
 const createMouseTracker = (gameRenderer, gameController, observer) => {
   /** @type {MouseTracker} */
   const mouseTracker = {
-    downOnCanvas: false,
-    panning: false,
+    /**
+     * True if mouse button is down and mouse down event occured over the canvas, false otherwise.
+     * @memberof MouseTracker
+     * @type {boolean}
+     */
+    isMouseDownOnCanvas: false,
+
+    /**
+     * True if currently panning the game area on mouse movement, false otherwise.
+     * @memberof MouseTracker
+     * @type {boolean}
+     */
+    isPanning: false,
+
+    /**
+     * The most recent clientX value received, null if no value yet received.
+     * @memberof MouseTracker
+     * @type {number?}
+     */
     lastX: null,
+
+    /**
+     * The most recent clientY value received, null if no value yet received.
+     * @memberof MouseTracker
+     * @type {number?}
+     */
     lastY: null,
 
     /**
      * Updates object state and determines cell toggling
      * or pattern placement on mouse up event.
-     * @param {MouseEvent} e
-     * @param {boolean} isOnCanvas
-     * @param {boolean} isPatternSelected
+     * @memberof MouseTracker
+     * @param {MouseEvent} e - Event object received from the event listener.
+     * @param {boolean} isOnCanvas - True if the mouse event occured over the canvas element.
+     * @param {boolean} isPatternSelected - True if there is currently a pattern selected from the pattern library.
      */
     mouseUp(e, isOnCanvas, isPatternSelected) {
       if (e.button !== 0) return;
 
-      if (isOnCanvas && this.downOnCanvas) {
-        if (this.panning) {
+      if (isOnCanvas && this.isMouseDownOnCanvas) {
+        if (this.isPanning) {
           // When panning is ending, restore preview if pattern is selected.
           if (isPatternSelected)
             gameController.placePattern(e.clientX, e.clientY, true);
@@ -54,20 +82,21 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
         }
       }
 
-      this.panning = false;
-      this.downOnCanvas = false;
-      observer(this.panning);
+      this.isPanning = false;
+      this.isMouseDownOnCanvas = false;
+      observer(this.isPanning);
     },
 
     /**
      * Updates object state on mouse down event.
-     * @param {MouseEvent} e
-     * @param {boolean} isOnCanvas
+     * @memberof MouseTracker
+     * @param {MouseEvent} e - Event object received from the event listener.
+     * @param {boolean} isOnCanvas - True if the mouse event occured over the canvas element.
      */
     mouseDown(e, isOnCanvas) {
       if (e.button !== 0) return;
 
-      if (isOnCanvas) this.downOnCanvas = true;
+      if (isOnCanvas) this.isMouseDownOnCanvas = true;
       this.lastX = e.clientX;
       this.lastY = e.clientY;
     },
@@ -75,21 +104,22 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
     /**
      * Updates object state and determines view panning
      * or pattern preview rendering on mouse move event.
-     * @param {MouseEvent} e
-     * @param {boolean} isOnCanvas
-     * @param {boolean} isPatternSelected
+     * @memberof MouseTracker
+     * @param {MouseEvent} e - Event object received from the event listener.
+     * @param {boolean} isOnCanvas - True if the mouse event occured over the canvas element.
+     * @param {boolean} isPatternSelected - True if there is currently a pattern selected from the pattern library.
      */
     mouseMove(e, isOnCanvas, isPatternSelected) {
-      if (this.downOnCanvas && this.lastX && this.lastY) {
+      if (this.isMouseDownOnCanvas && this.lastX && this.lastY) {
         const deltaX = this.lastX - e.clientX;
         const deltaY = this.lastY - e.clientY;
 
         if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
-          this.panning = true;
-          observer(this.panning);
+          this.isPanning = true;
+          observer(this.isPanning);
         }
 
-        if (this.panning) {
+        if (this.isPanning) {
           gameRenderer.setView({
             panX: Math.round(gameRenderer.view.panX + deltaX),
             panY: Math.round(gameRenderer.view.panY + deltaY)
@@ -100,7 +130,7 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
       this.lastX = e.clientX;
       this.lastY = e.clientY;
 
-      if (isOnCanvas && !this.panning && isPatternSelected) {
+      if (isOnCanvas && !this.isPanning && isPatternSelected) {
         gameController.placePattern(e.clientX, e.clientY, true);
       } else gameController.clearPreview();
     },
@@ -108,6 +138,7 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
     /**
      * Updates onCanvas property and clears pattern
      * preview rendering when mouse leaves window.
+     * @memberof MouseTracker
      */
     mouseLeave() {
       gameController.clearPreview();
@@ -115,8 +146,9 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
 
     /**
      * Updates game zoom value on mouse wheel event over canvas.
-     * @param {WheelEvent} e
-     * @param {boolean} isOnCanvas
+     * @memberof MouseTracker
+     * @param {WheelEvent} e - Event object received from the event listener.
+     * @param {boolean} isOnCanvas - True if the mouse event occured over the canvas element.
      */
     mouseWheel(e, isOnCanvas) {
       if (isOnCanvas) {
@@ -130,7 +162,8 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
     /**
      * Re-evaluates the selected pattern preview rendering. Called
      * externally if pattern state changes without a new mouse event.
-     * @param {boolean} isPatternSelected
+     * @memberof MouseTracker
+     * @param {boolean} isPatternSelected - True if there is currently a pattern selected from the pattern library.
      */
     forcePreviewCheck(isPatternSelected) {
       if (this.lastX === null || this.lastY === null) return;

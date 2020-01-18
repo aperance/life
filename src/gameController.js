@@ -1,10 +1,8 @@
-/** @module */
+/** @namespace GameController */
 
-const batchSize = 25;
-const bufferSize = 50;
+/** @module gameController */
 
 /**
- *
  * @typedef {Object} GameController
  * @property {Set} alive
  * @property {Set} alivePreview
@@ -26,13 +24,20 @@ const bufferSize = 50;
  * @property {function(): void} terminate
  * @property {function(): void} animationCycle
  * @property {function(MessageEvent): void} handleWorkerMessage
+ * @ignore
  */
 
+import { GameRenderer } from "./gameRenderer";
+import { PatternLibrary } from "./patternLibrary";
+
+const batchSize = 25;
+const bufferSize = 50;
+
 /**
- *  Factory function to create GameController object.
+ *  Factory function to create GameController object with dependencies injected.
  * @param {Worker} worker
- * @param {import('./gameRenderer.js').GameRenderer} gameRenderer
- * @param {import('./patternLibrary').PatternLibrary} patternLibrary
+ * @param {GameRenderer} gameRenderer
+ * @param {PatternLibrary} patternLibrary
  * @param {number} cellCount
  * @param {boolean} wasm
  * @param {function(boolean, boolean, number, number, number): void} observer
@@ -48,19 +53,64 @@ const createGameController = (
 ) => {
   /** @type {GameController} */
   const gameController = {
+    /**
+     * @memberof GameController
+     * @type {Set}
+     */
     alive: new Set(),
+
+    /**
+     * @memberof GameController
+     * @type {Set}
+     */
     alivePreview: new Set(),
+
+    /**
+     * @memberof GameController
+     * @type {boolean}
+     */
     playing: false,
+
+    /**
+     * @memberof GameController
+     * @type {Array<{born: Array<number>, died: Array<number>}>}
+     */
     resultBuffer: [],
+
+    /**
+     * @memberof GameController
+     * @type {number?}
+     */
     resultsRequestedAt: null,
+
+    /**
+     * @memberof GameController
+     * @type {boolean}
+     */
     cellsChanged: true,
+
+    /**
+     * @memberof GameController
+     * @type {{cyclesPerRender: number, currentCycle: number, paused: boolean}}
+     */
     speed: { cyclesPerRender: 6, currentCycle: 1, paused: false },
+
+    /**
+     * @memberof GameController
+     * @type {number}
+     */
     generation: 0,
+
+    /**
+     * @memberof GameController
+     * @type {boolean}
+     */
     isTerminated: false,
 
     /**
      *
-     * @returns {{born: Array<number>, died: Array<number>} | null}
+     * @memberof GameController
+     * @type {{born: Array<number>, died: Array<number>}?}
      */
     get nextResult() {
       if (!this.playing) return null;
@@ -78,6 +128,7 @@ const createGameController = (
 
     /**
      *
+     * @memberof GameController
      * @param {number} x
      * @param {number} y
      */
@@ -92,6 +143,7 @@ const createGameController = (
 
     /**
      *
+     * @memberof GameController
      * @param {number} x
      * @param {number} y
      * @param {boolean} isPreview
@@ -129,6 +181,7 @@ const createGameController = (
 
     /**
      *
+     * @memberof GameController
      */
     clearAliveCells() {
       this.alive.clear();
@@ -137,6 +190,7 @@ const createGameController = (
 
     /**
      *
+     * @memberof GameController
      */
     clearPreview() {
       this.alivePreview.clear();
@@ -145,6 +199,7 @@ const createGameController = (
 
     /**
      *
+     * @memberof GameController
      */
     play() {
       if (this.playing) this.speed.paused = false;
@@ -164,6 +219,7 @@ const createGameController = (
 
     /**
      *
+     * @memberof GameController
      */
     pause() {
       this.speed.paused = true;
@@ -171,6 +227,7 @@ const createGameController = (
 
     /**
      *
+     * @memberof GameController
      * @param {number} genPerSecond
      */
     setSpeed(genPerSecond) {
@@ -179,6 +236,7 @@ const createGameController = (
 
     /**
      *
+     * @memberof GameController
      */
     terminate() {
       worker.terminate();
@@ -187,6 +245,7 @@ const createGameController = (
 
     /**
      *
+     * @memberof GameController
      */
     animationCycle() {
       if (this.isTerminated) return;
@@ -233,6 +292,7 @@ const createGameController = (
 
     /**
      *
+     * @memberof GameController
      * @param {MessageEvent} e
      */
     handleWorkerMessage(e) {

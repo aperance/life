@@ -1,4 +1,6 @@
-/** @module */
+/** @namespace GameRenderer */
+
+/** @module gameRenderer */
 
 /**
  * @typedef {Object} View
@@ -27,10 +29,11 @@
  * @property {function(): {row: number, col: number}} getCenterRowCol
  * @property {function(number): {row: number, col: number}} indexToRowCol
  * @property {function(number, number): {row: number, col: number, index: number}} xyToRowColIndex
+ * @ignore
  */
 
 /**
- * Factory function to create GameRenderer object.
+ * Factory function to create GameRenderer object with dependencies injected.
  * @param {CanvasRenderingContext2D} gridCtx
  * @param {CanvasRenderingContext2D} cellCtx
  * @param {CanvasRenderingContext2D} previewCtx
@@ -47,11 +50,16 @@ const createGameRenderer = (
 ) => {
   /** @type {GameRenderer} */
   const gameRenderer = {
+    /**
+     * @memberof GameRenderer
+     * @type {boolean}
+     */
     redrawGrid: true,
 
     /**
      * Receives the current window dimensions and stores it in object state. Triggers
      * setView method to calculate view parameters using updated window dimensions.
+     * @memberof GameRenderer
      * @param {number} width
      * @param {number} height
      */
@@ -63,6 +71,7 @@ const createGameRenderer = (
     /**
      * Updates the zoom and panning properties with the provided object, and ensures the values are
      * within acceptable bounds. If parameter is null, current zoom and panning properties are rechecked.
+     * @memberof GameRenderer
      * @param {View?} newView
      */
     setView(newView) {
@@ -90,6 +99,7 @@ const createGameRenderer = (
     /**
      * Updates zoom property with the specified value, and adjusts
      * panning properties so that the specified point is stationary.
+     * @memberof GameRenderer
      * @param {number} zoom
      * @param {number} x
      * @param {number} y
@@ -105,6 +115,7 @@ const createGameRenderer = (
 
     /**
      * Clears any drawing on all canvases.
+     * @memberof GameRenderer
      */
     clearCanvases() {
       if (this.window && this.view) {
@@ -120,6 +131,7 @@ const createGameRenderer = (
      * Public method to initiate rendering of the game area. Triggered by the
      * animation cycle running in GameController. If necessary, all cells and
      * grid lines will be redrawn. Otherwise only changes cells will be edited.
+     * @memberof GameRenderer
      * @param {Array<number>} alive
      * @param {Array<number>?} born
      * @param {Array<number>?} died
@@ -147,6 +159,7 @@ const createGameRenderer = (
 
     /**
      * Redraws all grid lines based on the current zoom and panning properties.
+     * @memberof GameRenderer
      */
     renderGrid() {
       const { width, height } = this.window;
@@ -196,6 +209,7 @@ const createGameRenderer = (
 
     /**
      * Redraws all cells in the game area.
+     * @memberof GameRenderer
      * @param {Array<number>} alive
      */
     renderAllCells(alive) {
@@ -213,6 +227,7 @@ const createGameRenderer = (
 
     /**
      * Draws or clears the modified cells in the game area.
+     * @memberof GameRenderer
      * @param {Array<number>} born
      * @param {Array<number>} died
      */
@@ -229,6 +244,7 @@ const createGameRenderer = (
 
     /**
      * Draws a translucent preview of a pattern selected from the pattern library.
+     * @memberof GameRenderer
      * @param {Array<number>} alive
      */
     renderPreview(alive) {
@@ -248,6 +264,7 @@ const createGameRenderer = (
 
     /**
      * Calculates the minimum zoom value where the game area is not smaller than the window.
+     * @memberof GameRenderer
      * @returns {number}
      */
     getMinZoom() {
@@ -258,6 +275,7 @@ const createGameRenderer = (
 
     /**
      * Calculates the maximum pan value in the x direction that dosen't extend off the game area.
+     * @memberof GameRenderer
      * @returns {number}
      */
     getMaxPanX() {
@@ -266,6 +284,7 @@ const createGameRenderer = (
 
     /**
      * Calculates the maximum pan value in the y direction that dosen't extend off the game area.
+     * @memberof GameRenderer
      * @returns {number}
      */
     getMaxPanY() {
@@ -275,6 +294,7 @@ const createGameRenderer = (
     /**
      * Gets the row and column on the game area at the current center of the window. Adjusted
      * so that the center of the game area is 0,0 (internally 0,0 is the top left corner).
+     * @memberof GameRenderer
      */
     getCenterRowCol() {
       const { row, col } = this.xyToRowColIndex(
@@ -286,6 +306,7 @@ const createGameRenderer = (
 
     /**
      * Converts an index from the game area to the equivilant row and column.
+     * @memberof GameRenderer
      * @param {number} i
      * @returns {{row: number, col: number}}
      */
@@ -295,6 +316,7 @@ const createGameRenderer = (
 
     /**
      * Converts coordinates from the window to the row, column, and index on the game area.
+     * @memberof GameRenderer
      * @param {number} x
      * @param {number} y
      * @returns {{row: number, col: number, index: number}}
@@ -312,6 +334,7 @@ const createGameRenderer = (
 
 /**
  * Restricts a value between a minimum and maximum.
+ * @memberof GameRenderer
  * @param {number} val
  * @param {number} min
  * @param {number} max
