@@ -4,15 +4,16 @@
 
 /**
  * @typedef {Object} GameController
- * @property {Set} alive
+ * @property {Set} aliveCells
  * @property {Set} alivePreview
- * @property {boolean} playing
+ * @property {boolean} isGameStarted
+ * @property {boolean} isGamePaused
  * @property {Array<{born: Array<number>, died: Array<number>}>} resultBuffer
  * @property {number?} resultsRequestedAt
- * @property {boolean} cellsChanged
- * @property {{cyclesPerRender: number, currentCycle: number, paused: boolean}} speed
+ * @property {boolean} didCellsChange
+ * @property {{cyclesPerRender: number, currentCycle: number}} speed
  * @property {number} generation
- * @property {boolean} isTerminated
+ * @property {boolean} haltAnimationCycle
  * @property {{born: Array<number>, died: Array<number>}?} nextResult
  * @property {function(number, number): void} toggleCell
  * @property {function(number, number, boolean): void} placePattern
@@ -57,7 +58,7 @@ const createGameController = (
      * @memberof GameController
      * @type {Set}
      */
-    alive: new Set(),
+    aliveCells: new Set(),
 
     /**
      * @memberof GameController
@@ -69,7 +70,13 @@ const createGameController = (
      * @memberof GameController
      * @type {boolean}
      */
-    playing: false,
+    isGameStarted: false,
+
+    /**
+     * @memberof GameController
+     * @type {boolean}
+     */
+    isGamePaused: false,
 
     /**
      * @memberof GameController
@@ -87,13 +94,13 @@ const createGameController = (
      * @memberof GameController
      * @type {boolean}
      */
-    cellsChanged: true,
+    didCellsChange: true,
 
     /**
      * @memberof GameController
-     * @type {{cyclesPerRender: number, currentCycle: number, paused: boolean}}
+     * @type {{cyclesPerRender: number, currentCycle: number}}
      */
-    speed: { cyclesPerRender: 6, currentCycle: 1, paused: false },
+    speed: { cyclesPerRender: 6, currentCycle: 1 },
 
     /**
      * @memberof GameController
@@ -105,7 +112,7 @@ const createGameController = (
      * @memberof GameController
      * @type {boolean}
      */
-    isTerminated: false,
+    haltAnimationCycle: false,
 
     /**
      *
@@ -113,7 +120,7 @@ const createGameController = (
      * @type {{born: Array<number>, died: Array<number>}?}
      */
     get nextResult() {
-      if (!this.playing) return null;
+      if (!this.isGameStarted) return null;
 
       if (this.resultBuffer.length < bufferSize && !this.resultsRequestedAt) {
         worker.postMessage({
@@ -133,12 +140,14 @@ const createGameController = (
      * @param {number} y
      */
     toggleCell(x, y) {
-      if (this.playing) return;
+      if (this.isGameStarted) return;
 
       const { index } = gameRenderer.xyToRowColIndex(x, y);
 
-      this.alive.has(index) ? this.alive.delete(index) : this.alive.add(index);
-      this.cellsChanged = true;
+      this.aliveCells.has(index)
+        ? this.aliveCells.delete(index)
+        : this.aliveCells.add(index);
+      this.didCellsChange = true;
     },
 
     /**
@@ -149,7 +158,7 @@ const createGameController = (
      * @param {boolean} isPreview
      */
     placePattern(x, y, isPreview) {
-      if (this.playing) return;
+      if (this.isGameStarted) return;
 
       /** @type {number[][]?} */
       const pattern = patternLibrary.selected;
@@ -170,13 +179,13 @@ const createGameController = (
           if (isPreview) {
             if (cellState === 1) this.alivePreview.add(index);
           } else {
-            if (cellState === 1) this.alive.add(index);
-            else this.alive.delete(index);
+            if (cellState === 1) this.aliveCells.add(index);
+            else this.aliveCells.delete(index);
           }
         });
       });
 
-      this.cellsChanged = true;
+      this.didCellsChange = true;
     },
 
     /**
@@ -184,8 +193,8 @@ const createGameController = (
      * @memberof GameController
      */
     clearAliveCells() {
-      this.alive.clear();
-      this.cellsChanged = true;
+      this.aliveCells.clear();
+      this.didCellsChange = true;
     },
 
     /**
@@ -194,7 +203,7 @@ const createGameController = (
      */
     clearPreview() {
       this.alivePreview.clear();
-      this.cellsChanged = true;
+      this.didCellsChange = true;
     },
 
     /**
@@ -202,7 +211,7 @@ const createGameController = (
      * @memberof GameController
      */
     play() {
-      if (this.playing) this.speed.paused = false;
+      if (this.isGameStarted) this.isGamePaused = false;
       else {
         console.log("Game started");
 
@@ -210,7 +219,7 @@ const createGameController = (
           action: "start",
           payload: {
             size: cellCount,
-            initialAlive: Array.from(this.alive),
+            initialAlive: Array.from(this.aliveCells),
             wasm: wasm
           }
         });
@@ -222,7 +231,7 @@ const createGameController = (
      * @memberof GameController
      */
     pause() {
-      this.speed.paused = true;
+      this.isGamePaused = true;
     },
 
     /**
@@ -240,7 +249,7 @@ const createGameController = (
      */
     terminate() {
       worker.terminate();
-      this.isTerminated = true;
+      this.haltAnimationCycle = true;
     },
 
     /**
@@ -248,12 +257,12 @@ const createGameController = (
      * @memberof GameController
      */
     animationCycle() {
-      if (this.isTerminated) return;
+      if (this.haltAnimationCycle) return;
 
       let born = null;
       let died = null;
 
-      if (this.playing && !this.speed.paused) {
+      if (this.isGameStarted && !this.isGamePaused) {
         if (this.speed.currentCycle < this.speed.cyclesPerRender) {
           this.speed.currentCycle++;
         } else {
@@ -261,29 +270,29 @@ const createGameController = (
           const result = this.nextResult;
           if (result) {
             ({ born, died } = result);
-            for (let cellIndex of born) this.alive.add(cellIndex);
-            for (let cellIndex of died) this.alive.delete(cellIndex);
-            this.cellsChanged = true;
+            for (let cellIndex of born) this.aliveCells.add(cellIndex);
+            for (let cellIndex of died) this.aliveCells.delete(cellIndex);
+            this.didCellsChange = true;
             this.generation++;
           }
         }
       }
 
       gameRenderer.render(
-        Array.from(this.alive),
+        Array.from(this.aliveCells),
         born,
         died,
         Array.from(this.alivePreview),
-        this.cellsChanged
+        this.didCellsChange
       );
 
-      this.cellsChanged = false;
+      this.didCellsChange = false;
 
       observer(
-        this.playing,
-        this.speed.paused,
+        this.isGameStarted,
+        this.isGamePaused,
         this.generation,
-        this.alive.size,
+        this.aliveCells.size,
         this.speed.cyclesPerRender
       );
 
@@ -296,7 +305,7 @@ const createGameController = (
      * @param {MessageEvent} e
      */
     handleWorkerMessage(e) {
-      if (e.data === "started") this.playing = true;
+      if (e.data === "started") this.isGameStarted = true;
       else {
         this.resultBuffer.push(...e.data);
 

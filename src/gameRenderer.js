@@ -13,7 +13,11 @@
  * @typedef {Object} GameRenderer
  * @property {{width: number, height: number}} [window]
  * @property {View} [view]
- * @property {boolean} redrawGrid
+ * @property {boolean} redrawNeeded
+ * @property {number} minZoom
+ * @property {number} maxPanX
+ * @property {number} maxPanY
+ * @property {{row: number, col: number}} centerRowCol
  * @property {function(number, number)} setWindow
  * @property {function(View?)} setView
  * @property {function(number, number, number): void} zoomAtPoint
@@ -23,12 +27,9 @@
  * @property {function(Array<number>): void} renderAllCells
  * @property {function(Array<number>, Array<number>): void} renderChangedCells
  * @property {function(Array<number>): void} renderPreview
- * @property {function(): number} getMinZoom
- * @property {function(): number} getMaxPanX
- * @property {function(): number} getMaxPanY
- * @property {function(): {row: number, col: number}} getCenterRowCol
  * @property {function(number): {row: number, col: number}} indexToRowCol
  * @property {function(number, number): {row: number, col: number, index: number}} xyToRowColIndex
+ * @property {function} clamp
  * @ignore
  */
 
@@ -54,7 +55,50 @@ const createGameRenderer = (
      * @memberof GameRenderer
      * @type {boolean}
      */
-    redrawGrid: true,
+    redrawNeeded: true,
+
+    /**
+     * The minimum zoom value where the game area is not smaller than the window.
+     * @memberof GameRenderer
+     * @type {number}
+     */
+    get minZoom() {
+      return Math.ceil(
+        Math.max(this.window.width, this.window.height) / cellCount
+      );
+    },
+
+    /**
+     * The maximum pan value in the x direction that dosen't extend off the game area.
+     * @memberof GameRenderer
+     * @type {number}
+     */
+    get maxPanX() {
+      return cellCount * this.view.zoom - this.window.width;
+    },
+
+    /**
+     * The maximum pan value in the y direction that dosen't extend off the game area.
+     * @memberof GameRenderer
+     * @type {number}
+     */
+    get maxPanY() {
+      return cellCount * this.view.zoom - this.window.height;
+    },
+
+    /**
+     * The row and column on the game area at the current center of the window. Adjusted
+     * so that the center of the game area is 0,0 (internally 0,0 is the top left corner).
+     * @memberof GameRenderer
+     * @type {{row: number, col: number}}
+     */
+    get centerRowCol() {
+      const { row, col } = this.xyToRowColIndex(
+        this.window.width / 2,
+        this.window.height / 2
+      );
+      return { row: row - cellCount / 2, col: col - cellCount / 2 };
+    },
 
     /**
      * Receives the current window dimensions and stores it in object state. Triggers
@@ -80,19 +124,19 @@ const createGameRenderer = (
       if (typeof this.view === "undefined") {
         this.view = {};
         this.view.zoom = 10;
-        this.view.panX = Math.round(this.getMaxPanX() / 2);
-        this.view.panY = Math.round(this.getMaxPanY() / 2);
+        this.view.panX = Math.round(this.maxPanX / 2);
+        this.view.panY = Math.round(this.maxPanY / 2);
       }
 
       if (newView) this.view = { ...this.view, ...newView };
 
-      this.view.zoom = clamp(this.view.zoom, this.getMinZoom(), 100);
-      this.view.panX = clamp(this.view.panX, 0, this.getMaxPanX());
-      this.view.panY = clamp(this.view.panY, 0, this.getMaxPanY());
+      this.view.zoom = this.clamp(this.view.zoom, this.minZoom, 100);
+      this.view.panX = this.clamp(this.view.panX, 0, this.maxPanX);
+      this.view.panY = this.clamp(this.view.panY, 0, this.maxPanY);
 
-      this.redrawGrid = true;
+      this.redrawNeeded = true;
 
-      const { row, col } = this.getCenterRowCol();
+      const { row, col } = this.centerRowCol;
       observer(this.view.zoom, row, col);
     },
 
@@ -106,7 +150,7 @@ const createGameRenderer = (
      */
     zoomAtPoint(zoom, x, y) {
       const { zoom: oldZoom, panX: oldPanX, panY: oldPanY } = this.view;
-      const newZoom = clamp(zoom, this.getMinZoom(), 100);
+      const newZoom = this.clamp(zoom, this.minZoom, 100);
       const scale = newZoom / oldZoom - 1;
       const newPanX = Math.round(oldPanX + scale * (oldPanX + x));
       const newPanY = Math.round(oldPanY + scale * (oldPanY + y));
@@ -136,21 +180,21 @@ const createGameRenderer = (
      * @param {Array<number>?} born
      * @param {Array<number>?} died
      * @param {Array<number>} preview
-     * @param {boolean} cellsChanged
+     * @param {boolean} didCellsChange
      */
-    render(alive, born, died, preview, cellsChanged) {
+    render(alive, born, died, preview, didCellsChange) {
       if (
         typeof this.window === "undefined" ||
         typeof this.view === "undefined"
       )
         return;
 
-      if (this.redrawGrid) {
+      if (this.redrawNeeded) {
         this.renderGrid();
         this.renderAllCells(alive);
         this.renderPreview(preview);
-        this.redrawGrid = false;
-      } else if (cellsChanged) {
+        this.redrawNeeded = false;
+      } else if (didCellsChange) {
         if (born && died) this.renderChangedCells(born, died);
         else this.renderAllCells(alive);
         this.renderPreview(preview);
@@ -263,48 +307,6 @@ const createGameRenderer = (
     /*** Utility Methods ***/
 
     /**
-     * Calculates the minimum zoom value where the game area is not smaller than the window.
-     * @memberof GameRenderer
-     * @returns {number}
-     */
-    getMinZoom() {
-      return Math.ceil(
-        Math.max(this.window.width, this.window.height) / cellCount
-      );
-    },
-
-    /**
-     * Calculates the maximum pan value in the x direction that dosen't extend off the game area.
-     * @memberof GameRenderer
-     * @returns {number}
-     */
-    getMaxPanX() {
-      return cellCount * this.view.zoom - this.window.width;
-    },
-
-    /**
-     * Calculates the maximum pan value in the y direction that dosen't extend off the game area.
-     * @memberof GameRenderer
-     * @returns {number}
-     */
-    getMaxPanY() {
-      return cellCount * this.view.zoom - this.window.height;
-    },
-
-    /**
-     * Gets the row and column on the game area at the current center of the window. Adjusted
-     * so that the center of the game area is 0,0 (internally 0,0 is the top left corner).
-     * @memberof GameRenderer
-     */
-    getCenterRowCol() {
-      const { row, col } = this.xyToRowColIndex(
-        this.window.width / 2,
-        this.window.height / 2
-      );
-      return { row: row - cellCount / 2, col: col - cellCount / 2 };
-    },
-
-    /**
      * Converts an index from the game area to the equivilant row and column.
      * @memberof GameRenderer
      * @param {number} i
@@ -326,20 +328,22 @@ const createGameRenderer = (
       const col = Math.floor((x + this.view.panX) / this.view.zoom);
       const index = cellCount * row + col;
       return { row, col, index };
+    },
+
+    /**
+     * Restricts a value between a minimum and maximum.
+     * @memberof GameRenderer
+     * @param {number} val
+     * @param {number} min
+     * @param {number} max
+     * @returns {number}
+     */
+    clamp(val, min, max) {
+      return (val > max ? max : val < min ? min : val);
     }
   };
 
   return gameRenderer;
 };
-
-/**
- * Restricts a value between a minimum and maximum.
- * @memberof GameRenderer
- * @param {number} val
- * @param {number} min
- * @param {number} max
- * @returns {number}
- */
-const clamp = (val, min, max) => (val > max ? max : val < min ? min : val);
 
 export { createGameRenderer };
