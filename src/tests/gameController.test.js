@@ -27,7 +27,7 @@ describe("Starting game", () => {
       true,
       observer
     );
-    gameController.alive = new Set(testAlive);
+    gameController.aliveCells = new Set(testAlive);
   });
   beforeEach(() => {
     jest.clearAllMocks();
