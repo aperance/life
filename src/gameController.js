@@ -1,5 +1,8 @@
 /**
- * GameController is the object responsible for managing the game state.
+ * GameController is responsible for managing the game state. If not yet
+ * started, the game state is updated based on user actions. If started, the
+ * game state is updated based on results calculated by the web worker. The
+ * game state is then passed to the ViewController to be displayed to the user.
  * @namespace GameController
  */
 
@@ -42,12 +45,12 @@ const bufferSize = 50;
 
 /**
  * Factory function to create GameController object with dependencies injected.
- * @param {Worker} worker
- * @param {ViewController} viewController
- * @param {PatternLibrary} patternLibrary
- * @param {number} cellCount
- * @param {boolean} wasm
- * @param {function(boolean, boolean, number, number, number): void} observer
+ * @param {Worker} worker Reference to an initialized web worker to calculate game results
+ * @param {ViewController} viewController Reference to viewController object
+ * @param {PatternLibrary} patternLibrary Reference to patterLibrary object
+ * @param {number} cellCount Number of cells per side of the total game area
+ * @param {boolean} wasm True if wasm implementation of game logic should be used
+ * @param {function(boolean, boolean, number, number, number): void} observer Function called when game state is modified
  * @return {GameController}
  */
 const createGameController = (
@@ -117,7 +120,7 @@ const createGameController = (
     speed: { cyclesPerRender: 6, currentCycle: 1 },
 
     /**
-     *
+     * The generation number of the results currently being displayed.
      * @memberof GameController#
      * @type {number}
      */

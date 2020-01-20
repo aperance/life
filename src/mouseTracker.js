@@ -1,4 +1,9 @@
-/** @namespace MouseTracker */
+/**
+ * MouseTracker is reposnsible for managing the state of user interactions
+ * utilizing a mouse or trackpad. These user interactions may trigger an update
+ * to the current view state and/or game state.
+ * @namespace MouseTracker
+ */
 
 /**
  * Exports a factory function used to create a MouseTracker object.
@@ -25,9 +30,9 @@ import { GameController } from "./gameController";
 
 /**
  * Factory function to create MouseController object with dependencies injected.
- * @param {ViewController} viewController
- * @param {GameController} gameController
- * @param  {function(boolean): void} observer
+ * @param {ViewController} viewController Reference to viewController object
+ * @param {GameController} gameController Reference to gameController object
+ * @param  {function(boolean): void} observer Function called on UI state change
  * @returns {MouseTracker}
  */
 const createMouseTracker = (viewController, gameController, observer) => {
