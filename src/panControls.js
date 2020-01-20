@@ -1,6 +1,9 @@
 /** @namespace PanControls */
 
-/** @module panControls */
+/**
+ * Exports a factory function used to create a PanControls object.
+ * @module panControls
+ */
 
 /**
  * @typedef {Object} PanControls
@@ -15,7 +18,7 @@
 import { ViewController } from "./viewController";
 
 /**
- * Controls panning of the game view.
+ * Factory function to create PanControls object with dependencies injected.
  * @param {ViewController} viewController
  * @returns {PanControls}
  */

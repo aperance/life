@@ -1,6 +1,9 @@
 /** @namespace MouseTracker */
 
-/** @module mouseTracker */
+/**
+ * Exports a factory function used to create a MouseTracker object.
+ * @module mouseTracker
+ */
 
 /**
  * @typedef {Object} MouseTracker
@@ -21,7 +24,7 @@ import { ViewController } from "./viewController";
 import { GameController } from "./gameController";
 
 /**
- * Factory function for MouseTracker object with dependency injection.
+ * Factory function to create MouseController object with dependencies injected.
  * @param {ViewController} viewController
  * @param {GameController} gameController
  * @param  {function(boolean): void} observer
@@ -32,28 +35,28 @@ const createMouseTracker = (viewController, gameController, observer) => {
   const mouseTracker = {
     /**
      * True if mouse button is down and mouse down event occured over the canvas, false otherwise.
-     * @memberof MouseTracker
+     * @memberof MouseTracker#
      * @type {boolean}
      */
     isMouseDownOnCanvas: false,
 
     /**
      * True if currently panning the game area on mouse movement, false otherwise.
-     * @memberof MouseTracker
+     * @memberof MouseTracker#
      * @type {boolean}
      */
     isPanning: false,
 
     /**
      * The most recent clientX value received, null if no value yet received.
-     * @memberof MouseTracker
+     * @memberof MouseTracker#
      * @type {number?}
      */
     lastX: null,
 
     /**
      * The most recent clientY value received, null if no value yet received.
-     * @memberof MouseTracker
+     * @memberof MouseTracker#
      * @type {number?}
      */
     lastY: null,
@@ -61,7 +64,7 @@ const createMouseTracker = (viewController, gameController, observer) => {
     /**
      * Updates object state and determines cell toggling
      * or pattern placement on mouse up event.
-     * @memberof MouseTracker
+     * @memberof MouseTracker#
      * @param {MouseEvent} e - Event object received from the event listener.
      * @param {boolean} isOnCanvas - True if the mouse event occured over the canvas element.
      * @param {boolean} isPatternSelected - True if there is currently a pattern selected from the pattern library.
@@ -89,7 +92,7 @@ const createMouseTracker = (viewController, gameController, observer) => {
 
     /**
      * Updates object state on mouse down event.
-     * @memberof MouseTracker
+     * @memberof MouseTracker#
      * @param {MouseEvent} e - Event object received from the event listener.
      * @param {boolean} isOnCanvas - True if the mouse event occured over the canvas element.
      */
@@ -104,7 +107,7 @@ const createMouseTracker = (viewController, gameController, observer) => {
     /**
      * Updates object state and determines view panning
      * or pattern preview rendering on mouse move event.
-     * @memberof MouseTracker
+     * @memberof MouseTracker#
      * @param {MouseEvent} e - Event object received from the event listener.
      * @param {boolean} isOnCanvas - True if the mouse event occured over the canvas element.
      * @param {boolean} isPatternSelected - True if there is currently a pattern selected from the pattern library.
@@ -138,7 +141,7 @@ const createMouseTracker = (viewController, gameController, observer) => {
     /**
      * Updates onCanvas property and clears pattern
      * preview rendering when mouse leaves window.
-     * @memberof MouseTracker
+     * @memberof MouseTracker#
      */
     mouseLeave() {
       gameController.clearPreview();
@@ -146,7 +149,7 @@ const createMouseTracker = (viewController, gameController, observer) => {
 
     /**
      * Updates game zoom value on mouse wheel event over canvas.
-     * @memberof MouseTracker
+     * @memberof MouseTracker#
      * @param {WheelEvent} e - Event object received from the event listener.
      * @param {boolean} isOnCanvas - True if the mouse event occured over the canvas element.
      */
@@ -162,7 +165,7 @@ const createMouseTracker = (viewController, gameController, observer) => {
     /**
      * Re-evaluates the selected pattern preview rendering. Called
      * externally if pattern state changes without a new mouse event.
-     * @memberof MouseTracker
+     * @memberof MouseTracker#
      * @param {boolean} isPatternSelected - True if there is currently a pattern selected from the pattern library.
      */
     forcePreviewCheck(isPatternSelected) {

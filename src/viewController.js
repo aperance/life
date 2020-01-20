@@ -1,5 +1,5 @@
 /**
- * ViewController is the object reposible for modifying the HTML canvas elements
+ * ViewController is the object reponsible for modifying the HTML canvas elements
  * used to visualize the game area. Three canvas elements are used for drawing
  * grid lines, alive cells, and translucent pattern preview, respectively. The
  * canvases are transformed based on user specified zoom and pan properties.
