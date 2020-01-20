@@ -2,7 +2,7 @@
 
 import { MouseTracker, createMouseTracker } from "../mouseTracker";
 
-const gameRenderer = {
+const viewController = {
   view: { zoom: 10, panX: 100, panY: 100 },
   setView: jest.fn(),
   zoomAtPoint: jest.fn(),
@@ -18,7 +18,11 @@ const gameController = {
 const observer = jest.fn();
 
 //@ts-ignore
-const mouseTracker = createMouseTracker(gameRenderer, gameController, observer);
+const mouseTracker = createMouseTracker(
+  viewController,
+  gameController,
+  observer
+);
 
 describe("For wheel spin", () => {
   beforeEach(() => {
@@ -36,8 +40,8 @@ describe("For wheel spin", () => {
           clientY: 100
         };
         mouseTracker.mouseWheel(e, true);
-        expect(gameRenderer.zoomAtPoint).toHaveBeenCalledTimes(1);
-        expect(gameRenderer.zoomAtPoint).toHaveBeenCalledWith(
+        expect(viewController.zoomAtPoint).toHaveBeenCalledTimes(1);
+        expect(viewController.zoomAtPoint).toHaveBeenCalledWith(
           10 + Math.sign(val),
           100,
           100
@@ -58,7 +62,7 @@ describe("For wheel spin", () => {
           target: { id: "default-btn" }
         };
         mouseTracker.mouseWheel(e, false);
-        expect(gameRenderer.zoomAtPoint).not.toHaveBeenCalled();
+        expect(viewController.zoomAtPoint).not.toHaveBeenCalled();
       }
     );
   });
@@ -82,7 +86,7 @@ describe("With pattern selected", () => {
       expect(gameController.clearPreview).not.toHaveBeenCalled();
     });
     test("Set view not requested", () => {
-      expect(gameRenderer.setView).not.toHaveBeenCalled();
+      expect(viewController.setView).not.toHaveBeenCalled();
     });
     test("Observer function is not called", () => {
       expect(observer).not.toHaveBeenCalled();
@@ -106,7 +110,7 @@ describe("With pattern selected", () => {
       expect(gameController.clearPreview).toHaveBeenCalled();
     });
     test("Set view not requested", () => {
-      expect(gameRenderer.setView).not.toHaveBeenCalled();
+      expect(viewController.setView).not.toHaveBeenCalled();
     });
     test("Observer function is not called", () => {
       expect(observer).not.toHaveBeenCalled();
@@ -128,7 +132,7 @@ describe("With pattern selected", () => {
       expect(gameController.clearPreview).toHaveBeenCalled();
     });
     test("Set view not requested", () => {
-      expect(gameRenderer.setView).not.toHaveBeenCalled();
+      expect(viewController.setView).not.toHaveBeenCalled();
     });
     test("Observer function is not called", () => {
       expect(observer).not.toHaveBeenCalled();
@@ -182,7 +186,7 @@ describe("With pattern selected", () => {
       expect(gameController.clearPreview).not.toHaveBeenCalled();
     });
     test("Set view not requested", () => {
-      expect(gameRenderer.setView).not.toHaveBeenCalled();
+      expect(viewController.setView).not.toHaveBeenCalled();
     });
     test("Observer function is called", () => {
       expect(observer).toHaveBeenCalled();
@@ -226,9 +230,9 @@ describe("With pattern selected", () => {
       expect(gameController.clearPreview).toHaveBeenCalled();
     });
     test("Set view requested with correct values", () => {
-      expect(gameRenderer.setView).toHaveBeenCalledWith({
-        panX: gameRenderer.view.panX - deltaX,
-        panY: gameRenderer.view.panY - deltaY
+      expect(viewController.setView).toHaveBeenCalledWith({
+        panX: viewController.view.panX - deltaX,
+        panY: viewController.view.panY - deltaY
       });
     });
     test("Observer function is called", () => {
@@ -266,9 +270,9 @@ describe("With pattern selected", () => {
       expect(gameController.clearPreview).toHaveBeenCalled();
     });
     test("Set view requested with correct values", () => {
-      expect(gameRenderer.setView).toHaveBeenCalledWith({
-        panX: gameRenderer.view.panX - deltaX,
-        panY: gameRenderer.view.panY - deltaY
+      expect(viewController.setView).toHaveBeenCalledWith({
+        panX: viewController.view.panX - deltaX,
+        panY: viewController.view.panY - deltaY
       });
     });
     test("Observer function is called", () => {
@@ -313,7 +317,7 @@ describe("With pattern selected", () => {
       expect(gameController.clearPreview).not.toHaveBeenCalled();
     });
     test("Set view not requested", () => {
-      expect(gameRenderer.setView).not.toHaveBeenCalled();
+      expect(viewController.setView).not.toHaveBeenCalled();
     });
     test("Observer function is called", () => {
       expect(observer).toHaveBeenCalled();
@@ -344,7 +348,7 @@ describe("With pattern cleared", () => {
       expect(gameController.clearPreview).not.toHaveBeenCalled();
     });
     test("Set view not requested", () => {
-      expect(gameRenderer.setView).not.toHaveBeenCalled();
+      expect(viewController.setView).not.toHaveBeenCalled();
     });
     test("Observer function is called", () => {
       expect(observer).toHaveBeenCalled();
@@ -373,7 +377,7 @@ describe("With pattern cleared", () => {
       expect(gameController.clearPreview).not.toHaveBeenCalled();
     });
     test("Set view not requested", () => {
-      expect(gameRenderer.setView).not.toHaveBeenCalled();
+      expect(viewController.setView).not.toHaveBeenCalled();
     });
     test("Observer function is called", () => {
       expect(observer).toHaveBeenCalled();
@@ -413,7 +417,7 @@ describe("With pattern cleared", () => {
       expect(gameController.clearPreview).toHaveBeenCalled();
     });
     test("Set view not requested", () => {
-      expect(gameRenderer.setView).not.toHaveBeenCalled();
+      expect(viewController.setView).not.toHaveBeenCalled();
     });
     test("Observer function is called", () => {
       expect(observer).toHaveBeenCalled();
@@ -450,9 +454,9 @@ describe("With pattern cleared", () => {
       expect(gameController.clearPreview).toHaveBeenCalled();
     });
     test("Set view requested with correct values", () => {
-      expect(gameRenderer.setView).toHaveBeenCalledWith({
-        panX: gameRenderer.view.panX - deltaX,
-        panY: gameRenderer.view.panY - deltaY
+      expect(viewController.setView).toHaveBeenCalledWith({
+        panX: viewController.view.panX - deltaX,
+        panY: viewController.view.panY - deltaY
       });
     });
     test("Observer function is called", () => {
@@ -490,9 +494,9 @@ describe("With pattern cleared", () => {
       expect(gameController.clearPreview).toHaveBeenCalled();
     });
     test("Set view requested with correct values", () => {
-      expect(gameRenderer.setView).toHaveBeenCalledWith({
-        panX: gameRenderer.view.panX - deltaX,
-        panY: gameRenderer.view.panY - deltaY
+      expect(viewController.setView).toHaveBeenCalledWith({
+        panX: viewController.view.panX - deltaX,
+        panY: viewController.view.panY - deltaY
       });
     });
     test("Observer function is called", () => {
@@ -530,7 +534,7 @@ describe("With pattern cleared", () => {
       expect(gameController.clearPreview).toHaveBeenCalled();
     });
     test("Set view not requested", () => {
-      expect(gameRenderer.setView).not.toHaveBeenCalled();
+      expect(viewController.setView).not.toHaveBeenCalled();
     });
     test("Observer function is called", () => {
       expect(observer).toHaveBeenCalled();

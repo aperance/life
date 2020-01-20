@@ -12,14 +12,14 @@
  * @ignore
  */
 
-import { GameRenderer } from "./gameRenderer";
+import { ViewController } from "./viewController";
 
 /**
  * Controls panning of the game view.
- * @param {GameRenderer} gameRenderer
+ * @param {ViewController} viewController
  * @returns {PanControls}
  */
-const createPanControls = gameRenderer => {
+const createPanControls = viewController => {
   /** @type {PanControls} */
   const panControls = {
     /**
@@ -62,16 +62,16 @@ const createPanControls = gameRenderer => {
     updateView() {
       switch (this.direction) {
         case "up":
-          gameRenderer.setView({ panY: gameRenderer.view.panY - 2 });
+          viewController.setView({ panY: viewController.view.panY - 2 });
           break;
         case "down":
-          gameRenderer.setView({ panY: gameRenderer.view.panY + 2 });
+          viewController.setView({ panY: viewController.view.panY + 2 });
           break;
         case "left":
-          gameRenderer.setView({ panX: gameRenderer.view.panX - 2 });
+          viewController.setView({ panX: viewController.view.panX - 2 });
           break;
         case "right":
-          gameRenderer.setView({ panX: gameRenderer.view.panX + 2 });
+          viewController.setView({ panX: viewController.view.panX + 2 });
           break;
         default:
           this.stop();

@@ -1,7 +1,7 @@
 import { createPanControls } from "../panControls";
 
-const gameRenderer = { view: { panX: 100, panY: 100 }, setView: jest.fn() };
-const panControls = createPanControls(gameRenderer);
+const viewController = { view: { panX: 100, panY: 100 }, setView: jest.fn() };
+const panControls = createPanControls(viewController);
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -22,8 +22,8 @@ describe.each([
 
   it("pans occur at the correct frequency", () => {
     jest.advanceTimersByTime(1000);
-    expect(gameRenderer.setView).toHaveBeenCalledTimes(100);
-    expect(gameRenderer.setView).toHaveBeenLastCalledWith(expected);
+    expect(viewController.setView).toHaveBeenCalledTimes(100);
+    expect(viewController.setView).toHaveBeenLastCalledWith(expected);
   });
 
   it("halts panning when stop method called", () => {
@@ -34,7 +34,7 @@ describe.each([
 
   it("no additional panning occurs", () => {
     jest.advanceTimersByTime(1000);
-    expect(gameRenderer.setView).toHaveBeenCalledTimes(0);
+    expect(viewController.setView).toHaveBeenCalledTimes(0);
   });
 
   it("no effect when additional stop method called", () => {
@@ -56,8 +56,8 @@ describe("Change direction while panning in progress", () => {
 
   it("panning occurs only for new direction", () => {
     jest.advanceTimersByTime(1000);
-    expect(gameRenderer.setView).toHaveBeenCalledTimes(100);
-    expect(gameRenderer.setView).toHaveBeenLastCalledWith({ panY: 98 });
+    expect(viewController.setView).toHaveBeenCalledTimes(100);
+    expect(viewController.setView).toHaveBeenLastCalledWith({ panY: 98 });
   });
 });
 
@@ -70,6 +70,6 @@ describe("For invalid direction", () => {
   it("no panning occurs", () => {
     panControls.start("invalid");
     jest.advanceTimersByTime(1000);
-    expect(gameRenderer.setView).toHaveBeenCalledTimes(0);
+    expect(viewController.setView).toHaveBeenCalledTimes(0);
   });
 });

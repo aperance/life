@@ -2,7 +2,7 @@ import { createGameController } from "../gameController";
 
 const worker = { postMessage: jest.fn() };
 
-const gameRenderer = {
+const viewController = {
   render: jest.fn(),
   xyToRowColIndex: jest.fn().mockReturnValue({ row: 5, col: 5, index: 55 })
 };
@@ -21,7 +21,7 @@ describe("Starting game", () => {
   beforeAll(() => {
     gameController = createGameController(
       worker,
-      gameRenderer,
+      viewController,
       patternLibrary,
       100,
       true,
@@ -58,7 +58,7 @@ describe("With game not running", () => {
   beforeAll(() => {
     gameController = createGameController(
       worker,
-      gameRenderer,
+      viewController,
       patternLibrary,
       10,
       true,
@@ -76,11 +76,11 @@ describe("With game not running", () => {
     [44, []]
   ])("Toggling cell %i", (index, aliveArray) => {
     beforeAll(() => {
-      gameRenderer.xyToRowColIndex.mockReturnValue({ row: 5, col: 5, index });
+      viewController.xyToRowColIndex.mockReturnValue({ row: 5, col: 5, index });
       gameController.toggleCell(0, 0);
     });
     test("Render called on next cycle with changed flag set to true", () => {
-      expect(gameRenderer.render).toHaveBeenCalledWith(
+      expect(viewController.render).toHaveBeenCalledWith(
         aliveArray,
         null,
         null,
@@ -89,7 +89,7 @@ describe("With game not running", () => {
       );
     });
     test("Render called on following cycle with changed flag set to false", () => {
-      expect(gameRenderer.render).toHaveBeenCalledWith(
+      expect(viewController.render).toHaveBeenCalledWith(
         aliveArray,
         null,
         null,
@@ -105,11 +105,11 @@ describe("With game not running", () => {
   ])("Placing pattern preview at %i and %i", (row, col, previewArray) => {
     beforeAll(() => {
       patternLibrary.selected = testPattern;
-      gameRenderer.xyToRowColIndex.mockReturnValue({ row, col, index: 0 });
+      viewController.xyToRowColIndex.mockReturnValue({ row, col, index: 0 });
       gameController.placePattern(row, col, true);
     });
     test("Render called on next cycle with changed flag set to true", () => {
-      expect(gameRenderer.render).toHaveBeenCalledWith(
+      expect(viewController.render).toHaveBeenCalledWith(
         [],
         null,
         null,
@@ -118,7 +118,7 @@ describe("With game not running", () => {
       );
     });
     test("Render called on following cycle with changed flag set to false", () => {
-      expect(gameRenderer.render).toHaveBeenCalledWith(
+      expect(viewController.render).toHaveBeenCalledWith(
         [],
         null,
         null,
@@ -134,12 +134,12 @@ describe("With game not running", () => {
   ])("Placing pattern at %i and %i", (row, col, aliveArray) => {
     beforeAll(() => {
       patternLibrary.selected = testPattern;
-      gameRenderer.xyToRowColIndex.mockReturnValue({ row, col, index: 0 });
+      viewController.xyToRowColIndex.mockReturnValue({ row, col, index: 0 });
       gameController.placePattern(row, col, true);
       gameController.placePattern(row, col, false);
     });
     test("Render called on next cycle with changed flag set to true", () => {
-      expect(gameRenderer.render).toHaveBeenCalledWith(
+      expect(viewController.render).toHaveBeenCalledWith(
         aliveArray,
         null,
         null,
@@ -148,7 +148,7 @@ describe("With game not running", () => {
       );
     });
     test("Render called on following cycle with changed flag set to false", () => {
-      expect(gameRenderer.render).toHaveBeenCalledWith(
+      expect(viewController.render).toHaveBeenCalledWith(
         aliveArray,
         null,
         null,
@@ -168,7 +168,7 @@ describe("With game running", () => {
   beforeAll(() => {
     gameController = createGameController(
       worker,
-      gameRenderer,
+      viewController,
       patternLibrary,
       10,
       true,
@@ -184,7 +184,7 @@ describe("With game running", () => {
   describe("Toggling cell", () => {
     beforeAll(() => gameController.toggleCell(44));
     test("Render called on next cycle without cell index added", () => {
-      expect(gameRenderer.render).toHaveBeenCalledWith(
+      expect(viewController.render).toHaveBeenCalledWith(
         [],
         null,
         null,
@@ -197,7 +197,7 @@ describe("With game running", () => {
   describe("Placing element preview", () => {
     beforeAll(() => gameController.placePattern(0, 0, testPattern, true));
     test("Render called on next cycle without pattern added", () => {
-      expect(gameRenderer.render).toHaveBeenCalledWith(
+      expect(viewController.render).toHaveBeenCalledWith(
         [],
         null,
         null,
@@ -213,7 +213,7 @@ describe("With game running", () => {
       gameController.placePattern(0, 0, testPattern, false);
     });
     test("Render called on next cycle without pattern added", () => {
-      expect(gameRenderer.render).toHaveBeenCalledWith(
+      expect(viewController.render).toHaveBeenCalledWith(
         [],
         null,
         null,

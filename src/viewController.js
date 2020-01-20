@@ -1,6 +1,15 @@
-/** @namespace GameRenderer */
+/**
+ * ViewController is the object reposible for modifying the HTML canvas elements
+ * used to visualize the game area. Three canvas elements are used for drawing
+ * grid lines, alive cells, and translucent pattern preview, respectively. The
+ * canvases are transformed based on user specified zoom and pan properties.
+ * @namespace ViewController
+ */
 
-/** @module gameRenderer */
+/**
+ * Exports a factory function used to generate a ViewController object.
+ * @module createViewController
+ */
 
 /**
  * @typedef {Object} View
@@ -10,7 +19,7 @@
  */
 
 /**
- * @typedef {Object} GameRenderer
+ * @typedef {Object} ViewController
  * @property {{width: number, height: number}} [window]
  * @property {View} [view]
  * @property {boolean} redrawNeeded
@@ -34,32 +43,34 @@
  */
 
 /**
- * Factory function to create GameRenderer object with dependencies injected.
- * @param {CanvasRenderingContext2D} gridCtx
- * @param {CanvasRenderingContext2D} cellCtx
- * @param {CanvasRenderingContext2D} previewCtx
- * @param {number} cellCount
- * @param {function(number, number, number): void} observer
- * @returns {GameRenderer}
+ * Factory function to create ViewController object with dependencies injected.
+ * @param {CanvasRenderingContext2D} gridCtx Canvas context used for drawing grid lines
+ * @param {CanvasRenderingContext2D} cellCtx Canvas context used for drawing alive cells
+ * @param {CanvasRenderingContext2D} previewCtx Canvas context used for drawing pattern preview
+ * @param {number} cellCount Number of cells per side of the total game area
+ * @param {function(number, number, number): void} observer Function called when zoom or pan values are modified
+ * @returns {ViewController}
  */
-const createGameRenderer = (
+const createViewController = (
   gridCtx,
   cellCtx,
   previewCtx,
   cellCount,
   observer
 ) => {
-  /** @type {GameRenderer} */
-  const gameRenderer = {
+  /** @type {ViewController} */
+  const ViewController = {
     /**
-     * @memberof GameRenderer
+     * True if all canvases need to be fully redrawn on the next
+     * render, due to a change in view or window parameters.
+     * @memberof ViewController#
      * @type {boolean}
      */
     redrawNeeded: true,
 
     /**
      * The minimum zoom value where the game area is not smaller than the window.
-     * @memberof GameRenderer
+     * @memberof ViewController#
      * @type {number}
      */
     get minZoom() {
@@ -70,7 +81,7 @@ const createGameRenderer = (
 
     /**
      * The maximum pan value in the x direction that dosen't extend off the game area.
-     * @memberof GameRenderer
+     * @memberof ViewController#
      * @type {number}
      */
     get maxPanX() {
@@ -79,7 +90,7 @@ const createGameRenderer = (
 
     /**
      * The maximum pan value in the y direction that dosen't extend off the game area.
-     * @memberof GameRenderer
+     * @memberof ViewController#
      * @type {number}
      */
     get maxPanY() {
@@ -89,7 +100,7 @@ const createGameRenderer = (
     /**
      * The row and column on the game area at the current center of the window. Adjusted
      * so that the center of the game area is 0,0 (internally 0,0 is the top left corner).
-     * @memberof GameRenderer
+     * @memberof ViewController#
      * @type {{row: number, col: number}}
      */
     get centerRowCol() {
@@ -103,9 +114,9 @@ const createGameRenderer = (
     /**
      * Receives the current window dimensions and stores it in object state. Triggers
      * setView method to calculate view parameters using updated window dimensions.
-     * @memberof GameRenderer
-     * @param {number} width
-     * @param {number} height
+     * @memberof ViewController#
+     * @param {number} width Current window width in pixels
+     * @param {number} height Current height width in pixels
      */
     setWindow(width, height) {
       this.window = { width, height };
@@ -115,8 +126,8 @@ const createGameRenderer = (
     /**
      * Updates the zoom and panning properties with the provided object, and ensures the values are
      * within acceptable bounds. If parameter is null, current zoom and panning properties are rechecked.
-     * @memberof GameRenderer
-     * @param {View?} newView
+     * @memberof ViewController#
+     * @param {View?} newView Object containing updated zoom and pan parameters
      */
     setView(newView) {
       if (typeof this.window === "undefined") return;
@@ -143,10 +154,10 @@ const createGameRenderer = (
     /**
      * Updates zoom property with the specified value, and adjusts
      * panning properties so that the specified point is stationary.
-     * @memberof GameRenderer
-     * @param {number} zoom
-     * @param {number} x
-     * @param {number} y
+     * @memberof ViewController#
+     * @param {number} zoom Desired zoom value
+     * @param {number} x x-coordinate of point to keep stationary
+     * @param {number} y y-coordinate of point to keep stationary
      */
     zoomAtPoint(zoom, x, y) {
       const { zoom: oldZoom, panX: oldPanX, panY: oldPanY } = this.view;
@@ -159,7 +170,7 @@ const createGameRenderer = (
 
     /**
      * Clears any drawing on all canvases.
-     * @memberof GameRenderer
+     * @memberof ViewController#
      */
     clearCanvases() {
       if (this.window && this.view) {
@@ -175,12 +186,12 @@ const createGameRenderer = (
      * Public method to initiate rendering of the game area. Triggered by the
      * animation cycle running in GameController. If necessary, all cells and
      * grid lines will be redrawn. Otherwise only changes cells will be edited.
-     * @memberof GameRenderer
-     * @param {Array<number>} alive
-     * @param {Array<number>?} born
-     * @param {Array<number>?} died
-     * @param {Array<number>} preview
-     * @param {boolean} didCellsChange
+     * @memberof ViewController#
+     * @param {Array<number>} alive Indices of all alive cells in game
+     * @param {Array<number>?} born Indices of all cells born this generation
+     * @param {Array<number>?} died Indices of all cells died this generation
+     * @param {Array<number>} preview Indices of cells in pattern being previewed
+     * @param {boolean} didCellsChange True if alive array was modified since last call
      */
     render(alive, born, died, preview, didCellsChange) {
       if (
@@ -203,7 +214,7 @@ const createGameRenderer = (
 
     /**
      * Redraws all grid lines based on the current zoom and panning properties.
-     * @memberof GameRenderer
+     * @memberof ViewController#
      */
     renderGrid() {
       const { width, height } = this.window;
@@ -253,8 +264,8 @@ const createGameRenderer = (
 
     /**
      * Redraws all cells in the game area.
-     * @memberof GameRenderer
-     * @param {Array<number>} alive
+     * @memberof ViewController#
+     * @param {Array<number>} alive Indices of all alive cells in game
      */
     renderAllCells(alive) {
       const { width, height } = this.window;
@@ -271,9 +282,9 @@ const createGameRenderer = (
 
     /**
      * Draws or clears the modified cells in the game area.
-     * @memberof GameRenderer
-     * @param {Array<number>} born
-     * @param {Array<number>} died
+     * @memberof ViewController#
+     * @param {Array<number>} born Indices of all cells born this generation
+     * @param {Array<number>} died Indices of all cells died this generation
      */
     renderChangedCells(born, died) {
       for (let i = 0, n = born.length; i < n; ++i) {
@@ -288,8 +299,8 @@ const createGameRenderer = (
 
     /**
      * Draws a translucent preview of a pattern selected from the pattern library.
-     * @memberof GameRenderer
-     * @param {Array<number>} alive
+     * @memberof ViewController#
+     * @param {Array<number>} alive Indices of cells in pattern being previewed
      */
     renderPreview(alive) {
       const { width, height } = this.window;
@@ -304,12 +315,10 @@ const createGameRenderer = (
       }
     },
 
-    /*** Utility Methods ***/
-
     /**
      * Converts an index from the game area to the equivilant row and column.
-     * @memberof GameRenderer
-     * @param {number} i
+     * @memberof ViewController#
+     * @param {number} i Cell index
      * @returns {{row: number, col: number}}
      */
     indexToRowCol(i) {
@@ -318,9 +327,9 @@ const createGameRenderer = (
 
     /**
      * Converts coordinates from the window to the row, column, and index on the game area.
-     * @memberof GameRenderer
-     * @param {number} x
-     * @param {number} y
+     * @memberof ViewController#
+     * @param {number} x Window x-coordinate
+     * @param {number} y Window y-coordinate
      * @returns {{row: number, col: number, index: number}}
      */
     xyToRowColIndex(x, y) {
@@ -332,10 +341,10 @@ const createGameRenderer = (
 
     /**
      * Restricts a value between a minimum and maximum.
-     * @memberof GameRenderer
-     * @param {number} val
-     * @param {number} min
-     * @param {number} max
+     * @memberof ViewController#
+     * @param {number} val Value to be clamped
+     * @param {number} min Minimum value to be returned
+     * @param {number} max Maximum value to be returned
      * @returns {number}
      */
     clamp(val, min, max) {
@@ -343,7 +352,7 @@ const createGameRenderer = (
     }
   };
 
-  return gameRenderer;
+  return ViewController;
 };
 
-export { createGameRenderer };
+export { createViewController };

@@ -28,7 +28,7 @@
  * @ignore
  */
 
-import { GameRenderer } from "./gameRenderer";
+import { ViewController } from "./viewController";
 import { PatternLibrary } from "./patternLibrary";
 
 const batchSize = 25;
@@ -37,7 +37,7 @@ const bufferSize = 50;
 /**
  *  Factory function to create GameController object with dependencies injected.
  * @param {Worker} worker
- * @param {GameRenderer} gameRenderer
+ * @param {ViewController} viewController
  * @param {PatternLibrary} patternLibrary
  * @param {number} cellCount
  * @param {boolean} wasm
@@ -46,7 +46,7 @@ const bufferSize = 50;
  */
 const createGameController = (
   worker,
-  gameRenderer,
+  viewController,
   patternLibrary,
   cellCount,
   wasm,
@@ -142,7 +142,7 @@ const createGameController = (
     toggleCell(x, y) {
       if (this.isGameStarted) return;
 
-      const { index } = gameRenderer.xyToRowColIndex(x, y);
+      const { index } = viewController.xyToRowColIndex(x, y);
 
       this.aliveCells.has(index)
         ? this.aliveCells.delete(index)
@@ -167,7 +167,7 @@ const createGameController = (
 
       this.alivePreview.clear();
 
-      const { row, col } = gameRenderer.xyToRowColIndex(x, y);
+      const { row, col } = viewController.xyToRowColIndex(x, y);
       const startRow = row + 1 - Math.round(pattern.length / 2);
       const startCol = col + 1 - Math.round(pattern[0].length / 2);
 
@@ -278,7 +278,7 @@ const createGameController = (
         }
       }
 
-      gameRenderer.render(
+      viewController.render(
         Array.from(this.aliveCells),
         born,
         died,

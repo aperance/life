@@ -1,11 +1,11 @@
-import { createGameRenderer } from "../gameRenderer";
+import { createViewController } from "../viewController";
 
 const gridCtx = {};
 const cellCtx = {};
 const previewCtx = {};
 const observer = jest.fn();
 
-let gameRenderer;
+let viewController;
 
 describe("Initialize window size and view", () => {
   describe.each([
@@ -16,31 +16,31 @@ describe("Initialize window size and view", () => {
   ])("For window width and height of %i", (size, zoom, pan) => {
     beforeAll(() => {
       jest.clearAllMocks();
-      gameRenderer = createGameRenderer(
+      viewController = createViewController(
         gridCtx,
         cellCtx,
         previewCtx,
         100,
         observer
       );
-      gameRenderer.setWindow(size, size);
+      viewController.setWindow(size, size);
     });
     test("Observer function called with correct view parameters", () => {
-      expect(gameRenderer.view).toEqual({ panX: pan, panY: pan, zoom });
+      expect(viewController.view).toEqual({ panX: pan, panY: pan, zoom });
     });
   });
 });
 
 describe("Update window size and view", () => {
   beforeAll(() => {
-    gameRenderer = createGameRenderer(
+    viewController = createViewController(
       gridCtx,
       cellCtx,
       previewCtx,
       100,
       observer
     );
-    gameRenderer.setWindow(10, 10);
+    viewController.setWindow(10, 10);
   });
   describe.each([
     [225, 10, 495],
@@ -49,10 +49,10 @@ describe("Update window size and view", () => {
   ])("For window width and height of %i", (size, zoom, pan) => {
     beforeAll(() => {
       jest.clearAllMocks();
-      gameRenderer.setWindow(size, size);
+      viewController.setWindow(size, size);
     });
     test("Observer function called with correct view parameters", () => {
-      expect(gameRenderer.view).toEqual({ panX: pan, panY: pan, zoom });
+      expect(viewController.view).toEqual({ panX: pan, panY: pan, zoom });
     });
   });
 });

@@ -1,5 +1,5 @@
 import "@fortawesome/fontawesome-free/js/all";
-import { GameRenderer, createGameRenderer } from "./gameRenderer";
+import { ViewController, createViewController } from "./viewController";
 import { GameController, createGameController } from "./gameController";
 import { MouseTracker, createMouseTracker } from "./mouseTracker";
 import { PanControls, createPanControls } from "./panControls";
@@ -52,8 +52,8 @@ const wasm = true;
 const patternLibrary = new PatternLibrary(handlePatternChange);
 
 /** Variables for most game related objects. To be set by initializeGame function. */
-/** @type {GameRenderer?} */
-let gameRenderer = null;
+/** @type {ViewController?} */
+let viewController = null;
 /** @type {GameController?} */
 let gameController = null;
 /** @type {MouseTracker?} */
@@ -198,7 +198,7 @@ function setEventListeners() {
 
   /** Update game zoom value on change in zoon slider position. */
   dom.zoomSlider.addEventListener("input", e =>
-    gameRenderer?.zoomAtPoint(
+    viewController?.zoomAtPoint(
       Math.round(Math.pow(parseFloat(dom.zoomSlider.value), 2)),
       window.innerWidth / 2,
       window.innerHeight / 2
@@ -221,7 +221,7 @@ function initializeGame() {
   const previewCtx = (dom.previewCanvas.getContext("2d"));
 
   /** Factory function for GameRenderer object. */
-  gameRenderer = createGameRenderer(
+  viewController = createViewController(
     gridCtx,
     cellCtx,
     previewCtx,
@@ -231,7 +231,7 @@ function initializeGame() {
   /** Factory function for GameController object. */
   gameController = createGameController(
     worker,
-    gameRenderer,
+    viewController,
     patternLibrary,
     5000,
     wasm,
@@ -239,12 +239,12 @@ function initializeGame() {
   );
   /** Factory function for MouseTracker object. */
   mouseTracker = createMouseTracker(
-    gameRenderer,
+    viewController,
     gameController,
     handleMouseChange
   );
   /** Factory function for PanControls object. */
-  panControls = createPanControls(gameRenderer);
+  panControls = createPanControls(viewController);
 
   /** Ensure all UI elements are visible */
   document.body.hidden = false;
@@ -258,10 +258,10 @@ function initializeGame() {
 function terminateGame() {
   /** Call methods necessary to stop game fumctionality. */
   gameController?.terminate();
-  gameRenderer?.clearCanvases();
+  viewController?.clearCanvases();
   panControls?.stop();
   /** Delete references to relevant object to ensure they are garbage collected */
-  gameRenderer = null;
+  viewController = null;
   gameController = null;
   mouseTracker = null;
   panControls = null;
@@ -274,7 +274,7 @@ function terminateGame() {
  */
 function handleResize() {
   /** Updates game state with current window dimensions. */
-  gameRenderer?.setWindow(window.innerWidth, window.innerHeight);
+  viewController?.setWindow(window.innerWidth, window.innerHeight);
   /** Adjust all canvas dimensions to match window dimensions. */
   [dom.gridCanvas, dom.cellCanvas, dom.previewCanvas].forEach(canvas => {
     canvas.width = window.innerWidth;

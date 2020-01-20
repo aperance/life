@@ -17,17 +17,17 @@
  * @ignore
  */
 
-import { GameRenderer } from "./gameRenderer";
+import { ViewController } from "./viewController";
 import { GameController } from "./gameController";
 
 /**
  * Factory function for MouseTracker object with dependency injection.
- * @param {GameRenderer} gameRenderer
+ * @param {ViewController} viewController
  * @param {GameController} gameController
  * @param  {function(boolean): void} observer
  * @returns {MouseTracker}
  */
-const createMouseTracker = (gameRenderer, gameController, observer) => {
+const createMouseTracker = (viewController, gameController, observer) => {
   /** @type {MouseTracker} */
   const mouseTracker = {
     /**
@@ -120,9 +120,9 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
         }
 
         if (this.isPanning) {
-          gameRenderer.setView({
-            panX: Math.round(gameRenderer.view.panX + deltaX),
-            panY: Math.round(gameRenderer.view.panY + deltaY)
+          viewController.setView({
+            panX: Math.round(viewController.view.panX + deltaX),
+            panY: Math.round(viewController.view.panY + deltaY)
           });
         }
       }
@@ -153,9 +153,9 @@ const createMouseTracker = (gameRenderer, gameController, observer) => {
     mouseWheel(e, isOnCanvas) {
       if (isOnCanvas) {
         const newZoom =
-          gameRenderer.view.zoom +
-          Math.ceil(gameRenderer.view.zoom / 25) * Math.sign(e.deltaY);
-        gameRenderer.zoomAtPoint(newZoom, e.clientX, e.clientY);
+          viewController.view.zoom +
+          Math.ceil(viewController.view.zoom / 25) * Math.sign(e.deltaY);
+        viewController.zoomAtPoint(newZoom, e.clientX, e.clientY);
       }
     },
 
