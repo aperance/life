@@ -173,12 +173,10 @@ const createViewController = (
      * @memberof ViewController#
      */
     clearCanvases() {
-      if (this.window && this.view) {
-        [gridCtx, cellCtx, previewCtx].forEach(ctx => {
-          ctx.setTransform(1, 0, 0, 1, 0, 0);
-          ctx.clearRect(0, 0, this.window.width, this.window.height);
-        });
-      }
+      [gridCtx, cellCtx, previewCtx].forEach(ctx => {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      });
     },
 
     /**
