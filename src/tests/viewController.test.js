@@ -59,3 +59,38 @@ describe("Update window size and view", () => {
     });
   });
 });
+
+describe("Clearing all canvases", () => {
+  beforeAll(() => {
+    jest.clearAllMocks();
+    viewController = createViewController(
+      gridCtx,
+      cellCtx,
+      previewCtx,
+      100,
+      observer
+    );
+    viewController.clearCanvases();
+  });
+  test("ClearRect called on gridCtx over full canvas area", () => {
+    expect(gridCtx.__getEvents()[1]).toEqual({
+      props: { height: 150, width: 300, x: 0, y: 0 },
+      transform: [1, 0, 0, 1, 0, 0],
+      type: "clearRect"
+    });
+  });
+  test("ClearRect called on cellCtx over full canvas area", () => {
+    expect(cellCtx.__getEvents()[1]).toEqual({
+      props: { height: 150, width: 300, x: 0, y: 0 },
+      transform: [1, 0, 0, 1, 0, 0],
+      type: "clearRect"
+    });
+  });
+  test("ClearRect called on previewCtx over full canvas area", () => {
+    expect(previewCtx.__getEvents()[1]).toEqual({
+      props: { height: 150, width: 300, x: 0, y: 0 },
+      transform: [1, 0, 0, 1, 0, 0],
+      type: "clearRect"
+    });
+  });
+});
