@@ -3,7 +3,7 @@ import { createGameController } from "../gameController";
 const worker = { postMessage: jest.fn() };
 
 const viewController = {
-  render: jest.fn(),
+  updateCanvases: jest.fn(),
   xyToRowColIndex: jest.fn().mockReturnValue({ row: 5, col: 5, index: 55 })
 };
 
@@ -80,7 +80,7 @@ describe("With game not running", () => {
       gameController.toggleCell(0, 0);
     });
     test("Render called on next cycle with changed flag set to true", () => {
-      expect(viewController.render).toHaveBeenCalledWith(
+      expect(viewController.updateCanvases).toHaveBeenCalledWith(
         aliveArray,
         null,
         null,
@@ -89,7 +89,7 @@ describe("With game not running", () => {
       );
     });
     test("Render called on following cycle with changed flag set to false", () => {
-      expect(viewController.render).toHaveBeenCalledWith(
+      expect(viewController.updateCanvases).toHaveBeenCalledWith(
         aliveArray,
         null,
         null,
@@ -109,7 +109,7 @@ describe("With game not running", () => {
       gameController.placePattern(row, col, true);
     });
     test("Render called on next cycle with changed flag set to true", () => {
-      expect(viewController.render).toHaveBeenCalledWith(
+      expect(viewController.updateCanvases).toHaveBeenCalledWith(
         [],
         null,
         null,
@@ -118,7 +118,7 @@ describe("With game not running", () => {
       );
     });
     test("Render called on following cycle with changed flag set to false", () => {
-      expect(viewController.render).toHaveBeenCalledWith(
+      expect(viewController.updateCanvases).toHaveBeenCalledWith(
         [],
         null,
         null,
@@ -139,7 +139,7 @@ describe("With game not running", () => {
       gameController.placePattern(row, col, false);
     });
     test("Render called on next cycle with changed flag set to true", () => {
-      expect(viewController.render).toHaveBeenCalledWith(
+      expect(viewController.updateCanvases).toHaveBeenCalledWith(
         aliveArray,
         null,
         null,
@@ -148,7 +148,7 @@ describe("With game not running", () => {
       );
     });
     test("Render called on following cycle with changed flag set to false", () => {
-      expect(viewController.render).toHaveBeenCalledWith(
+      expect(viewController.updateCanvases).toHaveBeenCalledWith(
         aliveArray,
         null,
         null,
@@ -184,7 +184,7 @@ describe("With game running", () => {
   describe("Toggling cell", () => {
     beforeAll(() => gameController.toggleCell(44));
     test("Render called on next cycle without cell index added", () => {
-      expect(viewController.render).toHaveBeenCalledWith(
+      expect(viewController.updateCanvases).toHaveBeenCalledWith(
         [],
         null,
         null,
@@ -197,7 +197,7 @@ describe("With game running", () => {
   describe("Placing element preview", () => {
     beforeAll(() => gameController.placePattern(0, 0, testPattern, true));
     test("Render called on next cycle without pattern added", () => {
-      expect(viewController.render).toHaveBeenCalledWith(
+      expect(viewController.updateCanvases).toHaveBeenCalledWith(
         [],
         null,
         null,
@@ -213,7 +213,7 @@ describe("With game running", () => {
       gameController.placePattern(0, 0, testPattern, false);
     });
     test("Render called on next cycle without pattern added", () => {
-      expect(viewController.render).toHaveBeenCalledWith(
+      expect(viewController.updateCanvases).toHaveBeenCalledWith(
         [],
         null,
         null,

@@ -301,7 +301,7 @@ const createGameController = (
         }
       }
 
-      viewController.render(
+      viewController.updateCanvases(
         Array.from(this.aliveCells),
         born,
         died,

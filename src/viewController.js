@@ -31,7 +31,7 @@
  * @property {function(View?)} setView
  * @property {function(number, number, number): void} zoomAtPoint
  * @property {function(): void} clearCanvases
- * @property {function(Array<number>, Array<number>?, Array<number>?, Array<number>, boolean): void} render
+ * @property {function(Array<number>, Array<number>?, Array<number>?, Array<number>, boolean): void} updateCanvases
  * @property {function(): void} renderGrid
  * @property {function(Array<number>): void} renderAllCells
  * @property {function(Array<number>, Array<number>): void} renderChangedCells
@@ -174,11 +174,10 @@ const createViewController = (
      */
     clearCanvases() {
       if (this.window && this.view) {
-        const { width, height } = this.window;
-        const { panX, panY } = this.view;
-        gridCtx.clearRect(0, 0, width + panX, height + panY);
-        cellCtx.clearRect(0, 0, width + panX, height + panY);
-        previewCtx.clearRect(0, 0, width + panX, height + panY);
+        [gridCtx, cellCtx, previewCtx].forEach(ctx => {
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.clearRect(0, 0, this.window.width, this.window.height);
+        });
       }
     },
 
@@ -193,7 +192,7 @@ const createViewController = (
      * @param {Array<number>} preview Indices of cells in pattern being previewed
      * @param {boolean} didCellsChange True if alive array was modified since last call
      */
-    render(alive, born, died, preview, didCellsChange) {
+    updateCanvases(alive, born, died, preview, didCellsChange) {
       if (
         typeof this.window === "undefined" ||
         typeof this.view === "undefined"

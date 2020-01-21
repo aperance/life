@@ -1,8 +1,11 @@
 import { createViewController } from "../viewController";
 
-const gridCtx = {};
-const cellCtx = {};
-const previewCtx = {};
+/** @type {CanvasRenderingContext2D} */
+const gridCtx = (document.createElement("canvas").getContext("2d"));
+/** @type {CanvasRenderingContext2D} */
+const cellCtx = (document.createElement("canvas").getContext("2d"));
+/** @type {CanvasRenderingContext2D} */
+const previewCtx = (document.createElement("canvas").getContext("2d"));
 const observer = jest.fn();
 
 let viewController;
