@@ -61,18 +61,13 @@ let mouseTracker = null;
 /** @type {PanControls?} */
 let panControls = null;
 
-/**
- * Perform all actions required on page load to bring game to a working state.
- * @async
- */
-async function init() {
+/** Perform all actions required on page load to bring game to a working state. */
+(async () => {
   try {
     setEventListeners();
     initializeGame();
-    /**
-     * Initialize pattern library object and related DOM elements.
-     * Placed after game init to prevent any noticible delay in page load.
-     */
+    // Initialize pattern library object and related DOM elements.
+    // Placed after game init to prevent any noticible delay in page load.
     await patternLibrary.loadDataFromFiles();
     dom.patternList.innerHTML = patternLibrary.generateListHTML();
     // @ts-ignore
@@ -82,10 +77,10 @@ async function init() {
     console.error(err);
     terminateGame();
   }
-}
+})();
 
 /**
- * Sets all necessary DOM element event listeners.
+ * Sets all necessary event listeners DOM element.
  */
 function setEventListeners() {
   /** Terminate game after any unhandled errors. */
@@ -260,6 +255,7 @@ function terminateGame() {
   gameController?.terminate();
   viewController?.clearCanvases();
   panControls?.stop();
+  patternLibrary.setSelected(null);
   /** Delete references to relevant object to ensure they are garbage collected */
   viewController = null;
   gameController = null;
@@ -357,6 +353,3 @@ function isOnCanvas(e) {
   const target = /** @type {HTMLElement} */ (e.target);
   return target.id === "cell-canvas" || target.id === "top-bar";
 }
-
-/** Call init function on file load. */
-init();
