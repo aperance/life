@@ -12,10 +12,11 @@
 
 /**
  * @typedef {Object} MouseTracker
- * @property {boolean} isMouseDownOnCanvas
  * @property {boolean} isPanning
  * @property {number | null} lastX
  * @property {number | null} lastY
+ * @property {number | null} clickX
+ * @property {number | null} clickY
  * @property {function(MouseEvent, boolean, boolean): void} mouseUp
  * @property {function(MouseEvent, boolean): void} mouseDown
  * @property {function(MouseEvent, boolean, boolean): void} mouseMove
@@ -39,13 +40,6 @@ const createMouseTracker = (viewController, gameController, observer) => {
   /** @type {MouseTracker} */
   const mouseTracker = {
     /**
-     * True if mouse button is down and mouse down event occured over the canvas, false otherwise.
-     * @memberof MouseTracker#
-     * @type {boolean}
-     */
-    isMouseDownOnCanvas: false,
-
-    /**
      * True if currently panning the game area on mouse movement, false otherwise.
      * @memberof MouseTracker#
      * @type {boolean}
@@ -67,6 +61,22 @@ const createMouseTracker = (viewController, gameController, observer) => {
     lastY: null,
 
     /**
+     * The first clientX value received on the current mouse down if over
+     * canvas, null if mouse is not currently down over canvas.
+     * @memberof MouseTracker#
+     * @type {number?}
+     */
+    clickX: null,
+
+    /**
+     * The first clientY value received on the current mouse down if over
+     * canvas, null if mouse is not currently down over canvas.
+     * @memberof MouseTracker#
+     * @type {number?}
+     */
+    clickY: null,
+
+    /**
      * Updates object state and determines cell toggling
      * or pattern placement on mouse up event.
      * @memberof MouseTracker#
@@ -77,7 +87,7 @@ const createMouseTracker = (viewController, gameController, observer) => {
     mouseUp(e, isOnCanvas, isPatternSelected) {
       if (e.button !== 0) return;
 
-      if (isOnCanvas && this.isMouseDownOnCanvas) {
+      if (isOnCanvas && this.clickX && this.clickY) {
         if (this.isPanning) {
           // When panning is ending, restore preview if pattern is selected.
           if (isPatternSelected)
@@ -90,8 +100,9 @@ const createMouseTracker = (viewController, gameController, observer) => {
         }
       }
 
+      this.clickX = null;
+      this.clickY = null;
       this.isPanning = false;
-      this.isMouseDownOnCanvas = false;
       observer(this.isPanning);
     },
 
@@ -104,7 +115,11 @@ const createMouseTracker = (viewController, gameController, observer) => {
     mouseDown(e, isOnCanvas) {
       if (e.button !== 0) return;
 
-      if (isOnCanvas) this.isMouseDownOnCanvas = true;
+      if (isOnCanvas) {
+        this.clickX = e.clientX;
+        this.clickY = e.clientY;
+      }
+
       this.lastX = e.clientX;
       this.lastY = e.clientY;
     },
@@ -118,19 +133,19 @@ const createMouseTracker = (viewController, gameController, observer) => {
      * @param {boolean} isPatternSelected - True if there is currently a pattern selected from the pattern library.
      */
     mouseMove(e, isOnCanvas, isPatternSelected) {
-      if (this.isMouseDownOnCanvas && this.lastX && this.lastY) {
-        const deltaX = this.lastX - e.clientX;
-        const deltaY = this.lastY - e.clientY;
+      if (this.lastX && this.lastY && this.clickX && this.clickY) {
+        const deltaX = Math.abs(this.clickX - e.clientX);
+        const deltaY = Math.abs(this.clickY - e.clientY);
 
-        if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
+        if (deltaX > 2 || deltaY > 2) {
           this.isPanning = true;
           observer(this.isPanning);
         }
 
         if (this.isPanning) {
           viewController.setView({
-            panX: Math.round(viewController.view.panX + deltaX),
-            panY: Math.round(viewController.view.panY + deltaY)
+            panX: Math.round(viewController.view.panX + this.lastX - e.clientX),
+            panY: Math.round(viewController.view.panY + this.lastY - e.clientY)
           });
         }
       }
