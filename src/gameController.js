@@ -25,7 +25,9 @@
  * @property {boolean} haltAnimationCycle
  * @property {{born: Array<number>, died: Array<number>}?} nextResult
  * @property {function(number, number): void} toggleCell
- * @property {function(number, number, boolean): void} placePattern
+ * @property {function(number, number): void} placePattern
+ * @property {function(number, number): void} placePreview
+ * @property {function(number, number, function): void} iterateOverPattern
  * @property {function(): void} clearAliveCells
  * @property {function(): void} clearPreview
  * @property {function(): void} play
@@ -172,21 +174,49 @@ const createGameController = (
 
     /**
      * Takes the selected pattern in the pattern library and adds it to
-     * aliveCells or alivePreview, at the specified window coordinates.
+     * aliveCells at the specified window coordinates.
      * @memberof GameController#
      * @param {number} x x coordinate of where pattern should be placed
      * @param {number} y y coordinate of where pattern should be placed
-     * @param {boolean} isPreview If true pattern added to alivePreview, otherwise added to aliveCells
      */
-    placePattern(x, y, isPreview) {
+    placePattern(x, y) {
       if (this.isGameStarted) return;
 
+      this.iterateOverPattern(x, y, (index, isAlive) => {
+        if (isAlive) this.aliveCells.add(index);
+        else this.aliveCells.delete(index);
+      });
+    },
+
+    /**
+     * Takes the selected pattern in the pattern library and adds it to
+     * alivePreview at the specified window coordinates.
+     * @memberof GameController#
+     * @param {number} x x coordinate of where pattern should be placed
+     * @param {number} y y coordinate of where pattern should be placed
+     */
+    placePreview(x, y) {
+      if (this.isGameStarted) return;
+
+      this.alivePreview.clear();
+
+      this.iterateOverPattern(x, y, (index, isAlive) => {
+        if (isAlive) this.alivePreview.add(index);
+      });
+    },
+
+    /**
+     * Iterates over 2D array of selected pattern and performs function on each cell.
+     * @memberof GameController#
+     * @param {number} x x coordinate of where pattern should be placed
+     * @param {number} y y coordinate of where pattern should be placed
+     * @param {function} fn function to be called for each cell
+     */
+    iterateOverPattern(x, y, fn) {
       /** @type {number[][]?} */
       const pattern = patternLibrary.selected;
 
       if (!pattern) return;
-
-      this.alivePreview.clear();
 
       const { row, col } = viewController.xyToRowColIndex(x, y);
       const startRow = row + 1 - Math.round(pattern.length / 2);
@@ -196,13 +226,9 @@ const createGameController = (
         rowData.forEach((cellState, relativeCol) => {
           const index =
             cellCount * (startRow + relativeRow) + (startCol + relativeCol);
+          const isAlive = cellState === 1 ? true : false;
 
-          if (isPreview) {
-            if (cellState === 1) this.alivePreview.add(index);
-          } else {
-            if (cellState === 1) this.aliveCells.add(index);
-            else this.aliveCells.delete(index);
-          }
+          fn(index, isAlive);
         });
       });
 

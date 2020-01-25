@@ -11,6 +11,7 @@ const viewController = {
 const gameController = {
   toggleCell: jest.fn(),
   placePattern: jest.fn(),
+  placePreview: jest.fn(),
   clearAliveCells: jest.fn(),
   clearPreview: jest.fn()
 };
@@ -79,8 +80,11 @@ describe("With pattern selected", () => {
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
-    test("Place pattern is requested with coordinates and pattern", () => {
-      expect(gameController.placePattern).toHaveBeenCalledWith(500, 500, true);
+    test("Place preview is requested with coordinates and pattern", () => {
+      expect(gameController.placePreview).toHaveBeenCalledWith(500, 500);
+    });
+    test("Place pattern is not requested", () => {
+      expect(gameController.placePattern).not.toHaveBeenCalled();
     });
     test("Clear preview not requested", () => {
       expect(gameController.clearPreview).not.toHaveBeenCalled();
@@ -103,6 +107,9 @@ describe("With pattern selected", () => {
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
+    test("Place preview not requested", () => {
+      expect(gameController.placePreview).not.toHaveBeenCalled();
+    });
     test("Place pattern not requested", () => {
       expect(gameController.placePattern).not.toHaveBeenCalled();
     });
@@ -124,6 +131,9 @@ describe("With pattern selected", () => {
     });
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
+    });
+    test("Place preview not requested", () => {
+      expect(gameController.placePreview).not.toHaveBeenCalled();
     });
     test("Place pattern not requested", () => {
       expect(gameController.placePattern).not.toHaveBeenCalled();
@@ -163,23 +173,16 @@ describe("With pattern selected", () => {
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
-    test("Place pattern is requested twice", () => {
-      expect(gameController.placePattern).toBeCalledTimes(2);
-    });
-    test("Place pattern is requested as preview", () => {
-      expect(gameController.placePattern).toHaveBeenNthCalledWith(
-        1,
+    test("Place preview is requested", () => {
+      expect(gameController.placePattern).toHaveBeenCalledWith(
         e.clientX,
-        e.clientY,
-        true
+        e.clientY
       );
     });
-    test("Place pattern is requested as not preview", () => {
-      expect(gameController.placePattern).toHaveBeenNthCalledWith(
-        2,
+    test("Place pattern is requested", () => {
+      expect(gameController.placePattern).toHaveBeenCalledWith(
         e.clientX,
-        e.clientY,
-        false
+        e.clientY
       );
     });
     test("Clear preview not requested", () => {
@@ -216,14 +219,13 @@ describe("With pattern selected", () => {
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
-    test("Place pattern is requested once", () => {
-      expect(gameController.placePattern).toBeCalledTimes(1);
+    test("Place pattern is not requested", () => {
+      expect(gameController.placePattern).not.toHaveBeenCalled();
     });
-    test("Place pattern is requested as preview", () => {
-      expect(gameController.placePattern).toHaveBeenCalledWith(
+    test("Place preview is requested", () => {
+      expect(gameController.placePreview).toHaveBeenCalledWith(
         e.clientX,
-        e.clientY,
-        true
+        e.clientY
       );
     });
     test("Clear preview is requested", () => {
@@ -266,6 +268,9 @@ describe("With pattern selected", () => {
     test("Place pattern not requested", () => {
       expect(gameController.placePattern).not.toHaveBeenCalled();
     });
+    test("Place preview not requested", () => {
+      expect(gameController.placePreview).not.toHaveBeenCalled();
+    });
     test("Clear preview is requested", () => {
       expect(gameController.clearPreview).toHaveBeenCalled();
     });
@@ -303,14 +308,13 @@ describe("With pattern selected", () => {
     test("Toggle cell not requested", () => {
       expect(gameController.toggleCell).not.toHaveBeenCalled();
     });
-    test("Place pattern is requested once", () => {
-      expect(gameController.placePattern).toBeCalledTimes(1);
+    test("Place pattern is not requested", () => {
+      expect(gameController.placePattern).not.toHaveBeenCalled();
     });
-    test("Place pattern is requested as preview", () => {
-      expect(gameController.placePattern).toHaveBeenCalledWith(
+    test("Place preview is requested", () => {
+      expect(gameController.placePreview).toHaveBeenCalledWith(
         e.clientX,
-        e.clientY,
-        true
+        e.clientY
       );
     });
     test("Clear preview not requested", () => {
@@ -344,6 +348,9 @@ describe("With pattern cleared", () => {
     test("Place pattern not requested", () => {
       expect(gameController.placePattern).not.toHaveBeenCalled();
     });
+    test("Place preview not requested", () => {
+      expect(gameController.placePreview).not.toHaveBeenCalled();
+    });
     test("Clear preview not requested", () => {
       expect(gameController.clearPreview).not.toHaveBeenCalled();
     });
@@ -372,6 +379,9 @@ describe("With pattern cleared", () => {
     });
     test("Place pattern not requested", () => {
       expect(gameController.placePattern).not.toHaveBeenCalled();
+    });
+    test("Place preview not requested", () => {
+      expect(gameController.placePreview).not.toHaveBeenCalled();
     });
     test("Clear preview not requested", () => {
       expect(gameController.clearPreview).not.toHaveBeenCalled();
@@ -413,6 +423,9 @@ describe("With pattern cleared", () => {
     test("Place pattern not requested", () => {
       expect(gameController.placePattern).not.toHaveBeenCalled();
     });
+    test("Place preview not requested", () => {
+      expect(gameController.placePreview).not.toHaveBeenCalled();
+    });
     test("Clear preview not requested", () => {
       expect(gameController.clearPreview).toHaveBeenCalled();
     });
@@ -449,6 +462,9 @@ describe("With pattern cleared", () => {
     });
     test("Place pattern not requested", () => {
       expect(gameController.placePattern).not.toHaveBeenCalled();
+    });
+    test("Place preview not requested", () => {
+      expect(gameController.placePreview).not.toHaveBeenCalled();
     });
     test("Clear preview is requested", () => {
       expect(gameController.clearPreview).toHaveBeenCalled();
@@ -490,6 +506,9 @@ describe("With pattern cleared", () => {
     test("Place pattern not requested", () => {
       expect(gameController.placePattern).not.toHaveBeenCalled();
     });
+    test("Place preview not requested", () => {
+      expect(gameController.placePreview).not.toHaveBeenCalled();
+    });
     test("Clear preview is requested", () => {
       expect(gameController.clearPreview).toHaveBeenCalled();
     });
@@ -529,6 +548,9 @@ describe("With pattern cleared", () => {
     });
     test("Place pattern not requested", () => {
       expect(gameController.placePattern).not.toHaveBeenCalled();
+    });
+    test("Place preview not requested", () => {
+      expect(gameController.placePreview).not.toHaveBeenCalled();
     });
     test("Clear preview is requested", () => {
       expect(gameController.clearPreview).toHaveBeenCalled();

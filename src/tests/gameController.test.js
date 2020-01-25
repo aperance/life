@@ -106,7 +106,7 @@ describe("With game not running", () => {
     beforeAll(() => {
       patternLibrary.selected = testPattern;
       viewController.xyToRowColIndex.mockReturnValue({ row, col, index: 0 });
-      gameController.placePattern(row, col, true);
+      gameController.placePreview(row, col);
     });
     test("Render called on next cycle with changed flag set to true", () => {
       expect(viewController.updateCanvases).toHaveBeenCalledWith(
@@ -135,15 +135,15 @@ describe("With game not running", () => {
     beforeAll(() => {
       patternLibrary.selected = testPattern;
       viewController.xyToRowColIndex.mockReturnValue({ row, col, index: 0 });
-      gameController.placePattern(row, col, true);
-      gameController.placePattern(row, col, false);
+      gameController.placePreview(row, col);
+      gameController.placePattern(row, col);
     });
     test("Render called on next cycle with changed flag set to true", () => {
       expect(viewController.updateCanvases).toHaveBeenCalledWith(
         aliveArray,
         null,
         null,
-        [],
+        aliveArray.slice(-5),
         true
       );
     });
@@ -152,7 +152,7 @@ describe("With game not running", () => {
         aliveArray,
         null,
         null,
-        [],
+        aliveArray.slice(-5),
         false
       );
     });

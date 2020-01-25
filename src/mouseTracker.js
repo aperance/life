@@ -81,11 +81,11 @@ const createMouseTracker = (viewController, gameController, observer) => {
         if (this.isPanning) {
           // When panning is ending, restore preview if pattern is selected.
           if (isPatternSelected)
-            gameController.placePattern(e.clientX, e.clientY, true);
+            gameController.placePreview(e.clientX, e.clientY);
         } else {
           // When not panning, place pattern if selected, otherwise toggle cell.
           if (isPatternSelected)
-            gameController.placePattern(e.clientX, e.clientY, false);
+            gameController.placePattern(e.clientX, e.clientY);
           else gameController.toggleCell(e.clientX, e.clientY);
         }
       }
@@ -139,7 +139,7 @@ const createMouseTracker = (viewController, gameController, observer) => {
       this.lastY = e.clientY;
 
       if (isOnCanvas && !this.isPanning && isPatternSelected) {
-        gameController.placePattern(e.clientX, e.clientY, true);
+        gameController.placePreview(e.clientX, e.clientY);
       } else gameController.clearPreview();
     },
 
@@ -177,7 +177,7 @@ const createMouseTracker = (viewController, gameController, observer) => {
       if (this.lastX === null || this.lastY === null) return;
 
       if (isPatternSelected) {
-        gameController.placePattern(this.lastX, this.lastY, true);
+        gameController.placePreview(this.lastX, this.lastY);
       } else gameController.clearPreview();
     }
   };
