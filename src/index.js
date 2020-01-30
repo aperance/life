@@ -13,8 +13,6 @@ const dom = {
   gridCanvas: (document.getElementById("grid-canvas")),
   /** @type {HTMLCanvasElement} */
   cellCanvas: (document.getElementById("cell-canvas")),
-  /** @type {HTMLCanvasElement} */
-  previewCanvas: (document.getElementById("preview-canvas")),
   /** @type {HTMLSpanElement} */
   leftStatus: (document.getElementById("left-status")),
   /** @type {HTMLSpanElement} */
@@ -207,19 +205,17 @@ function setEventListeners() {
 function initializeGame() {
   /** Initialize web worker which calculates game results. */
   const worker = new Worker("./worker.js");
+
   /** Get rendering contexts for all canvases. */
   /** @type {CanvasRenderingContext2D} */
   const gridCtx = (dom.gridCanvas.getContext("2d"));
   /** @type {CanvasRenderingContext2D} */
   const cellCtx = (dom.cellCanvas.getContext("2d"));
-  /** @type {CanvasRenderingContext2D} */
-  const previewCtx = (dom.previewCanvas.getContext("2d"));
 
   /** Factory function for GameRenderer object. */
   viewController = createViewController(
     gridCtx,
     cellCtx,
-    previewCtx,
     5000,
     handleViewChange
   );
@@ -272,7 +268,7 @@ function handleResize() {
   /** Updates game state with current window dimensions. */
   viewController?.setWindow(window.innerWidth, window.innerHeight);
   /** Adjust all canvas dimensions to match window dimensions. */
-  [dom.gridCanvas, dom.cellCanvas, dom.previewCanvas].forEach(canvas => {
+  [dom.gridCanvas, dom.cellCanvas].forEach(canvas => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   });

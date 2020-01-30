@@ -33,9 +33,8 @@
  * @property {function(): void} clearCanvases
  * @property {function(Array<number>, Array<number>?, Array<number>?, Array<number>, boolean): void} updateCanvases
  * @property {function(): void} renderGrid
- * @property {function(Array<number>): void} renderAllCells
+ * @property {function(Array<number>, Array<number>): void} renderAllCells
  * @property {function(Array<number>, Array<number>): void} renderChangedCells
- * @property {function(Array<number>): void} renderPreview
  * @property {function(number): {row: number, col: number}} indexToRowCol
  * @property {function(number, number): {row: number, col: number, index: number}} xyToRowColIndex
  * @property {function} clamp
@@ -45,19 +44,12 @@
 /**
  * Factory function to create ViewController object with dependencies injected.
  * @param {CanvasRenderingContext2D} gridCtx Canvas context used for drawing grid lines
- * @param {CanvasRenderingContext2D} cellCtx Canvas context used for drawing alive cells
- * @param {CanvasRenderingContext2D} previewCtx Canvas context used for drawing pattern preview
+ * @param {CanvasRenderingContext2D} cellCtx Canvas context used for drawing cells
  * @param {number} cellCount Number of cells per side of the total game area
  * @param {function(number, number, number): void} observer Function called when zoom or pan values are modified
  * @returns {ViewController}
  */
-const createViewController = (
-  gridCtx,
-  cellCtx,
-  previewCtx,
-  cellCount,
-  observer
-) => {
+const createViewController = (gridCtx, cellCtx, cellCount, observer) => {
   /** @type {ViewController} */
   const ViewController = {
     /**
@@ -173,7 +165,7 @@ const createViewController = (
      * @memberof ViewController#
      */
     clearCanvases() {
-      [gridCtx, cellCtx, previewCtx].forEach(ctx => {
+      [gridCtx, cellCtx].forEach(ctx => {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
       });
@@ -199,13 +191,11 @@ const createViewController = (
 
       if (this.redrawNeeded) {
         this.renderGrid();
-        this.renderAllCells(alive);
-        this.renderPreview(preview);
+        this.renderAllCells(alive, preview);
         this.redrawNeeded = false;
       } else if (didCellsChange) {
         if (born && died) this.renderChangedCells(born, died);
-        else this.renderAllCells(alive);
-        this.renderPreview(preview);
+        else this.renderAllCells(alive, preview);
       }
     },
 
@@ -260,19 +250,27 @@ const createViewController = (
     },
 
     /**
-     * Redraws all cells in the game area.
+     * Redraws all cells in the game area, plus a translucent preview of a pattern selected from the pattern library.
      * @memberof ViewController#
      * @param {Array<number>} alive Indices of all alive cells in game
+     * @param {Array<number>} preview Indices of cells in pattern being previewed
      */
-    renderAllCells(alive) {
+    renderAllCells(alive, preview) {
       const { width, height } = this.window;
       const { zoom, panX, panY } = this.view;
 
       cellCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
       cellCtx.clearRect(0, 0, width + panX, height + panY);
 
+      cellCtx.fillStyle = "rgba(0, 0, 0, 1)";
       for (let i = 0, n = alive.length; i < n; ++i) {
         const { row, col } = this.indexToRowCol(alive[i]);
+        cellCtx.fillRect(col, row, 1, 1);
+      }
+
+      cellCtx.fillStyle = "rgba(0, 0, 0, 0.5)";
+      for (let i = 0, n = preview.length; i < n; ++i) {
+        const { row, col } = this.indexToRowCol(preview[i]);
         cellCtx.fillRect(col, row, 1, 1);
       }
     },
@@ -284,6 +282,7 @@ const createViewController = (
      * @param {Array<number>} died Indices of all cells died this generation
      */
     renderChangedCells(born, died) {
+      cellCtx.fillStyle = "rgba(0, 0, 0, 1)";
       for (let i = 0, n = born.length; i < n; ++i) {
         const { row, col } = this.indexToRowCol(born[i]);
         cellCtx.fillRect(col, row, 1, 1);
@@ -294,23 +293,23 @@ const createViewController = (
       }
     },
 
-    /**
-     * Draws a translucent preview of a pattern selected from the pattern library.
-     * @memberof ViewController#
-     * @param {Array<number>} alive Indices of cells in pattern being previewed
-     */
-    renderPreview(alive) {
-      const { width, height } = this.window;
-      const { zoom, panX, panY } = this.view;
+    // /**
+    //  * Draws a translucent preview of a pattern selected from the pattern library.
+    //  * @memberof ViewController#
+    //  * @param {Array<number>} alive Indices of cells in pattern being previewed
+    //  */
+    // renderPreview(alive) {
+    //   const { width, height } = this.window;
+    //   const { zoom, panX, panY } = this.view;
 
-      previewCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
-      previewCtx.clearRect(0, 0, width + panX, height + panY);
-
-      for (let i = 0, n = alive.length; i < n; ++i) {
-        const { row, col } = this.indexToRowCol(alive[i]);
-        previewCtx.fillRect(col, row, 1, 1);
-      }
-    },
+    //   //previewCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
+    //   //previewCtx.clearRect(0, 0, width + panX, height + panY);
+    //   cellCtx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    //   for (let i = 0, n = alive.length; i < n; ++i) {
+    //     const { row, col } = this.indexToRowCol(alive[i]);
+    //     cellCtx.fillRect(col, row, 1, 1);
+    //   }
+    // },
 
     /**
      * Converts an index from the game area to the equivilant row and column.
