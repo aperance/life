@@ -183,11 +183,7 @@ const createViewController = (gridCtx, cellCtx, cellCount, observer) => {
      * @param {boolean} didCellsChange True if alive array was modified since last call
      */
     updateCanvases(alive, born, died, preview, didCellsChange) {
-      if (
-        typeof this.window === "undefined" ||
-        typeof this.view === "undefined"
-      )
-        return;
+      if (typeof this.view === "undefined") return;
 
       if (this.redrawNeeded) {
         this.renderGrid();
@@ -204,18 +200,17 @@ const createViewController = (gridCtx, cellCtx, cellCount, observer) => {
      * @memberof ViewController#
      */
     renderGrid() {
-      const { width, height } = this.window;
+      const { width, height } = gridCtx.canvas;
       const { zoom, panX, panY } = this.view;
       const { row: startRow, col: startCol } = this.xyToRowColIndex(0, 0);
       const { row: endRow, col: endCol } = this.xyToRowColIndex(width, height);
 
-      gridCtx.setTransform(1, 0, 0, 1, 0, 0);
-      gridCtx.strokeStyle = "lightgrey";
-      gridCtx.lineWidth = 0.02;
       gridCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
       gridCtx.clearRect(0, 0, width + panX, height + panY);
-      gridCtx.beginPath();
+      gridCtx.lineWidth = 0.025;
 
+      gridCtx.strokeStyle = "lightgrey";
+      gridCtx.beginPath();
       for (let col = startCol + 1; col <= endCol; col++) {
         gridCtx.moveTo(col, startRow);
         gridCtx.lineTo(col, endRow + 1);
@@ -224,15 +219,10 @@ const createViewController = (gridCtx, cellCtx, cellCount, observer) => {
         gridCtx.moveTo(startCol, row);
         gridCtx.lineTo(endCol + 1, row);
       }
-
       gridCtx.stroke();
 
-      gridCtx.setTransform(1, 0, 0, 1, 0, 0);
       gridCtx.strokeStyle = "darkgray";
-      gridCtx.lineWidth = 0.02;
-      gridCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
       gridCtx.beginPath();
-
       for (let col = startCol + 1; col <= endCol; col++) {
         if (col % 10 === 0) {
           gridCtx.moveTo(col, startRow);
@@ -245,7 +235,6 @@ const createViewController = (gridCtx, cellCtx, cellCount, observer) => {
           gridCtx.lineTo(endCol + 1, row);
         }
       }
-
       gridCtx.stroke();
     },
 
@@ -256,20 +245,20 @@ const createViewController = (gridCtx, cellCtx, cellCount, observer) => {
      * @param {Array<number>} preview Indices of cells in pattern being previewed
      */
     renderAllCells(alive, preview) {
-      const { width, height } = this.window;
+      const { width, height } = cellCtx.canvas;
       const { zoom, panX, panY } = this.view;
 
       cellCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
       cellCtx.clearRect(0, 0, width + panX, height + panY);
 
       cellCtx.fillStyle = "rgba(0, 0, 0, 1)";
-      for (let i = 0, n = alive.length; i < n; ++i) {
+      for (let i = 0; i < alive.length; ++i) {
         const { row, col } = this.indexToRowCol(alive[i]);
         cellCtx.fillRect(col, row, 1, 1);
       }
 
       cellCtx.fillStyle = "rgba(0, 0, 0, 0.5)";
-      for (let i = 0, n = preview.length; i < n; ++i) {
+      for (let i = 0; i < preview.length; ++i) {
         const { row, col } = this.indexToRowCol(preview[i]);
         cellCtx.fillRect(col, row, 1, 1);
       }
@@ -283,33 +272,16 @@ const createViewController = (gridCtx, cellCtx, cellCount, observer) => {
      */
     renderChangedCells(born, died) {
       cellCtx.fillStyle = "rgba(0, 0, 0, 1)";
-      for (let i = 0, n = born.length; i < n; ++i) {
+      for (let i = 0; i < born.length; ++i) {
         const { row, col } = this.indexToRowCol(born[i]);
         cellCtx.fillRect(col, row, 1, 1);
       }
-      for (let i = 0, n = died.length; i < n; ++i) {
+
+      for (let i = 0; i < died.length; ++i) {
         const { row, col } = this.indexToRowCol(died[i]);
         cellCtx.clearRect(col, row, 1, 1);
       }
     },
-
-    // /**
-    //  * Draws a translucent preview of a pattern selected from the pattern library.
-    //  * @memberof ViewController#
-    //  * @param {Array<number>} alive Indices of cells in pattern being previewed
-    //  */
-    // renderPreview(alive) {
-    //   const { width, height } = this.window;
-    //   const { zoom, panX, panY } = this.view;
-
-    //   //previewCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
-    //   //previewCtx.clearRect(0, 0, width + panX, height + panY);
-    //   cellCtx.fillStyle = "rgba(0, 0, 0, 0.5)";
-    //   for (let i = 0, n = alive.length; i < n; ++i) {
-    //     const { row, col } = this.indexToRowCol(alive[i]);
-    //     cellCtx.fillRect(col, row, 1, 1);
-    //   }
-    // },
 
     /**
      * Converts an index from the game area to the equivilant row and column.
