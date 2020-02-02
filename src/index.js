@@ -17,12 +17,12 @@ const dom = {
   leftStatus: (document.getElementById("left-status")),
   /** @type {HTMLSpanElement} */
   rightStatus: (document.getElementById("right-status")),
-  /** @type {HTMLDivElement} */
-  topBar: (document.getElementById("top-bar")),
-  /** @type {HTMLButtonElement} */
-  playBtn: (document.getElementById("play-btn")),
-  /** @type {HTMLButtonElement} */
-  pauseBtn: (document.getElementById("pause-btn")),
+  /** @type {HTMLElement} */
+  nav: (document.getElementById("nav")),
+  /** @type {HTMLElement} */
+  playIcon: (document.getElementById("play-icon")),
+  /** @type {HTMLElement} */
+  pauseIcon: (document.getElementById("pause-icon")),
   /** @type {HTMLButtonElement} */
   speedBtn: (document.getElementById("speed-btn")),
   /** @type {HTMLButtonElement} */
@@ -35,10 +35,6 @@ const dom = {
   patternList: (document.getElementById("pattern-list")),
   /** @type {HTMLDivElement} */
   patternDetails: (document.getElementById("pattern-details")),
-  /** @type {HTMLCollection} */
-  categoryLinks: (document.getElementsByClassName("collapse-link")),
-  /** @type {HTMLDivElement} */
-  panButtonGroup: (document.getElementById("pan-btn-group")),
   /** @type {HTMLInputElement} */
   zoomSlider: (document.getElementById("zoom-slider"))
 };
@@ -69,7 +65,7 @@ let panControls = null;
     await patternLibrary.loadDataFromFiles();
     dom.patternList.innerHTML = patternLibrary.generateListHTML();
     // @ts-ignore
-    [...dom.categoryLinks].forEach(el => new Collapse(el));
+    M.AutoInit();
   } catch (err) {
     /** Terminate game on error (most likely from pattern library). */
     console.error(err);
@@ -129,18 +125,23 @@ function setEventListeners() {
   });
 
   /** Handle all clicks on top bar buttons/dropdowns. */
-  dom.topBar.addEventListener("click", e => {
+  dom.nav.addEventListener("click", e => {
+    /** Prevent focus on top bar buttons. */
+    e.preventDefault();
+
     // @ts-ignore
-    const btn = e.target?.closest("button");
+    const btn = e.target?.closest("a");
 
     if (btn?.dataset.speed) {
       /** Update game speed on selection of new spped in dropdown. */
       gameController?.setSpeed(parseFloat(btn.dataset.speed));
     } else {
       /** Perform intended action on click of top bar buttons. */
-      if (btn?.id === "play-btn") gameController?.play();
-      else if (btn?.id === "pause-btn") gameController?.pause();
-      else if (btn?.id === "default-btn") patternLibrary.setSelected(null);
+      if (btn?.id === "play-btn") {
+        if (gameController?.isGamePaused || !gameController?.isGameStarted)
+          gameController?.play();
+        else gameController?.pause();
+      } else if (btn?.id === "default-btn") patternLibrary.setSelected(null);
       else if (btn?.id === "reset-btn") {
         terminateGame();
         initializeGame();
@@ -148,11 +149,11 @@ function setEventListeners() {
     }
   });
 
-  /** Prevent focus on top bar buttons. */
-  dom.topBar.addEventListener("mousedown", e => e.preventDefault());
-
   /** Prevent focus of pattern button after modal close. */
   dom.patternBtn.addEventListener("focus", () => dom.patternBtn.blur());
+
+  /** Prevent focus of speed button after dropdown close. */
+  dom.speedBtn.addEventListener("focus", () => dom.speedBtn.blur());
 
   /** Handle all clicks on pattern library modal. */
   dom.patternModal.addEventListener("click", e => {
@@ -166,28 +167,28 @@ function setEventListeners() {
     if (pattern && role === "selectBtn") patternLibrary.setSelected(pattern);
   });
 
-  /** On modal open, clear previously selected pattern and activate pattern button. */
-  dom.patternModal.addEventListener("show.bs.modal", e => {
-    patternLibrary.setSelected(null);
-    dom.patternBtn.classList.add("active");
-  });
+  // /** On modal open, clear previously selected pattern and activate pattern button. */
+  // dom.patternModal.addEventListener("show.bs.modal", e => {
+  //   patternLibrary.setSelected(null);
+  //   dom.patternBtn.classList.add("active");
+  // });
 
-  /** On modal close, set pattern button as inactive if no pattern was selected. */
-  dom.patternModal.addEventListener("hide.bs.modal", e => {
-    if (patternLibrary.selected === null)
-      dom.patternBtn.classList.remove("active");
-  });
+  // /** On modal close, set pattern button as inactive if no pattern was selected. */
+  // dom.patternModal.addEventListener("hide.bs.modal", e => {
+  //   if (patternLibrary.selected === null)
+  //     dom.patternBtn.classList.remove("active");
+  // });
 
-  /** Add necessary event listeners for each pan buttons. */
-  [...dom.panButtonGroup.children].forEach(child => {
-    const btn = /** @type {HTMLButtonElement} */ (child);
-    btn.addEventListener("focus", () => btn.blur());
-    btn.addEventListener("mousedown", () => {
-      if (btn.dataset.direction) panControls?.start(btn.dataset.direction);
-    });
-    btn.addEventListener("mouseup", () => panControls?.stop());
-    btn.addEventListener("mouseleave", () => panControls?.stop());
-  });
+  // /** Add necessary event listeners for each pan buttons. */
+  // [...dom.panButtonGroup.children].forEach(child => {
+  //   const btn = /** @type {HTMLButtonElement} */ (child);
+  //   btn.addEventListener("focus", () => btn.blur());
+  //   btn.addEventListener("mousedown", () => {
+  //     if (btn.dataset.direction) panControls?.start(btn.dataset.direction);
+  //   });
+  //   btn.addEventListener("mouseup", () => panControls?.stop());
+  //   btn.addEventListener("mouseleave", () => panControls?.stop());
+  // });
 
   /** Update game zoom value on change in zoon slider position. */
   dom.zoomSlider.addEventListener("input", e =>
@@ -286,8 +287,8 @@ function handleGameChange(isPlaying, isPaused, generation, population, speed) {
   /** Update bottom bar with current game state. */
   dom.leftStatus.textContent = `${state}, Generation: ${generation}, Population: ${population}`;
   /** Toggle play/pause buttons based on current game state. */
-  dom.playBtn.hidden = isPlaying && !isPaused;
-  dom.pauseBtn.hidden = !isPlaying || isPaused;
+  dom.playIcon.hidden = isPlaying && !isPaused;
+  dom.pauseIcon.hidden = !isPlaying || isPaused;
   /** Disable edit buttons after game has started. */
   dom.defaultBtn.disabled = isPlaying;
   dom.patternBtn.disabled = isPlaying;
@@ -331,9 +332,10 @@ function handleMouseChange(isPanning) {
  */
 function handlePatternChange(isPatternSelected) {
   /** Set pattern library button as active when a pattern is selected, default otherwise. */
-  dom.defaultBtn.className = `btn btn-primary ${!isPatternSelected &&
+  dom.defaultBtn.className = `waves-effect waves-light btn-flat ${!isPatternSelected &&
     "active"}`;
-  dom.patternBtn.className = `btn btn-primary ${isPatternSelected && "active"}`;
+  dom.patternBtn.className = `waves-effect waves-light btn-flat modal-trigger ${isPatternSelected &&
+    "active"}`;
 
   /** Force mouseTracker to reevaluate due to change in selected pattern. */
   mouseTracker?.forcePreviewCheck(isPatternSelected);

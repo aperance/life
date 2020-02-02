@@ -16,7 +16,6 @@ body {
 
 #canvas-container {
   position: absolute;
-  /* flex: 1 1 auto; */
   top: 0;
   left: 0;
   height: 100vh;
@@ -43,19 +42,40 @@ body {
 
 /* Pattern Library Modal */
 
+#pattern-modal {
+  overflow-y: hidden;
+}
+
 .modal-body {
   display: flex;
 }
 
-.list-group-item {
-  border: 0;
-}
-
 #pattern-list {
-  flex: 0 0 182px;
+  flex: 0 0 200px;
   padding-right: 8px;
   overflow-y: scroll;
   height: 72vh;
+}
+
+#pattern-list .collapsible {
+  box-shadow: none;
+  border: none;
+}
+
+#pattern-list .collapsible-header {
+  color: black;
+  border-bottom: none;
+  background-color: #fafafa;
+}
+
+#pattern-list .collection {
+  padding: 0;
+}
+
+#pattern-list .collection-item {
+  color: black;
+  border-bottom: none;
+  background-color: #fafafa;
 }
 
 #pattern-details {
@@ -69,32 +89,35 @@ body {
 
 /* Top Bar */
 
-#top-bar {
-  position: absolute;
+nav {
   z-index: 2;
-  display: flex;
-  width: 100%;
-  padding: 8px 16px 8px 16px;
+  position: relative;
+  height: 45px;
+  line-height: 45px;
+  padding: 0 12px 0 12px;
+  /* background-color: #ffffff; */
 }
 
-#top-bar > div {
-  margin: 8px;
+nav .active {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
-#top-bar > div > button {
-  border-radius: 0;
+nav ul a,
+nav ul a.btn-flat {
+  color: #5f6368;
+  font-size: 1.2rem;
+  margin: 0;
+  height: 45px;
+  line-height: 45px;
 }
 
-#top-bar > div:last-child {
-  flex-grow: 1;
+nav ul a.btn-flat[hidden] {
+  display: none;
 }
 
-#top-bar > div:last-child > button {
-  float: right;
-}
-
-.dropdown-menu {
-  min-width: 0;
+#speed-dropdown a {
+  color: #5f6368;
+  font-size: 1.2rem;
 }
 
 /* Bottom Bar */

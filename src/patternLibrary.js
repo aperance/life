@@ -116,34 +116,33 @@ export class PatternLibrary {
    */
   generateListHTML() {
     return `
-        <div class="list-group">
-          ${Object.entries(this.categories)
-            .map(
-              ([category, contents], index) =>
-                `<a href="#category${index}"
-                  class="list-group-item list-group-item-action collapse-link"
-                  data-toggle="collapse"
-                >
-                  <strong>${category}</strong>
-                </a>
-                <div id="category${index}" class="collapse">
+      <ul class="collapsible">
+        ${Object.entries(this.categories)
+          .map(([category, contents]) => {
+            return `
+              <li>
+                <div class="collapsible-header">${category}</div>
+                <div class="collapsible-body collection">
                   ${contents
-                    .map(
-                      id =>
-                        `<a href="#"
-                          class="list-group-item list-group-item-action"
+                    .map(id => {
+                      return `
+                        <a href="#"
+                          class="collection-item"
                           data-pattern="${id}"
                           data-role="listItem"
                         >
                           &nbsp;&nbsp;${this.getData(id).name}
-                        </a>`
-                    )
+                        </a>
+                      `;
+                    })
                     .join("")}
-                </div>`
-            )
-            .join("")}
-        </div>
-      `;
+                </div>
+              <li>
+            `;
+          })
+          .join("")}
+      </ul>
+    `;
   }
 
   /**
@@ -167,8 +166,7 @@ export class PatternLibrary {
             .join("")}
           <br></br>
           <button type="button"
-            class="btn btn-primary drop-shadow"
-            data-dismiss="modal"
+            class="btn modal-close"
             data-pattern="${id}"
             data-role="selectBtn"
           >
