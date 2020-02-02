@@ -166,8 +166,10 @@ const createViewController = (gridCtx, cellCtx, cellCount, observer) => {
      */
     clearCanvases() {
       [gridCtx, cellCtx].forEach(ctx => {
+        ctx.save();
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.restore();
       });
     },
 
@@ -185,13 +187,13 @@ const createViewController = (gridCtx, cellCtx, cellCount, observer) => {
     updateCanvases(alive, born, died, preview, didCellsChange) {
       if (typeof this.view === "undefined") return;
 
-      if (this.redrawNeeded) {
+      if (born && died && !this.redrawNeeded)
+        this.renderChangedCells(born, died);
+      else if (didCellsChange || this.redrawNeeded) {
+        this.clearCanvases();
         this.renderGrid();
         this.renderAllCells(alive, preview);
         this.redrawNeeded = false;
-      } else if (didCellsChange) {
-        if (born && died) this.renderChangedCells(born, died);
-        else this.renderAllCells(alive, preview);
       }
     },
 
@@ -201,12 +203,12 @@ const createViewController = (gridCtx, cellCtx, cellCount, observer) => {
      */
     renderGrid() {
       const { width, height } = gridCtx.canvas;
-      const { zoom, panX, panY } = this.view;
       const { row: startRow, col: startCol } = this.xyToRowColIndex(0, 0);
       const { row: endRow, col: endCol } = this.xyToRowColIndex(width, height);
 
+      const { zoom, panX, panY } = this.view;
       gridCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
-      gridCtx.clearRect(0, 0, width + panX, height + panY);
+
       gridCtx.lineWidth = 0.025;
 
       gridCtx.strokeStyle = "lightgrey";
@@ -245,11 +247,8 @@ const createViewController = (gridCtx, cellCtx, cellCount, observer) => {
      * @param {Array<number>} preview Indices of cells in pattern being previewed
      */
     renderAllCells(alive, preview) {
-      const { width, height } = cellCtx.canvas;
       const { zoom, panX, panY } = this.view;
-
       cellCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
-      cellCtx.clearRect(0, 0, width + panX, height + panY);
 
       cellCtx.fillStyle = "rgba(0, 0, 0, 1)";
       for (let i = 0; i < alive.length; ++i) {
