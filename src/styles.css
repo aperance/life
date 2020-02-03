@@ -91,24 +91,44 @@ body {
 
 nav {
   z-index: 2;
-  position: relative;
-  height: 45px;
-  line-height: 45px;
+  position: absolute;
   padding: 0 12px 0 12px;
-  /* background-color: #ffffff; */
+  line-height: normal;
+  height: 58px;
 }
 
 nav .active {
   background-color: rgba(0, 0, 0, 0.05);
 }
 
-nav ul a,
+nav ul input[type="range"] {
+  margin-top: 25px;
+}
+
+nav ul span.thumb {
+  display: none;
+}
+
 nav ul a.btn-flat {
   color: #5f6368;
-  font-size: 1.2rem;
+  padding: 18px 18px 20px 18px;
   margin: 0;
-  height: 45px;
-  line-height: 45px;
+  border-radius: unset;
+  line-height: normal;
+  height: 58px;
+}
+
+nav ul a.btn-flat svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+nav ul a.btn-flat span {
+  vertical-align: bottom;
+  font-size: 16px;
+  text-transform: none;
+  line-height: 20px;
+  height: 20px;
 }
 
 nav ul a.btn-flat[hidden] {
