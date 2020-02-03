@@ -209,6 +209,8 @@ const createViewController = (gridCtx, cellCtx, cellCount, observer) => {
       const { zoom, panX, panY } = this.view;
       gridCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
 
+      if (zoom < 5) return;
+
       gridCtx.lineWidth = 0.025;
 
       gridCtx.strokeStyle = "lightgrey";
