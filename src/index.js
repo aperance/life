@@ -126,11 +126,11 @@ function setEventListeners() {
 
   /** Handle all clicks on top bar buttons/dropdowns. */
   dom.nav.addEventListener("click", e => {
-    /** Prevent focus on top bar buttons. */
-    e.preventDefault();
-
     // @ts-ignore
     const btn = e.target?.closest("a");
+
+    /** Prevent focus on top bar buttons. */
+    if (btn?.id !== "github-btn") e.preventDefault();
 
     if (btn?.dataset.speed) {
       /** Update game speed on selection of new spped in dropdown. */
