@@ -19,6 +19,8 @@ const mouseDown$ = fromEvent(cellCanvas, "mousedown");
 const mouseUp$ = fromEvent(document, "mouseup");
 const mouseMove$ = fromEvent(document, "mousemove");
 
+const canvasScroll$ = fromEvent(cellCanvas, "mousewheel", { passive: true });
+
 const createDragStart$ = downEvent =>
   mouseMove$.pipe(
     first(
@@ -80,6 +82,7 @@ const arrowKeyPress$ = keyDown$.pipe(
 );
 
 export {
+  canvasScroll$,
   canvasClick$,
   canvasDrag$,
   canvasHover$,

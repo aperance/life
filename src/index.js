@@ -1,9 +1,9 @@
 import "@fortawesome/fontawesome-free/js/all";
 import { ViewController, createViewController } from "./viewController";
 import { GameController, createGameController } from "./gameController";
-import { MouseTracker, createMouseTracker } from "./mouseTracker";
 import { PatternLibrary } from "./patternLibrary";
 import {
+  canvasScroll$,
   canvasClick$,
   canvasDrag$,
   canvasHover$,
@@ -57,8 +57,6 @@ const patternLibrary = new PatternLibrary(handlePatternChange);
 let viewController = null;
 /** @type {GameController?} */
 let gameController = null;
-/** @type {MouseTracker?} */
-let mouseTracker = null;
 
 /** Perform all actions required on page load to bring game to a working state. */
 (async () => {
@@ -87,13 +85,6 @@ function setEventListeners() {
 
   /** Update game state on window resize. */
   window.addEventListener("resize", handleResize);
-
-  document.addEventListener("wheel", e => {
-    mouseTracker?.mouseWheel(e, isOnCanvas(e)),
-      {
-        passive: true
-      };
-  });
 
   /** Disable all scrolling (except on modal). */
   dom.main.addEventListener("wheel", e => e.preventDefault(), {
@@ -182,12 +173,6 @@ function initializeGame() {
     wasm,
     handleGameChange
   );
-  /** Factory function for MouseTracker object. */
-  mouseTracker = createMouseTracker(
-    viewController,
-    gameController,
-    handleMouseChange
-  );
 
   /** Ensure all UI elements are visible */
   document.body.hidden = false;
@@ -206,7 +191,6 @@ function terminateGame() {
   /** Delete references to relevant object to ensure they are garbage collected */
   viewController = null;
   gameController = null;
-  mouseTracker = null;
   /** Hide all UI elements. */
   document.body.hidden = true;
 }
@@ -265,16 +249,6 @@ function handleViewChange(zoom, centerRow, centerCol) {
 }
 
 /**
- * Observer function passed to MouseTracker object.
- * Updates UI elements on changes to MouseTracker state.
- * @param {boolean} isPanning
- */
-function handleMouseChange(isPanning) {
-  /** Set cursor to multidirection arrow when panning, default otherwise. */
-  document.body.style.cursor = isPanning ? "all-scroll" : "default";
-}
-
-/**
  * Observer function passed to PatternLibrary object.
  * Updates UI elements on changes to PatternLibrary state.
  * @param {boolean} isPatternSelected
@@ -285,20 +259,6 @@ function handlePatternChange(isPatternSelected) {
     "active"}`;
   dom.patternBtn.className = `waves-effect waves-light btn-flat modal-trigger ${isPatternSelected &&
     "active"}`;
-
-  /** Force mouseTracker to reevaluate due to change in selected pattern. */
-  mouseTracker?.forcePreviewCheck(isPatternSelected);
-}
-
-/**
- * Determines if the mouse pointer is directly over the canvas,
- * and not a button or modal, based on the provided event object.
- * @param {WheelEvent | MouseEvent} e
- * @returns {boolean}
- */
-function isOnCanvas(e) {
-  const target = /** @type {HTMLElement} */ (e.target);
-  return target.id === "cell-canvas" || target.id === "top-bar";
 }
 
 arrowKeyPress$.subscribe(key => {
@@ -337,9 +297,10 @@ keyDown$.subscribe(key => {
   }
 });
 
-canvasClick$.subscribe((/** @type {MouseEvent} */ { clientX, clientY }) => {
-  if (patternLibrary.isSelected) gameController?.placePattern(clientX, clientY);
-  else gameController?.toggleCell(clientX, clientY);
+canvasClick$.subscribe((/** @type {MouseEvent} */ e) => {
+  if (patternLibrary.isSelected)
+    gameController?.placePattern(e.clientX, e.clientY);
+  else gameController?.toggleCell(e.clientX, e.clientY);
 });
 
 canvasDrag$.subscribe(({ deltaX, deltaY }) => {
@@ -351,11 +312,22 @@ canvasDrag$.subscribe(({ deltaX, deltaY }) => {
   document.body.style.cursor = "all-scroll";
 });
 
-canvasHover$.subscribe((/** @type {MouseEvent} */ { clientX, clientY }) => {
-  if (patternLibrary.isSelected) gameController?.placePreview(clientX, clientY);
+canvasHover$.subscribe((/** @type {MouseEvent} */ e) => {
+  if (patternLibrary.isSelected)
+    gameController?.placePreview(e.clientX, e.clientY);
   document.body.style.cursor = "default";
 });
 
 canvasLeave$.subscribe(() => {
   if (patternLibrary.isSelected) gameController?.clearPreview();
+});
+
+canvasScroll$.subscribe((/** @type {MouseWheelEvent} */ e) => {
+  if (!viewController) return;
+
+  const newZoom =
+    viewController.view.zoom +
+    Math.ceil(viewController.view.zoom / 25) * Math.sign(e.deltaY);
+
+  viewController.zoomAtPoint(newZoom, e.clientX, e.clientY);
 });
