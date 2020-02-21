@@ -2,8 +2,15 @@ import "@fortawesome/fontawesome-free/js/all";
 import { ViewController, createViewController } from "./viewController";
 import { GameController, createGameController } from "./gameController";
 import { MouseTracker, createMouseTracker } from "./mouseTracker";
-import { PanControls, createPanControls } from "./panControls";
 import { PatternLibrary } from "./patternLibrary";
+import {
+  canvasClick$,
+  canvasDrag$,
+  canvasHover$,
+  canvasLeave$,
+  keyDown$,
+  arrowKeyPress$
+} from "./observables";
 
 /** Stores refrences to used DOM elements with JSDoc type casting */
 const dom = {
@@ -52,8 +59,6 @@ let viewController = null;
 let gameController = null;
 /** @type {MouseTracker?} */
 let mouseTracker = null;
-/** @type {PanControls?} */
-let panControls = null;
 
 /** Perform all actions required on page load to bring game to a working state. */
 (async () => {
@@ -83,35 +88,6 @@ function setEventListeners() {
   /** Update game state on window resize. */
   window.addEventListener("resize", handleResize);
 
-  /** Global keypress handler. */
-  document.addEventListener("keydown", e => {
-    if (e.key === "Escape") patternLibrary.setSelected(null);
-    else if (e.key === "r") patternLibrary.rotateSelected();
-    else if (e.key === "f") patternLibrary.flipSelected();
-    else if (e.key.includes("Arrow")) {
-      const direction = e.key.replace("Arrow", "").toLowerCase();
-      panControls?.start(direction);
-    }
-  });
-
-  /** Stop panning on keyup of arrow buttons. */
-  document.addEventListener("keyup", e => {
-    if (e.key.includes("Arrow")) panControls?.stop();
-  });
-
-  /** Forward all mouse events to mouseTracker object (except on modal). */
-  document.addEventListener("mouseup", e => {
-    mouseTracker?.mouseUp(e, isOnCanvas(e), patternLibrary.isSelected);
-  });
-  document.addEventListener("mousedown", e => {
-    mouseTracker?.mouseDown(e, isOnCanvas(e));
-  });
-  document.addEventListener("mousemove", e => {
-    mouseTracker?.mouseMove(e, isOnCanvas(e), patternLibrary.isSelected);
-  });
-  document.addEventListener("mouseleave", () => {
-    mouseTracker?.mouseLeave();
-  });
   document.addEventListener("wheel", e => {
     mouseTracker?.mouseWheel(e, isOnCanvas(e)),
       {
@@ -167,29 +143,6 @@ function setEventListeners() {
     if (pattern && role === "selectBtn") patternLibrary.setSelected(pattern);
   });
 
-  // /** On modal open, clear previously selected pattern and activate pattern button. */
-  // dom.patternModal.addEventListener("show.bs.modal", e => {
-  //   patternLibrary.setSelected(null);
-  //   dom.patternBtn.classList.add("active");
-  // });
-
-  // /** On modal close, set pattern button as inactive if no pattern was selected. */
-  // dom.patternModal.addEventListener("hide.bs.modal", e => {
-  //   if (patternLibrary.selected === null)
-  //     dom.patternBtn.classList.remove("active");
-  // });
-
-  // /** Add necessary event listeners for each pan buttons. */
-  // [...dom.panButtonGroup.children].forEach(child => {
-  //   const btn = /** @type {HTMLButtonElement} */ (child);
-  //   btn.addEventListener("focus", () => btn.blur());
-  //   btn.addEventListener("mousedown", () => {
-  //     if (btn.dataset.direction) panControls?.start(btn.dataset.direction);
-  //   });
-  //   btn.addEventListener("mouseup", () => panControls?.stop());
-  //   btn.addEventListener("mouseleave", () => panControls?.stop());
-  // });
-
   /** Update game zoom value on change in zoon slider position. */
   dom.zoomSlider.addEventListener("input", e =>
     viewController?.zoomAtPoint(
@@ -235,8 +188,6 @@ function initializeGame() {
     gameController,
     handleMouseChange
   );
-  /** Factory function for PanControls object. */
-  panControls = createPanControls(viewController);
 
   /** Ensure all UI elements are visible */
   document.body.hidden = false;
@@ -251,13 +202,11 @@ function terminateGame() {
   /** Call methods necessary to stop game fumctionality. */
   gameController?.terminate();
   viewController?.clearCanvases();
-  panControls?.stop();
   patternLibrary.setSelected(null);
   /** Delete references to relevant object to ensure they are garbage collected */
   viewController = null;
   gameController = null;
   mouseTracker = null;
-  panControls = null;
   /** Hide all UI elements. */
   document.body.hidden = true;
 }
@@ -351,3 +300,62 @@ function isOnCanvas(e) {
   const target = /** @type {HTMLElement} */ (e.target);
   return target.id === "cell-canvas" || target.id === "top-bar";
 }
+
+arrowKeyPress$.subscribe(key => {
+  switch (key) {
+    case "ArrowUp":
+      viewController?.setView({ panY: viewController.view.panY - 2 });
+      break;
+    case "ArrowDown":
+      viewController?.setView({ panY: viewController.view.panY + 2 });
+      break;
+    case "ArrowLeft":
+      viewController?.setView({ panX: viewController.view.panX - 2 });
+      break;
+    case "ArrowRight":
+      viewController?.setView({ panX: viewController.view.panX + 2 });
+      break;
+    default:
+      break;
+  }
+});
+
+keyDown$.subscribe(key => {
+  switch (key) {
+    case "Escape":
+      patternLibrary.setSelected(null);
+      gameController?.clearPreview();
+      break;
+    case "r":
+      patternLibrary.rotateSelected();
+      break;
+    case "f":
+      patternLibrary.flipSelected();
+      break;
+    default:
+      break;
+  }
+});
+
+canvasClick$.subscribe((/** @type {MouseEvent} */ { clientX, clientY }) => {
+  if (patternLibrary.isSelected) gameController?.placePattern(clientX, clientY);
+  else gameController?.toggleCell(clientX, clientY);
+});
+
+canvasDrag$.subscribe(({ deltaX, deltaY }) => {
+  if (patternLibrary.isSelected) gameController?.clearPreview();
+  viewController?.setView({
+    panX: Math.round(viewController?.view.panX + deltaX),
+    panY: Math.round(viewController?.view.panY + deltaY)
+  });
+  document.body.style.cursor = "all-scroll";
+});
+
+canvasHover$.subscribe((/** @type {MouseEvent} */ { clientX, clientY }) => {
+  if (patternLibrary.isSelected) gameController?.placePreview(clientX, clientY);
+  document.body.style.cursor = "default";
+});
+
+canvasLeave$.subscribe(() => {
+  if (patternLibrary.isSelected) gameController?.clearPreview();
+});
