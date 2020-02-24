@@ -1,15 +1,21 @@
+import { merge } from "rxjs";
+import { switchMap, map, first } from "rxjs/operators";
 import "@fortawesome/fontawesome-free/js/all";
+
 import { ViewController, createViewController } from "./viewController";
 import { GameController, createGameController } from "./gameController";
-import { PatternLibrary } from "./patternLibrary";
+import * as patternLibrary from "./patternLibrary";
 import {
+  mouseUp$,
+  navButtonClick$,
   canvasScroll$,
   canvasClick$,
   canvasDrag$,
   canvasHover$,
   canvasLeave$,
   keyDown$,
-  arrowKeyPress$
+  arrowKeyPress$,
+  patternSelect$
 } from "./observables";
 
 /** Stores refrences to used DOM elements with JSDoc type casting */
@@ -25,8 +31,6 @@ const dom = {
   /** @type {HTMLSpanElement} */
   rightStatus: (document.getElementById("right-status")),
   /** @type {HTMLElement} */
-  nav: (document.getElementById("nav")),
-  /** @type {HTMLElement} */
   playIcon: (document.getElementById("play-icon")),
   /** @type {HTMLElement} */
   pauseIcon: (document.getElementById("pause-icon")),
@@ -37,8 +41,6 @@ const dom = {
   /** @type {HTMLButtonElement} */
   patternBtn: (document.getElementById("pattern-btn")),
   /** @type {HTMLDivElement} */
-  patternModal: (document.getElementById("pattern-modal")),
-  /** @type {HTMLDivElement} */
   patternList: (document.getElementById("pattern-list")),
   /** @type {HTMLDivElement} */
   patternDetails: (document.getElementById("pattern-details")),
@@ -47,10 +49,6 @@ const dom = {
 };
 
 const wasm = true;
-
-/** Factory function for PatternLibrary object. */
-/** @type {PatternLibrary} */
-const patternLibrary = new PatternLibrary(handlePatternChange);
 
 /** Variables for most game related objects. To be set by initializeGame function. */
 /** @type {ViewController?} */
@@ -91,49 +89,6 @@ function setEventListeners() {
     passive: false
   });
 
-  /** Handle all clicks on top bar buttons/dropdowns. */
-  dom.nav.addEventListener("click", e => {
-    // @ts-ignore
-    const btn = e.target?.closest("a");
-
-    /** Prevent focus on top bar buttons. */
-    if (btn?.id !== "github-btn") e.preventDefault();
-
-    if (btn?.dataset.speed) {
-      /** Update game speed on selection of new spped in dropdown. */
-      gameController?.setSpeed(parseFloat(btn.dataset.speed));
-    } else {
-      /** Perform intended action on click of top bar buttons. */
-      if (btn?.id === "play-btn") {
-        if (gameController?.isGamePaused || !gameController?.isGameStarted)
-          gameController?.play();
-        else gameController?.pause();
-      } else if (btn?.id === "default-btn") patternLibrary.setSelected(null);
-      else if (btn?.id === "reset-btn") {
-        terminateGame();
-        initializeGame();
-      }
-    }
-  });
-
-  /** Prevent focus of pattern button after modal close. */
-  dom.patternBtn.addEventListener("focus", () => dom.patternBtn.blur());
-
-  /** Prevent focus of speed button after dropdown close. */
-  dom.speedBtn.addEventListener("focus", () => dom.speedBtn.blur());
-
-  /** Handle all clicks on pattern library modal. */
-  dom.patternModal.addEventListener("click", e => {
-    // @ts-ignore
-    const { pattern, role } = e.target?.dataset;
-
-    /** Update details section on selection of pattern from list. */
-    if (pattern && role === "listItem")
-      dom.patternDetails.innerHTML = patternLibrary.generateDetailHTML(pattern);
-    /** Set a new selected pattern on confirmation button click. */
-    if (pattern && role === "selectBtn") patternLibrary.setSelected(pattern);
-  });
-
   /** Update game zoom value on change in zoon slider position. */
   dom.zoomSlider.addEventListener("input", e =>
     viewController?.zoomAtPoint(
@@ -168,7 +123,6 @@ function initializeGame() {
   gameController = createGameController(
     worker,
     viewController,
-    patternLibrary,
     5000,
     wasm,
     handleGameChange
@@ -248,18 +202,30 @@ function handleViewChange(zoom, centerRow, centerCol) {
   dom.zoomSlider.value = Math.sqrt(zoom).toString();
 }
 
-/**
- * Observer function passed to PatternLibrary object.
- * Updates UI elements on changes to PatternLibrary state.
- * @param {boolean} isPatternSelected
- */
-function handlePatternChange(isPatternSelected) {
-  /** Set pattern library button as active when a pattern is selected, default otherwise. */
-  dom.defaultBtn.className = `waves-effect waves-light btn-flat ${!isPatternSelected &&
-    "active"}`;
-  dom.patternBtn.className = `waves-effect waves-light btn-flat modal-trigger ${isPatternSelected &&
-    "active"}`;
-}
+navButtonClick$.subscribe(e => {
+  /** @type {HTMLLinkElement} */
+  const btn = (e.target);
+
+  switch (btn.id) {
+    case "play-btn":
+      if (gameController?.isGamePaused || !gameController?.isGameStarted)
+        gameController?.play();
+      else gameController?.pause();
+      break;
+    case "default-btn":
+      patternLibrary.setSelected(null);
+      break;
+    case "reset-btn":
+      terminateGame();
+      initializeGame();
+      break;
+    default:
+      /** Update game speed on selection of new spped in dropdown. */
+      if (btn.dataset.speed)
+        gameController?.setSpeed(parseFloat(btn.dataset.speed));
+      break;
+  }
+});
 
 arrowKeyPress$.subscribe(key => {
   switch (key) {
@@ -297,30 +263,43 @@ keyDown$.subscribe(key => {
   }
 });
 
-canvasClick$.subscribe((/** @type {MouseEvent} */ e) => {
-  if (patternLibrary.isSelected)
-    gameController?.placePattern(e.clientX, e.clientY);
-  else gameController?.toggleCell(e.clientX, e.clientY);
-});
+merge(canvasHover$, mouseUp$)
+  .pipe(
+    switchMap(e =>
+      patternLibrary.selection$.pipe(map(pattern => ({ e, pattern })))
+    )
+  )
+  .subscribe(({ e, pattern }) => {
+    const { clientX, clientY } = /** @type {MouseEvent} */ (e);
+    if (pattern) gameController?.placePreview(clientX, clientY, pattern);
+    document.body.style.cursor = "default";
+  });
+
+canvasClick$
+  .pipe(
+    switchMap(e =>
+      patternLibrary.selection$.pipe(
+        first(),
+        map(pattern => ({ e, pattern }))
+      )
+    )
+  )
+  .subscribe(({ e, pattern }) => {
+    const { clientX, clientY } = /** @type {MouseEvent} */ (e);
+    if (pattern === null) gameController?.toggleCell(clientX, clientY);
+    else gameController?.placePattern(clientX, clientY, pattern);
+  });
 
 canvasDrag$.subscribe(({ deltaX, deltaY }) => {
-  if (patternLibrary.isSelected) gameController?.clearPreview();
   viewController?.setView({
     panX: Math.round(viewController?.view.panX + deltaX),
     panY: Math.round(viewController?.view.panY + deltaY)
   });
+  gameController?.clearPreview();
   document.body.style.cursor = "all-scroll";
 });
 
-canvasHover$.subscribe((/** @type {MouseEvent} */ e) => {
-  if (patternLibrary.isSelected)
-    gameController?.placePreview(e.clientX, e.clientY);
-  document.body.style.cursor = "default";
-});
-
-canvasLeave$.subscribe(() => {
-  if (patternLibrary.isSelected) gameController?.clearPreview();
-});
+canvasLeave$.subscribe(() => gameController?.clearPreview());
 
 canvasScroll$.subscribe((/** @type {MouseWheelEvent} */ e) => {
   if (!viewController) return;
@@ -330,4 +309,22 @@ canvasScroll$.subscribe((/** @type {MouseWheelEvent} */ e) => {
     Math.ceil(viewController.view.zoom / 25) * Math.sign(e.deltaY);
 
   viewController.zoomAtPoint(newZoom, e.clientX, e.clientY);
+});
+
+patternSelect$.subscribe(({ pattern, role }) => {
+  /** Update details section on selection of pattern from list. */
+  if (role === "listItem")
+    dom.patternDetails.innerHTML = patternLibrary.generateDetailHTML(pattern);
+  /** Set a new selected pattern on confirmation button click. */
+  if (role === "selectBtn") patternLibrary.setSelected(pattern);
+});
+
+patternLibrary.selection$.subscribe(pattern => {
+  console.log(pattern);
+
+  /** Set pattern library button as active when a pattern is selected, default otherwise. */
+  dom.defaultBtn.className = `waves-effect waves-light btn-flat ${!pattern &&
+    "active"}`;
+  dom.patternBtn.className = `waves-effect waves-light btn-flat modal-trigger ${pattern &&
+    "active"}`;
 });

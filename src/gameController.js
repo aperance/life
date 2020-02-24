@@ -25,9 +25,9 @@
  * @property {boolean} haltAnimationCycle
  * @property {{born: Array<number>, died: Array<number>}?} nextResult
  * @property {function(number, number): void} toggleCell
- * @property {function(number, number): void} placePattern
- * @property {function(number, number): void} placePreview
- * @property {function(number, number, function): void} iterateOverPattern
+ * @property {function(number, number, number[][]): void} placePattern
+ * @property {function(number, number, number[][]): void} placePreview
+ * @property {function(number, number, number[][], function): void} iterateOverPattern
  * @property {function(): void} clearAliveCells
  * @property {function(): void} clearPreview
  * @property {function(): void} play
@@ -40,7 +40,6 @@
  */
 
 import { ViewController } from "./viewController";
-import { PatternLibrary } from "./patternLibrary";
 
 const batchSize = 25;
 const bufferSize = 50;
@@ -49,7 +48,6 @@ const bufferSize = 50;
  * Factory function to create GameController object with dependencies injected.
  * @param {Worker} worker Reference to an initialized web worker to calculate game results
  * @param {ViewController} viewController Reference to viewController object
- * @param {PatternLibrary} patternLibrary Reference to patterLibrary object
  * @param {number} cellCount Number of cells per side of the total game area
  * @param {boolean} wasm True if wasm implementation of game logic should be used
  * @param {function(boolean, boolean, number, number, number): void} observer Function called when game state is modified
@@ -58,7 +56,6 @@ const bufferSize = 50;
 const createGameController = (
   worker,
   viewController,
-  patternLibrary,
   cellCount,
   wasm,
   observer
@@ -178,11 +175,12 @@ const createGameController = (
      * @memberof GameController#
      * @param {number} x x coordinate of where pattern should be placed
      * @param {number} y y coordinate of where pattern should be placed
+     * @param {number[][]} pattern 2D array representing the selected pattern
      */
-    placePattern(x, y) {
+    placePattern(x, y, pattern) {
       if (this.isGameStarted) return;
 
-      this.iterateOverPattern(x, y, (index, isAlive) => {
+      this.iterateOverPattern(x, y, pattern, (index, isAlive) => {
         if (isAlive) this.aliveCells.add(index);
         else this.aliveCells.delete(index);
       });
@@ -194,13 +192,14 @@ const createGameController = (
      * @memberof GameController#
      * @param {number} x x coordinate of where pattern should be placed
      * @param {number} y y coordinate of where pattern should be placed
+     * @param {number[][]} pattern 2D array representing the selected pattern
      */
-    placePreview(x, y) {
+    placePreview(x, y, pattern) {
       if (this.isGameStarted) return;
 
       this.alivePreview.clear();
 
-      this.iterateOverPattern(x, y, (index, isAlive) => {
+      this.iterateOverPattern(x, y, pattern, (index, isAlive) => {
         if (isAlive) this.alivePreview.add(index);
       });
     },
@@ -210,14 +209,10 @@ const createGameController = (
      * @memberof GameController#
      * @param {number} x x coordinate of where pattern should be placed
      * @param {number} y y coordinate of where pattern should be placed
+     * @param {number[][]} pattern 2D array representing the selected pattern
      * @param {function} fn function to be called for each cell
      */
-    iterateOverPattern(x, y, fn) {
-      /** @type {number[][]?} */
-      const pattern = patternLibrary.selected;
-
-      if (!pattern) return;
-
+    iterateOverPattern(x, y, pattern, fn) {
       const { row, col } = viewController.xyToRowColIndex(x, y);
       const startRow = row + 1 - Math.round(pattern.length / 2);
       const startCol = col + 1 - Math.round(pattern[0].length / 2);
