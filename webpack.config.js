@@ -12,6 +12,7 @@ const appConfig = {
   },
   devServer: {
     contentBase: "./dist",
+    host: "0.0.0.0",
     port: 1234
   },
   plugins: [new CopyWebpackPlugin(["./src/index.html", "./src/styles.css"])],
