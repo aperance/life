@@ -112,9 +112,9 @@ const readPatternFile = async id => {
   const rle = data[1].replace(/(\r\n|\n|\r)/gm, "");
 
   return {
-    name: data[0].match(/(?<=#N ).*/)[0],
-    author: data[0].match(/(?<=#O ).*/)[0],
-    description: data[0].match(/(?<=#C ).*/g),
+    name: data[0].match(/#N .*/g)[0].replace(/#N /, ""),
+    author: data[0].match(/#O .*/g)[0].replace(/#O /, ""),
+    description: data[0].match(/#C .*/g).map(str => str.replace(/#C /, "")),
     array: rleParser(rle)
   };
 };
