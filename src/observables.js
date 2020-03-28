@@ -1,4 +1,4 @@
-import { fromEvent, merge, interval, of } from "rxjs";
+import { fromEvent, merge, interval, of, Observable } from "rxjs";
 import {
   map,
   switchMap,
@@ -17,9 +17,15 @@ const cellCanvas = (document.getElementById("cell-canvas"));
 const nav = (document.getElementById("nav"));
 /** @type {HTMLDivElement} */
 const patternModal = (document.getElementById("pattern-modal"));
+/** @type {HTMLInputElement} */
+const zoomSlider = (document.getElementById("zoom-slider"));
+
+const windowResize$ = merge(
+  fromEvent(window, "resize"),
+  fromEvent(window, "DOMContentLoaded")
+);
 
 const keyDown$ = fromEvent(document, "keydown").pipe(pluck("key"));
-
 const keyUp$ = fromEvent(document, "keyup").pipe(pluck("key"));
 
 const arrowKeyPress$ = keyDown$.pipe(
@@ -39,11 +45,21 @@ const navButtonClick$ = fromEvent(nav, "click").pipe(
   filter(e => e.target.href === "" || e.target.href === "#!")
 );
 
-const mouseDown$ = fromEvent(cellCanvas, "mousedown");
-const mouseUp$ = fromEvent(document, "mouseup");
-const mouseMove$ = fromEvent(document, "mousemove");
+/** @type {Observable<string>} */
+const zoomSlider$ = fromEvent(zoomSlider, "input").pipe(
+  pluck("target", "value"),
+  filter(value => value)
+);
 
-const canvasScroll$ = fromEvent(cellCanvas, "mousewheel", { passive: true });
+/** @type {Observable<MouseEvent>} */
+const mouseDown$ = (fromEvent(cellCanvas, "mousedown"));
+/** @type {Observable<MouseEvent>} */
+const mouseUp$ = (fromEvent(document, "mouseup"));
+/** @type {Observable<MouseEvent>} */
+const mouseMove$ = (fromEvent(document, "mousemove"));
+
+/** @type {Observable<WheelEvent>} */
+const canvasScroll$ = (fromEvent(cellCanvas, "mousewheel", { passive: true }));
 
 const createDragStart$ = downEvent =>
   mouseMove$.pipe(
@@ -85,14 +101,16 @@ const canvasHover$ = fromEvent(cellCanvas, "mousemove").pipe(
 
 const canvasLeave$ = fromEvent(cellCanvas, "mouseleave");
 
-const patternSelect$ = fromEvent(patternModal, "click").pipe(
+const patternModalCLick$ = fromEvent(patternModal, "click").pipe(
   pluck("target", "dataset"),
   filter(dataset => dataset && dataset.pattern && dataset.role)
 );
 
 export {
+  windowResize$,
   mouseUp$,
   navButtonClick$,
+  zoomSlider$,
   canvasScroll$,
   canvasClick$,
   canvasDrag$,
@@ -100,5 +118,5 @@ export {
   canvasLeave$,
   keyDown$,
   arrowKeyPress$,
-  patternSelect$
+  patternModalCLick$
 };

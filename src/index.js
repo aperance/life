@@ -6,8 +6,10 @@ import { ViewController, createViewController } from "./viewController";
 import { GameController, createGameController } from "./gameController";
 import * as patternLibrary from "./patternLibrary";
 import {
+  windowResize$,
   mouseUp$,
   navButtonClick$,
+  zoomSlider$,
   canvasScroll$,
   canvasClick$,
   canvasDrag$,
@@ -15,7 +17,7 @@ import {
   canvasLeave$,
   keyDown$,
   arrowKeyPress$,
-  patternSelect$
+  patternModalCLick$
 } from "./observables";
 
 /** Stores refrences to used DOM elements with JSDoc type casting */
@@ -59,7 +61,6 @@ let gameController = null;
 /** Perform all actions required on page load to bring game to a working state. */
 (async () => {
   try {
-    setEventListeners();
     initializeGame();
     // Initialize pattern library object and related DOM elements.
     // Placed after game init to prevent any noticible delay in page load.
@@ -73,31 +74,6 @@ let gameController = null;
     terminateGame();
   }
 })();
-
-/**
- * Sets all necessary event listeners DOM element.
- */
-function setEventListeners() {
-  /** Terminate game after any unhandled errors. */
-  window.addEventListener("error", terminateGame);
-
-  /** Update game state on window resize. */
-  window.addEventListener("resize", handleResize);
-
-  /** Disable all scrolling (except on modal). */
-  dom.main.addEventListener("wheel", e => e.preventDefault(), {
-    passive: false
-  });
-
-  /** Update game zoom value on change in zoon slider position. */
-  dom.zoomSlider.addEventListener("input", e =>
-    viewController?.zoomAtPoint(
-      Math.round(Math.pow(parseFloat(dom.zoomSlider.value), 2)),
-      window.innerWidth / 2,
-      window.innerHeight / 2
-    )
-  );
-}
 
 /**
  * Perform all actions necessary to initialize a new game.
@@ -130,8 +106,6 @@ function initializeGame() {
 
   /** Ensure all UI elements are visible */
   document.body.hidden = false;
-  /** Ensure game has correct window dimensions */
-  handleResize();
 }
 
 /**
@@ -147,19 +121,6 @@ function terminateGame() {
   gameController = null;
   /** Hide all UI elements. */
   document.body.hidden = true;
-}
-
-/**
- * Perform necessary adjustments after window initialization or resize.
- */
-function handleResize() {
-  /** Updates game state with current window dimensions. */
-  viewController?.setWindow(window.innerWidth, window.innerHeight);
-  /** Adjust all canvas dimensions to match window dimensions. */
-  [dom.gridCanvas, dom.cellCanvas].forEach(canvas => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  });
 }
 
 /**
@@ -202,6 +163,27 @@ function handleViewChange(zoom, centerRow, centerCol) {
   dom.zoomSlider.value = Math.sqrt(zoom).toString();
 }
 
+/** Terminate game after any unhandled errors. */
+window.addEventListener("error", terminateGame);
+
+/** Disable all scrolling (except on modal). */
+dom.main.addEventListener("wheel", e => e.preventDefault(), {
+  passive: false
+});
+
+/**
+ * Perform necessary adjustments after window initialization or resize.
+ */
+windowResize$.subscribe(() => {
+  /** Updates game state with current window dimensions. */
+  viewController?.setWindow(window.innerWidth, window.innerHeight);
+  /** Adjust all canvas dimensions to match window dimensions. */
+  [dom.gridCanvas, dom.cellCanvas].forEach(canvas => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+});
+
 navButtonClick$.subscribe(e => {
   /** @type {HTMLLinkElement} */
   const btn = (e.target);
@@ -225,6 +207,15 @@ navButtonClick$.subscribe(e => {
         gameController?.setSpeed(parseFloat(btn.dataset.speed));
       break;
   }
+});
+
+/** Update game zoom value on change in zoon slider position. */
+zoomSlider$.subscribe(value => {
+  viewController?.zoomAtPoint(
+    Math.round(Math.pow(parseFloat(value), 2)),
+    window.innerWidth / 2,
+    window.innerHeight / 2
+  );
 });
 
 arrowKeyPress$.subscribe(key => {
@@ -270,8 +261,7 @@ merge(canvasHover$, mouseUp$)
     )
   )
   .subscribe(({ e, pattern }) => {
-    const { clientX, clientY } = /** @type {MouseEvent} */ (e);
-    if (pattern) gameController?.placePreview(clientX, clientY, pattern);
+    if (pattern) gameController?.placePreview(e.clientX, e.clientY, pattern);
     document.body.style.cursor = "default";
   });
 
@@ -285,9 +275,8 @@ canvasClick$
     )
   )
   .subscribe(({ e, pattern }) => {
-    const { clientX, clientY } = /** @type {MouseEvent} */ (e);
-    if (pattern === null) gameController?.toggleCell(clientX, clientY);
-    else gameController?.placePattern(clientX, clientY, pattern);
+    if (pattern === null) gameController?.toggleCell(e.clientX, e.clientY);
+    else gameController?.placePattern(e.clientX, e.clientY, pattern);
   });
 
 canvasDrag$.subscribe(({ deltaX, deltaY }) => {
@@ -301,17 +290,17 @@ canvasDrag$.subscribe(({ deltaX, deltaY }) => {
 
 canvasLeave$.subscribe(() => gameController?.clearPreview());
 
-canvasScroll$.subscribe((/** @type {MouseWheelEvent} */ e) => {
-  if (!viewController) return;
+canvasScroll$.subscribe(e => {
+  if (viewController) {
+    const newZoom =
+      viewController.view.zoom +
+      Math.ceil(viewController.view.zoom / 25) * Math.sign(e.deltaY);
 
-  const newZoom =
-    viewController.view.zoom +
-    Math.ceil(viewController.view.zoom / 25) * Math.sign(e.deltaY);
-
-  viewController.zoomAtPoint(newZoom, e.clientX, e.clientY);
+    viewController.zoomAtPoint(newZoom, e.clientX, e.clientY);
+  }
 });
 
-patternSelect$.subscribe(({ pattern, role }) => {
+patternModalCLick$.subscribe(({ pattern, role }) => {
   /** Update details section on selection of pattern from list. */
   if (role === "listItem")
     dom.patternDetails.innerHTML = patternLibrary.generateDetailHTML(pattern);
@@ -319,12 +308,9 @@ patternSelect$.subscribe(({ pattern, role }) => {
   if (role === "selectBtn") patternLibrary.setSelected(pattern);
 });
 
+/** Set pattern library button as active when a pattern is selected, default otherwise. */
 patternLibrary.selection$.subscribe(pattern => {
   console.log(pattern);
-
-  /** Set pattern library button as active when a pattern is selected, default otherwise. */
-  dom.defaultBtn.className = `waves-effect waves-light btn-flat ${!pattern &&
-    "active"}`;
-  dom.patternBtn.className = `waves-effect waves-light btn-flat modal-trigger ${pattern &&
-    "active"}`;
+  dom.defaultBtn.classList.toggle("active", pattern === null);
+  dom.patternBtn.classList.toggle("active", pattern !== null);
 });
