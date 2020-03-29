@@ -58,6 +58,19 @@ const mouseUp$ = (fromEvent(document, "mouseup"));
 /** @type {Observable<MouseEvent>} */
 const mouseMove$ = (fromEvent(document, "mousemove"));
 
+/** @type {Observable<TouchEvent>} */
+const touchStart$ = (fromEvent(cellCanvas, "touchstart")).pipe(
+  filter((/** @type {TouchEvent} */ e) => e.touches.length === 1)
+);
+/** @type {Observable<TouchEvent>} */
+const touchEnd$ = (fromEvent(document, "touchend")).pipe(
+  filter((/** @type {TouchEvent} */ e) => e.touches.length === 0)
+);
+/** @type {Observable<TouchEvent>} */
+const touchMove$ = (fromEvent(document, "touchmove")).pipe(
+  filter((/** @type {TouchEvent} */ e) => e.touches.length === 1)
+);
+
 /** @type {Observable<WheelEvent>} */
 const canvasScroll$ = (fromEvent(cellCanvas, "mousewheel", { passive: true }));
 
@@ -70,23 +83,44 @@ const createDragStart$ = downEvent =>
     )
   );
 
-const canvasDrag$ = mouseDown$.pipe(
-  switchMap((/** @type {MouseEvent} */ downEvent) => {
-    let prevEvent = downEvent;
+const canvasDrag$ = merge(
+  mouseDown$.pipe(
+    switchMap((/** @type {MouseEvent} */ downEvent) => {
+      let prevEvent = downEvent;
 
-    return mouseMove$.pipe(
-      map((/** @type {MouseEvent} */ moveEvent) => {
-        let deltaX = prevEvent.clientX - moveEvent.clientX;
-        let deltaY = prevEvent.clientY - moveEvent.clientY;
+      return mouseMove$.pipe(
+        map((/** @type {MouseEvent} */ moveEvent) => {
+          let deltaX = prevEvent.clientX - moveEvent.clientX;
+          let deltaY = prevEvent.clientY - moveEvent.clientY;
 
-        prevEvent = moveEvent;
+          prevEvent = moveEvent;
 
-        return { deltaX, deltaY };
-      }),
-      skipUntil(createDragStart$(downEvent)),
-      takeUntil(mouseUp$)
-    );
-  })
+          return { deltaX, deltaY };
+        }),
+        skipUntil(createDragStart$(downEvent)),
+        takeUntil(mouseUp$)
+      );
+    })
+  ),
+  touchStart$.pipe(
+    switchMap((/** @type {TouchEvent} */ downEvent) => {
+      let prevEvent = downEvent;
+
+      return touchMove$.pipe(
+        map((/** @type {TouchEvent} */ moveEvent) => {
+          let deltaX =
+            prevEvent.touches[0].clientX - moveEvent.touches[0].clientX;
+          let deltaY =
+            prevEvent.touches[0].clientY - moveEvent.touches[0].clientY;
+
+          prevEvent = moveEvent;
+
+          return { deltaX, deltaY };
+        }),
+        takeUntil(touchEnd$)
+      );
+    })
+  )
 );
 
 const canvasClick$ = mouseDown$.pipe(
