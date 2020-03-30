@@ -52,43 +52,21 @@ const zoomSlider$ = fromEvent(zoomSlider, "input").pipe(
 );
 
 /** @type {Observable<MouseEvent>} */
-const mouseDown$ = (fromEvent(cellCanvas, "mousedown"));
-/** @type {Observable<MouseEvent>} */
 const mouseUp$ = (fromEvent(document, "mouseup"));
-/** @type {Observable<MouseEvent>} */
-const mouseMove$ = (fromEvent(document, "mousemove"));
-
-/** @type {Observable<TouchEvent>} */
-const touchStart$ = (fromEvent(cellCanvas, "touchstart")).pipe(
-  filter((/** @type {TouchEvent} */ e) => e.touches.length === 1)
-);
-/** @type {Observable<TouchEvent>} */
-const touchEnd$ = (fromEvent(document, "touchend")).pipe(
-  filter((/** @type {TouchEvent} */ e) => e.touches.length === 0)
-);
-/** @type {Observable<TouchEvent>} */
-const touchMove$ = (fromEvent(document, "touchmove")).pipe(
-  filter((/** @type {TouchEvent} */ e) => e.touches.length === 1)
-);
 
 /** @type {Observable<WheelEvent>} */
 const canvasScroll$ = (fromEvent(cellCanvas, "mousewheel", { passive: true }));
 
-const createDragStart$ = downEvent =>
-  mouseMove$.pipe(
-    first(
-      (/** @type {MouseEvent} */ moveEvent) =>
-        Math.abs(downEvent.clientX - moveEvent.clientX) > 3 ||
-        Math.abs(downEvent.clientY - moveEvent.clientY) > 3
-    )
-  );
+const isDragging = (downEvent, moveEvent) =>
+  Math.abs(downEvent.clientX - moveEvent.clientX) > 3 ||
+  Math.abs(downEvent.clientY - moveEvent.clientY) > 3;
 
 const canvasDrag$ = merge(
-  mouseDown$.pipe(
+  fromEvent(cellCanvas, "mousedown").pipe(
     switchMap((/** @type {MouseEvent} */ downEvent) => {
       let prevEvent = downEvent;
 
-      return mouseMove$.pipe(
+      return fromEvent(document, "mousemove").pipe(
         map((/** @type {MouseEvent} */ moveEvent) => {
           let deltaX = prevEvent.clientX - moveEvent.clientX;
           let deltaY = prevEvent.clientY - moveEvent.clientY;
@@ -97,35 +75,53 @@ const canvasDrag$ = merge(
 
           return { deltaX, deltaY };
         }),
-        skipUntil(createDragStart$(downEvent)),
+        skipUntil(
+          fromEvent(document, "mousemove").pipe(
+            first(moveEvent => isDragging(downEvent, moveEvent))
+          )
+        ),
         takeUntil(mouseUp$)
       );
     })
   ),
-  touchStart$.pipe(
-    switchMap((/** @type {TouchEvent} */ downEvent) => {
-      let prevEvent = downEvent;
+  fromEvent(cellCanvas, "touchstart").pipe(
+    pluck("touches"),
+    filter(({ length }) => length === 1),
+    switchMap(([initialTouch]) => {
+      let prevTouch = initialTouch;
 
-      return touchMove$.pipe(
-        map((/** @type {TouchEvent} */ moveEvent) => {
-          let deltaX =
-            prevEvent.touches[0].clientX - moveEvent.touches[0].clientX;
-          let deltaY =
-            prevEvent.touches[0].clientY - moveEvent.touches[0].clientY;
+      return fromEvent(document, "touchmove").pipe(
+        pluck("touches"),
+        filter(({ length }) => length === 1),
+        map(([currentTouch]) => {
+          let deltaX = prevTouch.clientX - currentTouch.clientX;
+          let deltaY = prevTouch.clientY - currentTouch.clientY;
 
-          prevEvent = moveEvent;
+          prevTouch = currentTouch;
 
           return { deltaX, deltaY };
         }),
-        takeUntil(touchEnd$)
+        takeUntil(
+          fromEvent(document, "touchend").pipe(
+            pluck("touches"),
+            filter(({ length }) => length === 0)
+          )
+        )
       );
     })
   )
 );
 
-const canvasClick$ = mouseDown$.pipe(
+const canvasClick$ = fromEvent(cellCanvas, "mousedown").pipe(
   switchMap(downEvent =>
-    mouseUp$.pipe(take(1), takeUntil(createDragStart$(downEvent)))
+    fromEvent(document, "mouseup").pipe(
+      take(1),
+      takeUntil(
+        fromEvent(document, "mousemove").pipe(
+          first(moveEvent => isDragging(downEvent, moveEvent))
+        )
+      )
+    )
   )
 );
 
