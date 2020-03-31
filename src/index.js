@@ -5,21 +5,7 @@ import "@fortawesome/fontawesome-free/js/all";
 import { ViewController, createViewController } from "./viewController";
 import { GameController, createGameController } from "./gameController";
 import * as patternLibrary from "./patternLibrary";
-import {
-  windowResize$,
-  mouseUp$,
-  navButtonClick$,
-  zoomSlider$,
-  canvasPinch$,
-  canvasScroll$,
-  canvasClick$,
-  canvasDrag$,
-  canvasHover$,
-  canvasLeave$,
-  keyDown$,
-  arrowKeyPress$,
-  patternModalCLick$
-} from "./observables";
+import * as domEvents from "./domEvents";
 
 /** Stores refrences to used DOM elements with JSDoc type casting */
 const dom = {
@@ -175,7 +161,7 @@ dom.main.addEventListener("wheel", e => e.preventDefault(), {
 /**
  * Perform necessary adjustments after window initialization or resize.
  */
-windowResize$.subscribe(() => {
+domEvents.windowResize$.subscribe(() => {
   /** Updates game state with current window dimensions. */
   viewController?.setWindow(window.innerWidth, window.innerHeight);
   /** Adjust all canvas dimensions to match window dimensions. */
@@ -185,7 +171,7 @@ windowResize$.subscribe(() => {
   });
 });
 
-navButtonClick$.subscribe(e => {
+domEvents.navButtonClick$.subscribe(e => {
   /** @type {HTMLLinkElement} */
   const btn = (e.target);
 
@@ -211,7 +197,7 @@ navButtonClick$.subscribe(e => {
 });
 
 /** Update game zoom value on change in zoon slider position. */
-zoomSlider$.subscribe(value => {
+domEvents.zoomSlider$.subscribe(value => {
   viewController?.zoomAtPoint(
     Math.round(Math.pow(parseFloat(value), 2)),
     window.innerWidth / 2,
@@ -219,7 +205,7 @@ zoomSlider$.subscribe(value => {
   );
 });
 
-arrowKeyPress$.subscribe(key => {
+domEvents.arrowKeyPress$.subscribe(key => {
   switch (key) {
     case "ArrowUp":
       viewController?.setView({ panY: viewController.view.panY - 2 });
@@ -238,7 +224,7 @@ arrowKeyPress$.subscribe(key => {
   }
 });
 
-keyDown$.subscribe(key => {
+domEvents.keyDown$.subscribe(key => {
   switch (key) {
     case "Escape":
       patternLibrary.setSelected(null);
@@ -255,7 +241,7 @@ keyDown$.subscribe(key => {
   }
 });
 
-merge(canvasHover$, mouseUp$)
+merge(domEvents.canvasHover$, domEvents.mouseUp$)
   .pipe(
     switchMap(e =>
       patternLibrary.selection$.pipe(map(pattern => ({ e, pattern })))
@@ -266,7 +252,7 @@ merge(canvasHover$, mouseUp$)
     document.body.style.cursor = "default";
   });
 
-canvasClick$
+domEvents.canvasClick$
   .pipe(
     switchMap(e =>
       patternLibrary.selection$.pipe(
@@ -280,7 +266,7 @@ canvasClick$
     else gameController?.placePattern(e.clientX, e.clientY, pattern);
   });
 
-canvasDrag$.subscribe(({ deltaX, deltaY }) => {
+domEvents.canvasDrag$.subscribe(({ deltaX, deltaY }) => {
   viewController?.setView({
     panX: Math.round(viewController?.view.panX + deltaX),
     panY: Math.round(viewController?.view.panY + deltaY)
@@ -289,9 +275,9 @@ canvasDrag$.subscribe(({ deltaX, deltaY }) => {
   document.body.style.cursor = "all-scroll";
 });
 
-canvasLeave$.subscribe(() => gameController?.clearPreview());
+domEvents.canvasLeave$.subscribe(() => gameController?.clearPreview());
 
-canvasPinch$.subscribe(({ scale, centerX, centerY }) => {
+domEvents.canvasPinch$.subscribe(({ scale, centerX, centerY }) => {
   console.log(scale);
   viewController?.zoomAtPoint(
     viewController.view.zoom * scale,
@@ -300,7 +286,7 @@ canvasPinch$.subscribe(({ scale, centerX, centerY }) => {
   );
 });
 
-canvasScroll$.subscribe(e => {
+domEvents.canvasScroll$.subscribe(e => {
   if (viewController) {
     const newZoom =
       viewController.view.zoom +
@@ -310,7 +296,7 @@ canvasScroll$.subscribe(e => {
   }
 });
 
-patternModalCLick$.subscribe(({ pattern, role }) => {
+domEvents.patternModalCLick$.subscribe(({ pattern, role }) => {
   /** Update details section on selection of pattern from list. */
   if (role === "listItem")
     dom.patternDetails.innerHTML = patternLibrary.generateDetailHTML(pattern);
