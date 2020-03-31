@@ -10,6 +10,7 @@ import {
   mouseUp$,
   navButtonClick$,
   zoomSlider$,
+  canvasPinch$,
   canvasScroll$,
   canvasClick$,
   canvasDrag$,
@@ -289,6 +290,15 @@ canvasDrag$.subscribe(({ deltaX, deltaY }) => {
 });
 
 canvasLeave$.subscribe(() => gameController?.clearPreview());
+
+canvasPinch$.subscribe(({ scale, centerX, centerY }) => {
+  console.log(scale);
+  viewController?.zoomAtPoint(
+    viewController.view.zoom * scale,
+    Math.round(centerX),
+    Math.round(centerY)
+  );
+});
 
 canvasScroll$.subscribe(e => {
   if (viewController) {

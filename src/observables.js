@@ -8,7 +8,8 @@ import {
   first,
   skipUntil,
   pluck,
-  mapTo
+  mapTo,
+  scan
 } from "rxjs/operators";
 
 /** @type {HTMLCanvasElement} */
@@ -57,10 +58,6 @@ const mouseUp$ = (fromEvent(document, "mouseup"));
 /** @type {Observable<WheelEvent>} */
 const canvasScroll$ = (fromEvent(cellCanvas, "mousewheel", { passive: true }));
 
-const isDragging = (downEvent, moveEvent) =>
-  Math.abs(downEvent.clientX - moveEvent.clientX) > 3 ||
-  Math.abs(downEvent.clientY - moveEvent.clientY) > 3;
-
 const canvasDrag$ = merge(
   fromEvent(cellCanvas, "mousedown").pipe(
     switchMap((/** @type {MouseEvent} */ downEvent) => {
@@ -106,6 +103,12 @@ const canvasDrag$ = merge(
             pluck("touches"),
             filter(({ length }) => length === 0)
           )
+        ),
+        takeUntil(
+          fromEvent(document, "touchstart").pipe(
+            pluck("touches"),
+            filter(({ length }) => length !== 1)
+          )
         )
       );
     })
@@ -114,15 +117,38 @@ const canvasDrag$ = merge(
 
 const canvasClick$ = fromEvent(cellCanvas, "mousedown").pipe(
   switchMap(downEvent =>
-    fromEvent(document, "mouseup").pipe(
+    /** @type {Observable<MouseEvent>} */
+    (fromEvent(document, "mouseup").pipe(
       take(1),
       takeUntil(
         fromEvent(document, "mousemove").pipe(
           first(moveEvent => isDragging(downEvent, moveEvent))
         )
       )
-    )
+    ))
   )
+);
+
+/** @type {Observable<Object>} */
+const canvasPinch$ = fromEvent(cellCanvas, "touchstart").pipe(
+  pluck("touches"),
+  filter(({ length }) => length === 2),
+  switchMap(() => {
+    let prevScale = 1;
+
+    return fromEvent(document, "touchmove").pipe(
+      map((/** @type {TouchEvent} */ e) => {
+        //@ts-ignore
+        let scale = e.scale / prevScale;
+        let centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        let centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        // @ts-ignore
+        prevScale = e.scale;
+        return { scale, centerX, centerY };
+      }),
+      takeUntil(fromEvent(document, "touchend"))
+    );
+  })
 );
 
 const canvasHover$ = fromEvent(cellCanvas, "mousemove").pipe(
@@ -136,11 +162,16 @@ const patternModalCLick$ = fromEvent(patternModal, "click").pipe(
   filter(dataset => dataset && dataset.pattern && dataset.role)
 );
 
+const isDragging = (downEvent, moveEvent) =>
+  Math.abs(downEvent.clientX - moveEvent.clientX) > 3 ||
+  Math.abs(downEvent.clientY - moveEvent.clientY) > 3;
+
 export {
   windowResize$,
   mouseUp$,
   navButtonClick$,
   zoomSlider$,
+  canvasPinch$,
   canvasScroll$,
   canvasClick$,
   canvasDrag$,
