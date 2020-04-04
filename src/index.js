@@ -187,6 +187,7 @@ domEvents.navButtonClick$.subscribe(e => {
     case "reset-btn":
       terminateGame();
       initializeGame();
+      viewController?.setWindow(window.innerWidth, window.innerHeight);
       break;
     default:
       /** Update game speed on selection of new spped in dropdown. */
