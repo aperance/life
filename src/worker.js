@@ -52,6 +52,7 @@ async function messageHandler(e) {
 function batchResults(count) {
   let arr = [];
   for (let i = 0; i < count; i++) {
+    // @ts-ignore
     const { born, died } = generator.next().value;
     arr[i] = { born: [...born], died: [...died] };
   }

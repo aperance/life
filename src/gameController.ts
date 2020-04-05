@@ -19,12 +19,12 @@ export interface GameController {
   isGameStarted: boolean;
   isGamePaused: boolean;
   resultBuffer: Array<{ born: Array<number>; died: Array<number> }>;
-  resultsRequestedAt?: number;
+  resultsRequestedAt: number | null;
   didCellsChange: boolean;
   speed: { cyclesPerRender: number; currentCycle: number };
   generation: number;
   haltAnimationCycle: boolean;
-  nextResult: { born: Array<number>; died: Array<number> };
+  nextResult: { born: Array<number>; died: Array<number> } | null;
   toggleCell(x: number, y: number): void;
   placePattern(x: number, y: number, pattern: Array<Array<number>>): void;
   placePreview(x: number, y: number, pattern: Array<Array<number>>): void;
@@ -56,13 +56,14 @@ const bufferSize = 50;
  * @param {function(boolean, boolean, number, number, number): void} observer Function called when game state is modified
  * @return {GameController}
  */
-export const createGameController = (
-  worker,
-  viewController,
-  cellCount,
-  wasm,
-  observer
-) => {
+export function createGameController(
+  worker: Worker,
+  viewController: ViewController,
+  cellCount: number,
+  wasm: boolean,
+  // @ts-ignore
+  observer: any
+) {
   const gameController: GameController = {
     /**
      * Set containing the indices of the currently alive cells.
@@ -305,19 +306,22 @@ export const createGameController = (
     animationCycle() {
       if (this.haltAnimationCycle) return;
 
-      let born = null;
-      let died = null;
+      let born: Array<number> | null = null;
+      let died: Array<number> | null = null;
 
       if (this.isGameStarted && !this.isGamePaused) {
         if (this.speed.currentCycle < this.speed.cyclesPerRender) {
           this.speed.currentCycle++;
         } else {
           this.speed.currentCycle = 1;
-          const result = this.nextResult;
+          const result: {
+            born: Array<number>;
+            died: Array<number>;
+          } | null = this.nextResult;
           if (result) {
-            ({ born, died } = result);
-            for (let cellIndex of born) this.aliveCells.add(cellIndex);
-            for (let cellIndex of died) this.aliveCells.delete(cellIndex);
+            for (let cellIndex of result.born) this.aliveCells.add(cellIndex);
+            for (let cellIndex of result.died)
+              this.aliveCells.delete(cellIndex);
             this.didCellsChange = true;
             this.generation++;
           }
@@ -373,4 +377,4 @@ export const createGameController = (
   gameController.animationCycle();
 
   return gameController;
-};
+}

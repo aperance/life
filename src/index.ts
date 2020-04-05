@@ -55,8 +55,8 @@ function initializeGame() {
   const worker = new Worker("./worker.js");
 
   /** Get rendering contexts for all canvases. */
-  const gridCtx = dom.gridCanvas.getContext("2d");
-  const cellCtx = dom.cellCanvas.getContext("2d");
+  const gridCtx = dom.gridCanvas.getContext("2d") as CanvasRenderingContext2D;
+  const cellCtx = dom.cellCanvas.getContext("2d") as CanvasRenderingContext2D;
 
   /** Factory function for GameRenderer object. */
   viewController = createViewController(
@@ -100,7 +100,13 @@ function terminateGame() {
  * @param {number} generation
  * @param {number} speed
  */
-function handleGameChange(isPlaying, isPaused, generation, population, speed) {
+function handleGameChange(
+  isPlaying: boolean,
+  isPaused: boolean,
+  generation: number,
+  population: number,
+  speed: number
+) {
   const state = isPlaying ? (isPaused ? "Paused" : "Running") : "Stopped";
   /** Update bottom bar with current game state. */
   dom.leftStatus.textContent = `${state}, Generation: ${generation}, Population: ${population}`;
@@ -126,7 +132,7 @@ function handleGameChange(isPlaying, isPaused, generation, population, speed) {
  * @param {number} centerRow
  * @param {number} centerCol
  */
-function handleViewChange(zoom, centerRow, centerCol) {
+function handleViewChange(zoom: number, centerRow: number, centerCol: number) {
   /** Update bottom bar with current view state. */
   dom.rightStatus.textContent = `Zoom: ${zoom}, Position: (${centerCol},${centerRow})`;
   /** Ensure zoom slider value matches the current zoom level. */
@@ -187,22 +193,23 @@ domEvents.zoomSlider$.subscribe(value => {
 });
 
 domEvents.arrowKeyPress$.subscribe(key => {
-  switch (key) {
-    case "ArrowUp":
-      viewController?.setView({ panY: viewController.view.panY - 2 });
-      break;
-    case "ArrowDown":
-      viewController?.setView({ panY: viewController.view.panY + 2 });
-      break;
-    case "ArrowLeft":
-      viewController?.setView({ panX: viewController.view.panX - 2 });
-      break;
-    case "ArrowRight":
-      viewController?.setView({ panX: viewController.view.panX + 2 });
-      break;
-    default:
-      break;
-  }
+  if (viewController?.view?.panX && viewController?.view?.panY)
+    switch (key) {
+      case "ArrowUp":
+        viewController.setView({ panY: viewController.view.panY - 2 });
+        break;
+      case "ArrowDown":
+        viewController.setView({ panY: viewController.view.panY + 2 });
+        break;
+      case "ArrowLeft":
+        viewController.setView({ panX: viewController.view.panX - 2 });
+        break;
+      case "ArrowRight":
+        viewController.setView({ panX: viewController.view.panX + 2 });
+        break;
+      default:
+        break;
+    }
 });
 
 domEvents.keyDown$.subscribe(e => {
@@ -248,10 +255,11 @@ domEvents.canvasClick$
   });
 
 domEvents.canvasDrag$.subscribe(({ deltaX, deltaY }) => {
-  viewController?.setView({
-    panX: Math.round(viewController?.view.panX + deltaX),
-    panY: Math.round(viewController?.view.panY + deltaY)
-  });
+  if (viewController?.view?.panX && viewController?.view?.panY)
+    viewController.setView({
+      panX: Math.round(viewController.view.panX + deltaX),
+      panY: Math.round(viewController.view.panY + deltaY)
+    });
   gameController?.clearPreview();
   document.body.style.cursor = "all-scroll";
 });
@@ -259,15 +267,16 @@ domEvents.canvasDrag$.subscribe(({ deltaX, deltaY }) => {
 domEvents.canvasLeave$.subscribe(() => gameController?.clearPreview());
 
 domEvents.canvasPinch$.subscribe(({ scale, centerX, centerY }) => {
-  viewController?.zoomAtPoint(
-    viewController.view.zoom * scale,
-    Math.round(centerX),
-    Math.round(centerY)
-  );
+  if (viewController?.view?.zoom)
+    viewController.zoomAtPoint(
+      viewController.view.zoom * scale,
+      Math.round(centerX),
+      Math.round(centerY)
+    );
 });
 
 domEvents.canvasScroll$.subscribe(e => {
-  if (viewController) {
+  if (viewController?.view?.zoom) {
     const newZoom =
       viewController.view.zoom +
       Math.ceil(viewController.view.zoom / 25) * Math.sign(e.deltaY);
@@ -276,6 +285,7 @@ domEvents.canvasScroll$.subscribe(e => {
   }
 });
 
+//@ts-ignore
 domEvents.patternModalCLick$.subscribe(({ pattern, role }) => {
   /** Update details section on selection of pattern from list. */
   if (role === "listItem")

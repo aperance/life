@@ -1,4 +1,4 @@
-import { fromEvent, merge, interval, Observable } from "rxjs";
+import { fromEvent, merge, interval } from "rxjs";
 import {
   map,
   switchMap,
@@ -15,10 +15,6 @@ const cellCanvas = document.getElementById("cell-canvas") as HTMLCanvasElement;
 const nav = document.getElementById("nav") as HTMLElement;
 const patternModal = document.getElementById("pattern-modal") as HTMLDivElement;
 const zoomSlider = document.getElementById("zoom-slider") as HTMLInputElement;
-
-const isDragging = (downEvent, moveEvent) =>
-  Math.abs(downEvent.clientX - moveEvent.clientX) > 3 ||
-  Math.abs(downEvent.clientY - moveEvent.clientY) > 3;
 
 export const windowResize$ = merge(
   fromEvent(window, "resize"),
@@ -163,3 +159,10 @@ export const patternModalCLick$ = fromEvent<MouseEvent>(
   // @ts-ignore
   filter(dataset => dataset && dataset.pattern && dataset.role)
 );
+
+function isDragging(downEvent: MouseEvent, moveEvent: MouseEvent): boolean {
+  return (
+    Math.abs(downEvent.clientX - moveEvent.clientX) > 3 ||
+    Math.abs(downEvent.clientY - moveEvent.clientY) > 3
+  );
+}

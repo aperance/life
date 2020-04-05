@@ -1,17 +1,18 @@
-/**
- * @typedef {Object} PatternData
- * @property {string} name
- * @property {string} author
- * @property {string[]} description
- * @property {number[][]} array
- */
+interface PatternData {
+  name: string;
+  author: string;
+  description: string[];
+  array: number[][];
+}
 
 import { BehaviorSubject } from "rxjs";
 
 const map = new Map();
 
-/** @type {BehaviorSubject<number[][]?>} */
-export const selected = new BehaviorSubject(null);
+//@ts-ignore
+export const selected: BehaviorSubject<number[][] | null> = new BehaviorSubject(
+  null
+);
 export const selection$ = selected.asObservable();
 
 const categories = {
@@ -36,14 +37,14 @@ const categories = {
  *
  * @param {string?} id
  */
-export const setSelected = id => {
+export function setSelected(id: string | null) {
   selected.next(id ? getData(id).array : null);
-};
+}
 
 /**
  *
  */
-export const rotateSelected = () => {
+export function rotateSelected() {
   if (!selected.value) return;
 
   const width = selected.value.length;
@@ -58,12 +59,12 @@ export const rotateSelected = () => {
   }
 
   selected.next(newArray);
-};
+}
 
 /**
  *
  */
-export const flipSelected = () => {
+export function flipSelected() {
   if (!selected.value) return;
   let newArr = selected.value;
 
@@ -71,7 +72,7 @@ export const flipSelected = () => {
     newArr[i].reverse();
   }
   selected.next(newArr);
-};
+}
 
 /**
  *
@@ -79,17 +80,17 @@ export const flipSelected = () => {
  * @returns {PatternData}
  * @throws {Error}
  */
-const getData = id => {
+function getData(id: string): PatternData {
   const data = map.get(id);
   if (data) return data;
   else throw new Error(`No pattern data found for '${id}'`);
-};
+}
 
 /**
  * @async
  * @returns {Promise<void>}
  */
-export const loadDataFromFiles = async () => {
+export async function loadDataFromFiles() {
   const patternList = Object.values(categories).flat();
 
   await Promise.all(
@@ -98,7 +99,7 @@ export const loadDataFromFiles = async () => {
       map.set(id, patternData);
     })
   );
-};
+}
 
 /**
  *
@@ -106,18 +107,19 @@ export const loadDataFromFiles = async () => {
  * @param {string} id
  * @returns {Promise<PatternData>}
  */
-const readPatternFile = async id => {
+async function readPatternFile(id: string): Promise<PatternData> {
   const file = await import(`../patterns/${id}.rle`);
-  const data = file.default.split(/x.*[sS]23/);
+  const data = file.default.split(/x.*[sS]23/) as string[];
   const rle = data[1].replace(/(\r\n|\n|\r)/gm, "");
 
   return {
-    name: data[0].match(/#N .*/g)[0].replace(/#N /, ""),
-    author: data[0].match(/#O .*/g)[0].replace(/#O /, ""),
-    description: data[0].match(/#C .*/g).map(str => str.replace(/#C /, "")),
+    name: data[0].match(/#N .*/g)?.[0].replace(/#N /, "") ?? "",
+    author: data[0].match(/#O .*/g)?.[0].replace(/#O /, "") ?? "",
+    description:
+      data[0].match(/#C .*/g)?.map(str => str.replace(/#C /, "")) ?? [],
     array: rleParser(rle)
   };
-};
+}
 
 /**
  *
@@ -125,11 +127,9 @@ const readPatternFile = async id => {
  * @returns {number[][]}
  * @throws {Error}
  */
-const rleParser = rle => {
-  /** @type {number[][]} */
-  let outerArray = [];
-  /** @type {number[]} */
-  let innerArray = [];
+function rleParser(rle: string): number[][] {
+  let outerArray: number[][] = [];
+  let innerArray: number[] = [];
   let countString = "";
 
   Array.from(rle).forEach(char => {
@@ -149,13 +149,13 @@ const rleParser = rle => {
   });
 
   return outerArray;
-};
+}
 
 /**
  *
  * @returns {string}
  */
-export const generateListHTML = () => {
+export function generateListHTML(): string {
   return `
       <ul class="collapsible">
         ${Object.entries(categories)
@@ -184,13 +184,13 @@ export const generateListHTML = () => {
           .join("")}
       </ul>
     `;
-};
+}
 
 /**
  *
  * @returns {string}
  */
-export const generateDetailHTML = id => {
+export function generateDetailHTML(id: string): string {
   const { name, author, description } = getData(id);
 
   return `
@@ -215,4 +215,4 @@ export const generateDetailHTML = id => {
           </button>
         </div>
       `;
-};
+}

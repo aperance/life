@@ -12,10 +12,14 @@
  */
 
 export interface ViewController {
-  view?: {
-    zoom: number;
-    panX: number;
-    panY: number;
+  view: {
+    zoom?: number;
+    panX?: number;
+    panY?: number;
+  };
+  window?: {
+    width: number;
+    height: number;
   };
   redrawNeeded: boolean;
   minZoom: number;
@@ -23,14 +27,15 @@ export interface ViewController {
   maxPanY: number;
   centerRowCol: { row: number; col: number };
   setWindow(width: number, height: number): void;
-  setView(any): void;
+  setView(
+    newView: { zoom?: number; panX?: number; panY?: number } | null
+  ): void;
   zoomAtPoint(zoom: number, x: number, y: number): void;
   clearCanvases(): void;
   updateCanvases(
     alive: Array<number>,
-    born?: Array<number>,
-    died?: Array<number>,
-    //@ts-ignore
+    born: Array<number> | null,
+    died: Array<number> | null,
     preview: Array<number>,
     didCellsChange: boolean
   ): void;
@@ -53,13 +58,15 @@ export interface ViewController {
  * @param {function(number, number, number): void} observer Function called when zoom or pan values are modified
  * @returns {ViewController}
  */
-export const createViewController = (
-  gridCtx,
-  cellCtx,
-  cellCount,
-  observer
-): ViewController => {
-  return {
+export function createViewController(
+  gridCtx: CanvasRenderingContext2D,
+  cellCtx: CanvasRenderingContext2D,
+  cellCount: number,
+  observer: any
+): ViewController {
+  const viewController: ViewController = {
+    view: {},
+
     /**
      * True if all canvases need to be fully redrawn on the next
      * render, due to a change in view or window parameters.
@@ -74,6 +81,8 @@ export const createViewController = (
      * @type {number}
      */
     get minZoom() {
+      if (!this.window || !this.view) throw Error("Canvas not initialized");
+
       return Math.ceil(
         Math.max(this.window.width, this.window.height) / cellCount
       );
@@ -85,6 +94,9 @@ export const createViewController = (
      * @type {number}
      */
     get maxPanX() {
+      if (!this.window || !this.view?.zoom)
+        throw Error("Canvas not initialized");
+
       return cellCount * this.view.zoom - this.window.width;
     },
 
@@ -94,6 +106,9 @@ export const createViewController = (
      * @type {number}
      */
     get maxPanY() {
+      if (!this.window || !this.view?.zoom)
+        throw Error("Canvas not initialized");
+
       return cellCount * this.view.zoom - this.window.height;
     },
 
@@ -104,6 +119,8 @@ export const createViewController = (
      * @type {{row: number, col: number}}
      */
     get centerRowCol() {
+      if (!this.window || !this.view) throw Error("Canvas not initialized");
+
       const { row, col } = this.xyToRowColIndex(
         this.window.width / 2,
         this.window.height / 2
@@ -130,20 +147,30 @@ export const createViewController = (
      * @param {View?} newView Object containing updated zoom and pan parameters
      */
     setView(newView) {
-      if (typeof this.window === "undefined") return;
+      if (!this.window) throw Error("Canvas not initialized");
 
-      if (typeof this.view === "undefined") {
-        this.view = {};
-        this.view.zoom = 10;
-        this.view.panX = Math.round(this.maxPanX / 2);
-        this.view.panY = Math.round(this.maxPanY / 2);
-      }
+      // if (typeof this.view === "undefined") {
+      //   this.view = {};
+      //   this.view.zoom = 10;
+      //   this.view.panX = Math.round(this.maxPanX / 2);
+      //   this.view.panY = Math.round(this.maxPanY / 2);
+      // }
 
       if (newView) this.view = { ...this.view, ...newView };
 
-      this.view.zoom = this.clamp(this.view.zoom, this.minZoom, 100);
-      this.view.panX = this.clamp(this.view.panX, 0, this.maxPanX);
-      this.view.panY = this.clamp(this.view.panY, 0, this.maxPanY);
+      this.view.zoom = this.clamp(this.view.zoom ?? 10, this.minZoom, 100);
+
+      this.view.panX = this.clamp(
+        this.view.panX ?? Math.round(this.maxPanX / 2),
+        0,
+        this.maxPanX
+      );
+
+      this.view.panY = this.clamp(
+        this.view.panY ?? Math.round(this.maxPanY / 2),
+        0,
+        this.maxPanY
+      );
 
       this.redrawNeeded = true;
 
@@ -160,6 +187,9 @@ export const createViewController = (
      * @param {number} y y-coordinate of point to keep stationary
      */
     zoomAtPoint(zoom, x, y) {
+      if (!this.view?.zoom || !this.view?.panX || !this.view?.panY)
+        throw Error("Canvas not initialized");
+
       const { zoom: oldZoom, panX: oldPanX, panY: oldPanY } = this.view;
       const newZoom = this.clamp(zoom, this.minZoom, 100);
       const scale = newZoom / oldZoom - 1;
@@ -187,13 +217,13 @@ export const createViewController = (
      * grid lines will be redrawn. Otherwise only changes cells will be edited.
      * @memberof ViewController#
      * @param {Array<number>} alive Indices of all alive cells in game
-     * @param {Array<number>?} born Indices of all cells born this generation
-     * @param {Array<number>?} died Indices of all cells died this generation
+     * @param {Array<number>} born Indices of all cells born this generation
+     * @param {Array<number>} died Indices of all cells died this generation
      * @param {Array<number>} preview Indices of cells in pattern being previewed
      * @param {boolean} didCellsChange True if alive array was modified since last call
      */
     updateCanvases(alive, born, died, preview, didCellsChange) {
-      if (typeof this.view === "undefined") return;
+      if (!this.window) return;
 
       if (born && died && !this.redrawNeeded)
         this.renderChangedCells(born, died);
@@ -210,6 +240,9 @@ export const createViewController = (
      * @memberof ViewController#
      */
     renderGrid() {
+      if (!this.view?.zoom || !this.view?.panX || !this.view?.panY)
+        throw Error("Canvas not initialized");
+
       const { width, height } = gridCtx.canvas;
       const { row: startRow, col: startCol } = this.xyToRowColIndex(0, 0);
       const { row: endRow, col: endCol } = this.xyToRowColIndex(width, height);
@@ -257,6 +290,9 @@ export const createViewController = (
      * @param {Array<number>} preview Indices of cells in pattern being previewed
      */
     renderAllCells(alive, preview) {
+      if (!this.view?.zoom || !this.view?.panX || !this.view?.panY)
+        throw Error("Canvas not initialized");
+
       const { zoom, panX, panY } = this.view;
       cellCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
 
@@ -310,6 +346,9 @@ export const createViewController = (
      * @returns {{row: number, col: number, index: number}}
      */
     xyToRowColIndex(x, y) {
+      if (!this.view?.zoom || !this.view?.panX || !this.view?.panY)
+        throw Error("Canvas not initialized");
+
       const row = Math.floor((y + this.view.panY) / this.view.zoom);
       const col = Math.floor((x + this.view.panX) / this.view.zoom);
       const index = cellCount * row + col;
@@ -328,4 +367,5 @@ export const createViewController = (
       return val > max ? max : val < min ? min : val;
     }
   };
-};
+  return viewController;
+}
