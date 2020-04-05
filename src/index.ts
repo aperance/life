@@ -9,41 +9,26 @@ import * as domEvents from "./domEvents";
 
 /** Stores refrences to used DOM elements with JSDoc type casting */
 const dom = {
-  /**  @type {HTMLDivElement} */
-  main: (document.getElementById("main")),
-  /**  @type {HTMLCanvasElement} */
-  gridCanvas: (document.getElementById("grid-canvas")),
-  /** @type {HTMLCanvasElement} */
-  cellCanvas: (document.getElementById("cell-canvas")),
-  /** @type {HTMLSpanElement} */
-  leftStatus: (document.getElementById("left-status")),
-  /** @type {HTMLSpanElement} */
-  rightStatus: (document.getElementById("right-status")),
-  /** @type {HTMLElement} */
-  playIcon: (document.getElementById("play-icon")),
-  /** @type {HTMLElement} */
-  pauseIcon: (document.getElementById("pause-icon")),
-  /** @type {HTMLButtonElement} */
-  speedBtn: (document.getElementById("speed-btn")),
-  /** @type {HTMLButtonElement} */
-  defaultBtn: (document.getElementById("default-btn")),
-  /** @type {HTMLButtonElement} */
-  patternBtn: (document.getElementById("pattern-btn")),
-  /** @type {HTMLDivElement} */
-  patternList: (document.getElementById("pattern-list")),
-  /** @type {HTMLDivElement} */
-  patternDetails: (document.getElementById("pattern-details")),
-  /** @type {HTMLInputElement} */
-  zoomSlider: (document.getElementById("zoom-slider"))
+  main: document.getElementById("main") as HTMLDivElement,
+  gridCanvas: document.getElementById("grid-canvas") as HTMLCanvasElement,
+  cellCanvas: document.getElementById("cell-canvas") as HTMLCanvasElement,
+  leftStatus: document.getElementById("left-status") as HTMLSpanElement,
+  rightStatus: document.getElementById("right-status") as HTMLSpanElement,
+  playIcon: document.getElementById("play-icon") as HTMLElement,
+  pauseIcon: document.getElementById("pause-icon") as HTMLElement,
+  speedBtn: document.getElementById("speed-btn") as HTMLButtonElement,
+  defaultBtn: document.getElementById("default-btn") as HTMLButtonElement,
+  patternBtn: document.getElementById("pattern-btn") as HTMLButtonElement,
+  patternList: document.getElementById("pattern-list") as HTMLDivElement,
+  patternDetails: document.getElementById("pattern-details") as HTMLDivElement,
+  zoomSlider: document.getElementById("zoom-slider") as HTMLInputElement
 };
 
 const wasm = true;
 
 /** Variables for most game related objects. To be set by initializeGame function. */
-/** @type {ViewController?} */
-let viewController = null;
-/** @type {GameController?} */
-let gameController = null;
+let viewController: ViewController | null = null;
+let gameController: GameController | null = null;
 
 /** Perform all actions required on page load to bring game to a working state. */
 (async () => {
@@ -70,10 +55,8 @@ function initializeGame() {
   const worker = new Worker("./worker.js");
 
   /** Get rendering contexts for all canvases. */
-  /** @type {CanvasRenderingContext2D} */
-  const gridCtx = (dom.gridCanvas.getContext("2d"));
-  /** @type {CanvasRenderingContext2D} */
-  const cellCtx = (dom.cellCanvas.getContext("2d"));
+  const gridCtx = dom.gridCanvas.getContext("2d");
+  const cellCtx = dom.cellCanvas.getContext("2d");
 
   /** Factory function for GameRenderer object. */
   viewController = createViewController(
@@ -171,10 +154,7 @@ domEvents.windowResize$.subscribe(() => {
   });
 });
 
-domEvents.navButtonClick$.subscribe(e => {
-  /** @type {HTMLLinkElement} */
-  const btn = (e.target);
-
+domEvents.navButtonClick$.subscribe(btn => {
   switch (btn.id) {
     case "play-btn":
       if (gameController?.isGamePaused || !gameController?.isGameStarted)
@@ -225,8 +205,8 @@ domEvents.arrowKeyPress$.subscribe(key => {
   }
 });
 
-domEvents.keyDown$.subscribe(key => {
-  switch (key) {
+domEvents.keyDown$.subscribe(e => {
+  switch (e.key) {
     case "Escape":
       patternLibrary.setSelected(null);
       gameController?.clearPreview();
@@ -279,7 +259,6 @@ domEvents.canvasDrag$.subscribe(({ deltaX, deltaY }) => {
 domEvents.canvasLeave$.subscribe(() => gameController?.clearPreview());
 
 domEvents.canvasPinch$.subscribe(({ scale, centerX, centerY }) => {
-  console.log(scale);
   viewController?.zoomAtPoint(
     viewController.view.zoom * scale,
     Math.round(centerX),
@@ -307,7 +286,6 @@ domEvents.patternModalCLick$.subscribe(({ pattern, role }) => {
 
 /** Set pattern library button as active when a pattern is selected, default otherwise. */
 patternLibrary.selection$.subscribe(pattern => {
-  console.log(pattern);
   dom.defaultBtn.classList.toggle("active", pattern === null);
   dom.patternBtn.classList.toggle("active", pattern !== null);
 });

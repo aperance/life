@@ -11,35 +11,39 @@
  * @module createViewController
  */
 
-/**
- * @typedef {Object} View
- * @property {number} [zoom]
- * @property {number} [panX]
- * @property {number} [panY]
- */
-
-/**
- * @typedef {Object} ViewController
- * @property {{width: number, height: number}} [window]
- * @property {View} [view]
- * @property {boolean} redrawNeeded
- * @property {number} minZoom
- * @property {number} maxPanX
- * @property {number} maxPanY
- * @property {{row: number, col: number}} centerRowCol
- * @property {function(number, number)} setWindow
- * @property {function(View?)} setView
- * @property {function(number, number, number): void} zoomAtPoint
- * @property {function(): void} clearCanvases
- * @property {function(Array<number>, Array<number>?, Array<number>?, Array<number>, boolean): void} updateCanvases
- * @property {function(): void} renderGrid
- * @property {function(Array<number>, Array<number>): void} renderAllCells
- * @property {function(Array<number>, Array<number>): void} renderChangedCells
- * @property {function(number): {row: number, col: number}} indexToRowCol
- * @property {function(number, number): {row: number, col: number, index: number}} xyToRowColIndex
- * @property {function} clamp
- * @ignore
- */
+export interface ViewController {
+  view?: {
+    zoom: number;
+    panX: number;
+    panY: number;
+  };
+  redrawNeeded: boolean;
+  minZoom: number;
+  maxPanX: number;
+  maxPanY: number;
+  centerRowCol: { row: number; col: number };
+  setWindow(width: number, height: number): void;
+  setView(any): void;
+  zoomAtPoint(zoom: number, x: number, y: number): void;
+  clearCanvases(): void;
+  updateCanvases(
+    alive: Array<number>,
+    born?: Array<number>,
+    died?: Array<number>,
+    //@ts-ignore
+    preview: Array<number>,
+    didCellsChange: boolean
+  ): void;
+  renderGrid(): void;
+  renderAllCells(alive: Array<number>, preview: Array<number>): void;
+  renderChangedCells(born: Array<number>, died: Array<number>): void;
+  indexToRowCol(i: number): { row: number; col: number };
+  xyToRowColIndex(
+    x: number,
+    y: number
+  ): { row: number; col: number; index: number };
+  clamp(val: number, min: number, max: number): number;
+}
 
 /**
  * Factory function to create ViewController object with dependencies injected.
@@ -49,9 +53,13 @@
  * @param {function(number, number, number): void} observer Function called when zoom or pan values are modified
  * @returns {ViewController}
  */
-const createViewController = (gridCtx, cellCtx, cellCount, observer) => {
-  /** @type {ViewController} */
-  const ViewController = {
+export const createViewController = (
+  gridCtx,
+  cellCtx,
+  cellCount,
+  observer
+): ViewController => {
+  return {
     /**
      * True if all canvases need to be fully redrawn on the next
      * render, due to a change in view or window parameters.
@@ -317,11 +325,7 @@ const createViewController = (gridCtx, cellCtx, cellCount, observer) => {
      * @returns {number}
      */
     clamp(val, min, max) {
-      return (val > max ? max : val < min ? min : val);
+      return val > max ? max : val < min ? min : val;
     }
   };
-
-  return ViewController;
 };
-
-export { createViewController };

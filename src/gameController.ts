@@ -11,35 +11,38 @@
  * @module gameController
  */
 
-/**
- * @typedef {Object} GameController
- * @property {Set} aliveCells
- * @property {Set} alivePreview
- * @property {boolean} isGameStarted
- * @property {boolean} isGamePaused
- * @property {Array<{born: Array<number>, died: Array<number>}>} resultBuffer
- * @property {number?} resultsRequestedAt
- * @property {boolean} didCellsChange
- * @property {{cyclesPerRender: number, currentCycle: number}} speed
- * @property {number} generation
- * @property {boolean} haltAnimationCycle
- * @property {{born: Array<number>, died: Array<number>}?} nextResult
- * @property {function(number, number): void} toggleCell
- * @property {function(number, number, number[][]): void} placePattern
- * @property {function(number, number, number[][]): void} placePreview
- * @property {function(number, number, number[][], function): void} iterateOverPattern
- * @property {function(): void} clearAliveCells
- * @property {function(): void} clearPreview
- * @property {function(): void} play
- * @property {function(): void} pause
- * @property {function(number): void} setSpeed
- * @property {function(): void} terminate
- * @property {function(): void} animationCycle
- * @property {function(MessageEvent): void} handleWorkerMessage
- * @ignore
- */
-
 import { ViewController } from "./viewController";
+
+export interface GameController {
+  aliveCells: Set<number>;
+  alivePreview: Set<number>;
+  isGameStarted: boolean;
+  isGamePaused: boolean;
+  resultBuffer: Array<{ born: Array<number>; died: Array<number> }>;
+  resultsRequestedAt?: number;
+  didCellsChange: boolean;
+  speed: { cyclesPerRender: number; currentCycle: number };
+  generation: number;
+  haltAnimationCycle: boolean;
+  nextResult: { born: Array<number>; died: Array<number> };
+  toggleCell(x: number, y: number): void;
+  placePattern(x: number, y: number, pattern: Array<Array<number>>): void;
+  placePreview(x: number, y: number, pattern: Array<Array<number>>): void;
+  iterateOverPattern(
+    x: number,
+    y: number,
+    pattern: Array<Array<number>>,
+    fn: (index: number, isAlive: boolean) => void
+  ): void;
+  clearAliveCells(): void;
+  clearPreview(): void;
+  play(): void;
+  pause(): void;
+  setSpeed(speed: number): void;
+  terminate(): void;
+  animationCycle(): void;
+  handleWorkerMessage(e: MessageEvent): void;
+}
 
 const batchSize = 25;
 const bufferSize = 50;
@@ -53,15 +56,14 @@ const bufferSize = 50;
  * @param {function(boolean, boolean, number, number, number): void} observer Function called when game state is modified
  * @return {GameController}
  */
-const createGameController = (
+export const createGameController = (
   worker,
   viewController,
   cellCount,
   wasm,
   observer
 ) => {
-  /** @type {GameController} */
-  const gameController = {
+  const gameController: GameController = {
     /**
      * Set containing the indices of the currently alive cells.
      * @memberof GameController#
@@ -372,5 +374,3 @@ const createGameController = (
 
   return gameController;
 };
-
-export { createGameController };

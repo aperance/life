@@ -1,10 +1,12 @@
 /* eslint-disable no-undef */
+// @ts-nocheck
+
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const path = require("path");
 
 const appConfig = {
   mode: "development",
-  entry: "./src/index.js",
+  entry: "./src/index.ts",
   output: {
     filename: "index.js",
     path: path.resolve(__dirname, "dist"),
@@ -30,10 +32,20 @@ const appConfig = {
         }
       },
       {
+        test: /\.ts$/,
+        exclude: /(node_modules)/,
+        use: {
+          loader: "babel-loader"
+        }
+      },
+      {
         test: /\.rle$/,
         use: "raw-loader"
       }
     ]
+  },
+  resolve: {
+    extensions: [".ts", ".js", ".json"]
   }
 };
 
