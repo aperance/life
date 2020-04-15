@@ -226,7 +226,7 @@ domEvents.keyDown$.subscribe(e => {
   }
 });
 
-merge(domEvents.canvasHover$, domEvents.mouseUp$)
+domEvents.canvasHover$
   .pipe(
     switchMap(e =>
       patternLibrary.selection$.pipe(map(pattern => ({e, pattern})))

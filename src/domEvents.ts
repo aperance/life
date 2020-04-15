@@ -8,7 +8,8 @@ import {
   first,
   skipUntil,
   pluck,
-  mapTo
+  mapTo,
+  tap
 } from "rxjs/operators";
 
 const cellCanvas = document.getElementById("cell-canvas") as HTMLCanvasElement;
@@ -145,8 +146,11 @@ export const canvasPinch$ = fromEvent<TouchEvent>(
   })
 );
 
-export const canvasHover$ = fromEvent<MouseEvent>(cellCanvas, "mousemove").pipe(
-  filter(e => e.buttons === 0)
+export const canvasHover$ = merge(
+  fromEvent<MouseEvent>(cellCanvas, "mousemove").pipe(
+    filter(e => e.buttons === 0)
+  ),
+  fromEvent<MouseEvent>(cellCanvas, "mouseup")
 );
 
 export const canvasLeave$ = fromEvent<MouseEvent>(cellCanvas, "mouseleave");
