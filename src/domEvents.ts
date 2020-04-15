@@ -1,4 +1,4 @@
-import { fromEvent, merge, interval } from "rxjs";
+import {fromEvent, merge, interval} from "rxjs";
 import {
   map,
   switchMap,
@@ -63,7 +63,7 @@ export const canvasDrag$ = merge(
 
           prevEvent = moveEvent;
 
-          return { deltaX, deltaY };
+          return {deltaX, deltaY};
         }),
         skipUntil(
           fromEvent<MouseEvent>(document, "mousemove").pipe(
@@ -76,31 +76,31 @@ export const canvasDrag$ = merge(
   ),
   fromEvent<TouchEvent>(cellCanvas, "touchstart").pipe(
     pluck("touches"),
-    filter(({ length }) => length === 1),
+    filter(({length}) => length === 1),
     switchMap(([initialTouch]) => {
       let prevTouch = initialTouch;
 
       return fromEvent<TouchEvent>(document, "touchmove").pipe(
         pluck("touches"),
-        filter(({ length }) => length === 1),
+        filter(({length}) => length === 1),
         map(([currentTouch]) => {
           let deltaX = prevTouch.clientX - currentTouch.clientX;
           let deltaY = prevTouch.clientY - currentTouch.clientY;
 
           prevTouch = currentTouch;
 
-          return { deltaX, deltaY };
+          return {deltaX, deltaY};
         }),
         takeUntil(
           fromEvent<TouchEvent>(document, "touchend").pipe(
             pluck("touches"),
-            filter(({ length }) => length === 0)
+            filter(({length}) => length === 0)
           )
         ),
         takeUntil(
           fromEvent<TouchEvent>(document, "touchstart").pipe(
             pluck("touches"),
-            filter(({ length }) => length !== 1)
+            filter(({length}) => length !== 1)
           )
         )
       );
@@ -126,7 +126,7 @@ export const canvasPinch$ = fromEvent<TouchEvent>(
   "touchstart"
 ).pipe(
   pluck("touches"),
-  filter(({ length }) => length === 2),
+  filter(({length}) => length === 2),
   switchMap(() => {
     let prevScale = 1;
 
@@ -138,7 +138,7 @@ export const canvasPinch$ = fromEvent<TouchEvent>(
         let centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
         // @ts-ignore
         prevScale = e.scale;
-        return { scale, centerX, centerY };
+        return {scale, centerX, centerY};
       }),
       takeUntil(fromEvent<TouchEvent>(document, "touchend"))
     );
@@ -155,7 +155,7 @@ export const patternModalCLick$ = fromEvent<MouseEvent>(
   patternModal,
   "click"
 ).pipe(
-  pluck<Event, { pattern: string; role: string }>("target", "dataset"),
+  pluck<Event, {pattern: string; role: string}>("target", "dataset"),
   // @ts-ignore
   filter(dataset => dataset && dataset.pattern && dataset.role)
 );

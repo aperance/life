@@ -1,9 +1,9 @@
-import { merge } from "rxjs";
-import { switchMap, map, first } from "rxjs/operators";
+import {merge} from "rxjs";
+import {switchMap, map, first} from "rxjs/operators";
 import "@fortawesome/fontawesome-free/js/all";
 
-import { ViewController, createViewController } from "./viewController";
-import { GameController, createGameController } from "./gameController";
+import {ViewController, createViewController} from "./viewController";
+import {GameController, createGameController} from "./gameController";
 import * as patternLibrary from "./patternLibrary";
 import * as domEvents from "./domEvents";
 
@@ -119,10 +119,7 @@ function handleGameChange(
   /** Ensure speed button value matches the current game speed. */
   //@ts-ignore
   dom.speedBtn.querySelector("span").textContent =
-    (6 / speed)
-      .toString()
-      .replace("0.5", "1/2")
-      .replace("0.25", "1/4") + "x";
+    (6 / speed).toString().replace("0.5", "1/2").replace("0.25", "1/4") + "x";
 }
 
 /**
@@ -196,16 +193,16 @@ domEvents.arrowKeyPress$.subscribe(key => {
   if (viewController?.view?.panX && viewController?.view?.panY)
     switch (key) {
       case "ArrowUp":
-        viewController.setView({ panY: viewController.view.panY - 2 });
+        viewController.setView({panY: viewController.view.panY - 2});
         break;
       case "ArrowDown":
-        viewController.setView({ panY: viewController.view.panY + 2 });
+        viewController.setView({panY: viewController.view.panY + 2});
         break;
       case "ArrowLeft":
-        viewController.setView({ panX: viewController.view.panX - 2 });
+        viewController.setView({panX: viewController.view.panX - 2});
         break;
       case "ArrowRight":
-        viewController.setView({ panX: viewController.view.panX + 2 });
+        viewController.setView({panX: viewController.view.panX + 2});
         break;
       default:
         break;
@@ -232,10 +229,10 @@ domEvents.keyDown$.subscribe(e => {
 merge(domEvents.canvasHover$, domEvents.mouseUp$)
   .pipe(
     switchMap(e =>
-      patternLibrary.selection$.pipe(map(pattern => ({ e, pattern })))
+      patternLibrary.selection$.pipe(map(pattern => ({e, pattern})))
     )
   )
-  .subscribe(({ e, pattern }) => {
+  .subscribe(({e, pattern}) => {
     if (pattern) gameController?.placePreview(e.clientX, e.clientY, pattern);
     document.body.style.cursor = "default";
   });
@@ -245,16 +242,16 @@ domEvents.canvasClick$
     switchMap(e =>
       patternLibrary.selection$.pipe(
         first(),
-        map(pattern => ({ e, pattern }))
+        map(pattern => ({e, pattern}))
       )
     )
   )
-  .subscribe(({ e, pattern }) => {
+  .subscribe(({e, pattern}) => {
     if (pattern === null) gameController?.toggleCell(e.clientX, e.clientY);
     else gameController?.placePattern(e.clientX, e.clientY, pattern);
   });
 
-domEvents.canvasDrag$.subscribe(({ deltaX, deltaY }) => {
+domEvents.canvasDrag$.subscribe(({deltaX, deltaY}) => {
   if (viewController?.view?.panX && viewController?.view?.panY)
     viewController.setView({
       panX: Math.round(viewController.view.panX + deltaX),
@@ -266,7 +263,7 @@ domEvents.canvasDrag$.subscribe(({ deltaX, deltaY }) => {
 
 domEvents.canvasLeave$.subscribe(() => gameController?.clearPreview());
 
-domEvents.canvasPinch$.subscribe(({ scale, centerX, centerY }) => {
+domEvents.canvasPinch$.subscribe(({scale, centerX, centerY}) => {
   if (viewController?.view?.zoom)
     viewController.zoomAtPoint(
       viewController.view.zoom * scale,
@@ -286,7 +283,7 @@ domEvents.canvasScroll$.subscribe(e => {
 });
 
 //@ts-ignore
-domEvents.patternModalCLick$.subscribe(({ pattern, role }) => {
+domEvents.patternModalCLick$.subscribe(({pattern, role}) => {
   /** Update details section on selection of pattern from list. */
   if (role === "listItem")
     dom.patternDetails.innerHTML = patternLibrary.generateDetailHTML(pattern);

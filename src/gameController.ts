@@ -11,20 +11,20 @@
  * @module gameController
  */
 
-import { ViewController } from "./viewController";
+import {ViewController} from "./viewController";
 
 export interface GameController {
   aliveCells: Set<number>;
   alivePreview: Set<number>;
   isGameStarted: boolean;
   isGamePaused: boolean;
-  resultBuffer: Array<{ born: Array<number>; died: Array<number> }>;
+  resultBuffer: Array<{born: Array<number>; died: Array<number>}>;
   resultsRequestedAt: number | null;
   didCellsChange: boolean;
-  speed: { cyclesPerRender: number; currentCycle: number };
+  speed: {cyclesPerRender: number; currentCycle: number};
   generation: number;
   haltAnimationCycle: boolean;
-  nextResult: { born: Array<number>; died: Array<number> } | null;
+  nextResult: {born: Array<number>; died: Array<number>} | null;
   toggleCell(x: number, y: number): void;
   placePattern(x: number, y: number, pattern: Array<Array<number>>): void;
   placePreview(x: number, y: number, pattern: Array<Array<number>>): void;
@@ -119,7 +119,7 @@ export function createGameController(
      * @memberof GameController#
      * @type {{cyclesPerRender: number, currentCycle: number}}
      */
-    speed: { cyclesPerRender: 6, currentCycle: 1 },
+    speed: {cyclesPerRender: 6, currentCycle: 1},
 
     /**
      * The generation number of the results currently being displayed.
@@ -147,7 +147,7 @@ export function createGameController(
       if (this.resultBuffer.length < bufferSize && !this.resultsRequestedAt) {
         worker.postMessage({
           action: "requestResults",
-          payload: { count: batchSize }
+          payload: {count: batchSize}
         });
         this.resultsRequestedAt = Date.now();
       }
@@ -164,7 +164,7 @@ export function createGameController(
     toggleCell(x, y) {
       if (this.isGameStarted) return;
 
-      const { index } = viewController.xyToRowColIndex(x, y);
+      const {index} = viewController.xyToRowColIndex(x, y);
 
       this.aliveCells.has(index)
         ? this.aliveCells.delete(index)
@@ -216,7 +216,7 @@ export function createGameController(
      * @param {function} fn function to be called for each cell
      */
     iterateOverPattern(x, y, pattern, fn) {
-      const { row, col } = viewController.xyToRowColIndex(x, y);
+      const {row, col} = viewController.xyToRowColIndex(x, y);
       const startRow = row + 1 - Math.round(pattern.length / 2);
       const startCol = col + 1 - Math.round(pattern[0].length / 2);
 

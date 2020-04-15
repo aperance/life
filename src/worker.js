@@ -19,13 +19,13 @@ onmessage = messageHandler;
  * @param {MessageEvent} e
  */
 async function messageHandler(e) {
-  const { action, payload } = e.data;
+  const {action, payload} = e.data;
   switch (action) {
     case "start":
       if (payload.wasm)
         try {
           // @ts-ignore
-          const { GameEngine } = await import("life-wasm");
+          const {GameEngine} = await import("life-wasm");
           generator = new GameEngine(payload.size, payload.initialAlive);
         } catch (e) {
           console.error("Error importing wasm:", e);
@@ -53,8 +53,8 @@ function batchResults(count) {
   let arr = [];
   for (let i = 0; i < count; i++) {
     // @ts-ignore
-    const { born, died } = generator.next().value;
-    arr[i] = { born: [...born], died: [...died] };
+    const {born, died} = generator.next().value;
+    arr[i] = {born: [...born], died: [...died]};
   }
   return arr;
 }
@@ -123,7 +123,7 @@ function* createGenerator(size, initialAlive) {
     for (let cellIndex of born) alive.add(cellIndex);
     for (let cellIndex of died) alive.delete(cellIndex);
 
-    yield { born, died, generation };
+    yield {born, died, generation};
   }
 }
 
@@ -159,4 +159,4 @@ function getNeighbors(index, size) {
   return arr;
 }
 
-export { createGenerator };
+export {createGenerator};

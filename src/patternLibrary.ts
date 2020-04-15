@@ -5,7 +5,7 @@ interface PatternData {
   array: number[][];
 }
 
-import { BehaviorSubject } from "rxjs";
+import {BehaviorSubject} from "rxjs";
 
 const map = new Map();
 
@@ -191,7 +191,7 @@ export function generateListHTML(): string {
  * @returns {string}
  */
 export function generateDetailHTML(id: string): string {
-  const { name, author, description } = getData(id);
+  const {name, author, description} = getData(id);
 
   return `
         <div>

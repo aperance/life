@@ -25,11 +25,9 @@ export interface ViewController {
   minZoom: number;
   maxPanX: number;
   maxPanY: number;
-  centerRowCol: { row: number; col: number };
+  centerRowCol: {row: number; col: number};
   setWindow(width: number, height: number): void;
-  setView(
-    newView: { zoom?: number; panX?: number; panY?: number } | null
-  ): void;
+  setView(newView: {zoom?: number; panX?: number; panY?: number} | null): void;
   zoomAtPoint(zoom: number, x: number, y: number): void;
   clearCanvases(): void;
   updateCanvases(
@@ -42,11 +40,11 @@ export interface ViewController {
   renderGrid(): void;
   renderAllCells(alive: Array<number>, preview: Array<number>): void;
   renderChangedCells(born: Array<number>, died: Array<number>): void;
-  indexToRowCol(i: number): { row: number; col: number };
+  indexToRowCol(i: number): {row: number; col: number};
   xyToRowColIndex(
     x: number,
     y: number
-  ): { row: number; col: number; index: number };
+  ): {row: number; col: number; index: number};
   clamp(val: number, min: number, max: number): number;
 }
 
@@ -121,11 +119,11 @@ export function createViewController(
     get centerRowCol() {
       if (!this.window || !this.view) throw Error("Canvas not initialized");
 
-      const { row, col } = this.xyToRowColIndex(
+      const {row, col} = this.xyToRowColIndex(
         this.window.width / 2,
         this.window.height / 2
       );
-      return { row: row - cellCount / 2, col: col - cellCount / 2 };
+      return {row: row - cellCount / 2, col: col - cellCount / 2};
     },
 
     /**
@@ -136,7 +134,7 @@ export function createViewController(
      * @param {number} height Current height width in pixels
      */
     setWindow(width, height) {
-      this.window = { width, height };
+      this.window = {width, height};
       this.setView(null);
     },
 
@@ -156,7 +154,7 @@ export function createViewController(
       //   this.view.panY = Math.round(this.maxPanY / 2);
       // }
 
-      if (newView) this.view = { ...this.view, ...newView };
+      if (newView) this.view = {...this.view, ...newView};
 
       this.view.zoom = this.clamp(this.view.zoom ?? 10, this.minZoom, 100);
 
@@ -174,7 +172,7 @@ export function createViewController(
 
       this.redrawNeeded = true;
 
-      const { row, col } = this.centerRowCol;
+      const {row, col} = this.centerRowCol;
       observer(this.view.zoom, row, col);
     },
 
@@ -190,12 +188,12 @@ export function createViewController(
       if (!this.view?.zoom || !this.view?.panX || !this.view?.panY)
         throw Error("Canvas not initialized");
 
-      const { zoom: oldZoom, panX: oldPanX, panY: oldPanY } = this.view;
+      const {zoom: oldZoom, panX: oldPanX, panY: oldPanY} = this.view;
       const newZoom = this.clamp(zoom, this.minZoom, 100);
       const scale = newZoom / oldZoom - 1;
       const newPanX = Math.round(oldPanX + scale * (oldPanX + x));
       const newPanY = Math.round(oldPanY + scale * (oldPanY + y));
-      this.setView({ zoom: newZoom, panX: newPanX, panY: newPanY });
+      this.setView({zoom: newZoom, panX: newPanX, panY: newPanY});
     },
 
     /**
@@ -243,11 +241,11 @@ export function createViewController(
       if (!this.view?.zoom || !this.view?.panX || !this.view?.panY)
         throw Error("Canvas not initialized");
 
-      const { width, height } = gridCtx.canvas;
-      const { row: startRow, col: startCol } = this.xyToRowColIndex(0, 0);
-      const { row: endRow, col: endCol } = this.xyToRowColIndex(width, height);
+      const {width, height} = gridCtx.canvas;
+      const {row: startRow, col: startCol} = this.xyToRowColIndex(0, 0);
+      const {row: endRow, col: endCol} = this.xyToRowColIndex(width, height);
 
-      const { zoom, panX, panY } = this.view;
+      const {zoom, panX, panY} = this.view;
       gridCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
 
       if (zoom < 5) return;
@@ -293,18 +291,18 @@ export function createViewController(
       if (!this.view?.zoom || !this.view?.panX || !this.view?.panY)
         throw Error("Canvas not initialized");
 
-      const { zoom, panX, panY } = this.view;
+      const {zoom, panX, panY} = this.view;
       cellCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
 
       cellCtx.fillStyle = "rgba(0, 0, 0, 1)";
       for (let i = 0; i < alive.length; ++i) {
-        const { row, col } = this.indexToRowCol(alive[i]);
+        const {row, col} = this.indexToRowCol(alive[i]);
         cellCtx.fillRect(col, row, 1, 1);
       }
 
       cellCtx.fillStyle = "rgba(0, 0, 0, 0.5)";
       for (let i = 0; i < preview.length; ++i) {
-        const { row, col } = this.indexToRowCol(preview[i]);
+        const {row, col} = this.indexToRowCol(preview[i]);
         cellCtx.fillRect(col, row, 1, 1);
       }
     },
@@ -318,12 +316,12 @@ export function createViewController(
     renderChangedCells(born, died) {
       cellCtx.fillStyle = "rgba(0, 0, 0, 1)";
       for (let i = 0; i < born.length; ++i) {
-        const { row, col } = this.indexToRowCol(born[i]);
+        const {row, col} = this.indexToRowCol(born[i]);
         cellCtx.fillRect(col, row, 1, 1);
       }
 
       for (let i = 0; i < died.length; ++i) {
-        const { row, col } = this.indexToRowCol(died[i]);
+        const {row, col} = this.indexToRowCol(died[i]);
         cellCtx.clearRect(col, row, 1, 1);
       }
     },
@@ -335,7 +333,7 @@ export function createViewController(
      * @returns {{row: number, col: number}}
      */
     indexToRowCol(i) {
-      return { row: Math.floor(i / cellCount), col: i % cellCount };
+      return {row: Math.floor(i / cellCount), col: i % cellCount};
     },
 
     /**
@@ -352,7 +350,7 @@ export function createViewController(
       const row = Math.floor((y + this.view.panY) / this.view.zoom);
       const col = Math.floor((x + this.view.panX) / this.view.zoom);
       const index = cellCount * row + col;
-      return { row, col, index };
+      return {row, col, index};
     },
 
     /**
