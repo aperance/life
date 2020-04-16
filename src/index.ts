@@ -1,4 +1,3 @@
-import {merge} from "rxjs";
 import {switchMap, map, first} from "rxjs/operators";
 import "@fortawesome/fontawesome-free/js/all";
 
