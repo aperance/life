@@ -1,5 +1,7 @@
 import {switchMap, map, first} from "rxjs/operators";
 import "@fortawesome/fontawesome-free/js/all";
+import "materialize-css/sass/materialize.scss";
+import "./styles.scss";
 
 import {ViewController, createViewController} from "./viewController";
 import {GameController, createGameController} from "./gameController";
@@ -23,7 +25,8 @@ const dom = {
   zoomSlider: document.getElementById("zoom-slider") as HTMLInputElement
 };
 
-const wasm = true;
+const isWasm = true;
+const isDarkMode = false;
 
 /** Variables for most game related objects. To be set by initializeGame function. */
 let viewController: ViewController | null = null;
@@ -62,6 +65,7 @@ function initializeGame() {
     gridCtx,
     cellCtx,
     5000,
+    isDarkMode,
     handleViewChange
   );
   /** Factory function for GameController object. */
@@ -69,7 +73,7 @@ function initializeGame() {
     worker,
     viewController,
     5000,
-    wasm,
+    isWasm,
     handleGameChange
   );
 

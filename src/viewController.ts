@@ -53,6 +53,7 @@ export interface ViewController {
  * @param {CanvasRenderingContext2D} gridCtx Canvas context used for drawing grid lines
  * @param {CanvasRenderingContext2D} cellCtx Canvas context used for drawing cells
  * @param {number} cellCount Number of cells per side of the total game area
+ * @param {boolean} isDarkMode Should colors be inverted on canvas
  * @param {function(number, number, number): void} observer Function called when zoom or pan values are modified
  * @returns {ViewController}
  */
@@ -60,6 +61,7 @@ export function createViewController(
   gridCtx: CanvasRenderingContext2D,
   cellCtx: CanvasRenderingContext2D,
   cellCount: number,
+  isDarkMode: boolean,
   observer: any
 ): ViewController {
   const viewController: ViewController = {

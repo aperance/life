@@ -2,6 +2,7 @@
 // @ts-nocheck
 
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require("path");
 
 const appConfig = {
@@ -17,12 +18,32 @@ const appConfig = {
     host: "0.0.0.0",
     port: 1234
   },
-  plugins: [new CopyWebpackPlugin(["./src/index.html", "./src/styles.css"])],
+  plugins: [
+    new CopyWebpackPlugin(["./src/index.html"]),
+    new MiniCssExtractPlugin({
+      // Options similar to the same options in webpackOptions.output
+      // both options are optional
+      filename: "[name].css",
+      chunkFilename: "[id].css"
+    })
+  ],
   module: {
     rules: [
       {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"]
+        test: /\.s[ac]ss$/i,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              // you can specify a publicPath here
+              // by default it use publicPath in webpackOptions.output
+              publicPath: "../"
+            }
+          },
+          //"style-loader",
+          "css-loader",
+          "sass-loader"
+        ]
       },
       {
         test: /\.js$/,
