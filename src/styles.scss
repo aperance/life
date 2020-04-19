@@ -20,82 +20,27 @@ a > span {
     0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
 }
 
-/* Canvas Elements */
-
 #canvas-container {
   position: absolute;
   top: 0;
   left: 0;
   height: 100vh;
   width: 100vw;
+
+  canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  #grid-canvas {
+    z-index: 0;
+  }
+
+  #cell-canvas {
+    z-index: 1;
+  }
 }
-
-#canvas-container > canvas {
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-
-#preview-canvas {
-  opacity: 0.5;
-}
-
-#grid-canvas {
-  z-index: 0;
-}
-
-#cell-canvas {
-  z-index: 1;
-}
-
-/* Pattern Library Modal */
-
-#pattern-modal {
-  overflow-y: hidden;
-}
-
-.modal-body {
-  display: flex;
-}
-
-#pattern-list {
-  flex: 0 0 200px;
-  padding-right: 8px;
-  overflow-y: scroll;
-  height: 72vh;
-}
-
-#pattern-list .collapsible {
-  box-shadow: none;
-  border: none;
-}
-
-#pattern-list .collapsible-header {
-  color: black;
-  border-bottom: none;
-  background-color: #fafafa;
-}
-
-#pattern-list .collection {
-  padding: 0;
-}
-
-#pattern-list .collection-item {
-  color: black;
-  border-bottom: none;
-  background-color: #fafafa;
-}
-
-#pattern-details {
-  padding: 8px;
-}
-
-#pattern-details button {
-  width: 150px;
-  margin-top: 8px;
-}
-
-/* Top Bar */
 
 nav {
   z-index: 2;
@@ -103,121 +48,108 @@ nav {
   padding: 0 12px 0 12px;
   line-height: normal;
   height: 58px;
-}
 
-nav .active {
-  background-color: rgba(0, 0, 0, 0.05);
-}
+  #speed-dropdown a {
+    color: #5f6368;
+    font-size: 1.2rem;
+  }
 
-nav ul input[type="range"] {
-  margin-top: 25px;
-}
+  input[type="range"] {
+    margin-top: 25px;
+  }
 
-nav ul span.thumb {
-  display: none;
-}
+  span.thumb {
+    display: none;
+  }
 
-nav ul a.btn-flat {
-  color: #5f6368;
-  padding: 18px 18px 20px 18px;
-  margin: 0;
-  border-radius: unset;
-  line-height: normal;
-  height: 58px;
-}
+  ul a.btn-flat {
+    color: #5f6368;
+    padding: 18px 18px 20px 18px;
+    margin: 0;
+    border-radius: unset;
+    line-height: normal;
+    height: 58px;
 
-nav ul a.btn-flat svg {
-  width: 20px !important;
-  height: 20px !important;
-}
+    &.active {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
 
-nav ul a.btn-flat span {
-  vertical-align: bottom;
-  font-size: 16px;
-  text-transform: none;
-  line-height: 20px;
-  height: 20px;
-}
+    &[hidden] {
+      display: none;
+    }
 
-nav ul a.btn-flat[hidden] {
-  display: none;
-}
+    svg {
+      width: 20px !important;
+      height: 20px !important;
+    }
 
-#speed-dropdown a {
-  color: #5f6368;
-  font-size: 1.2rem;
+    span {
+      vertical-align: bottom;
+      font-size: 16px;
+      text-transform: none;
+      line-height: 20px;
+      height: 20px;
+    }
+  }
 }
-
-/* Bottom Bar */
 
 #bottom-bar {
   position: absolute;
   bottom: 0;
   width: 100vw;
   padding: 6px 18px 6px 18px;
+
+  span {
+    font-family: monospace;
+    font-size: 1.2rem;
+  }
+
+  #right-status {
+    float: right;
+  }
 }
 
-#bottom-bar > span {
-  font-family: monospace;
-  font-size: 1.2rem;
-}
+#pattern-modal {
+  overflow-y: hidden;
 
-#right-status {
-  float: right;
-}
+  .modal-body {
+    display: flex;
+  }
 
-/* Pan Controls */
+  #pattern-list {
+    flex: 0 0 200px;
+    padding-right: 8px;
+    overflow-y: scroll;
+    height: 72vh;
 
-#pan-btn-group {
-  position: absolute;
-  bottom: 200px;
-  right: 26px;
-  height: 54px;
-  width: 54px;
-  z-index: 5;
-  display: grid;
-  grid: 1fr 1fr 1fr / 1fr 1fr 1fr;
-  grid-template-areas:
-    ". up ."
-    "left . right"
-    ". down .";
-}
+    .collapsible {
+      box-shadow: none;
+      border: none;
+    }
 
-#pan-btn-group > button {
-  padding: 0;
-  border-radius: 0.4rem;
-}
+    .collapsible-header {
+      color: black;
+      border-bottom: none;
+      background-color: #fafafa;
+    }
 
-#pan-btn-group > button[data-direction="up"] {
-  grid-area: up;
-}
+    .collection {
+      padding: 0;
+    }
 
-#pan-btn-group > button[data-direction="down"] {
-  grid-area: down;
-}
+    .collection-item {
+      color: black;
+      border-bottom: none;
+      background-color: #fafafa;
+    }
+  }
 
-#pan-btn-group > button[data-direction="left"] {
-  grid-area: left;
-}
+  #pattern-details {
+    padding: 8px;
 
-#pan-btn-group > button[data-direction="right"] {
-  grid-area: right;
-}
-
-/* Zoom Controls */
-
-#zoom-controls {
-  position: absolute;
-  bottom: 104px;
-  right: -15px;
-  transform: rotate(-90deg);
-  z-index: 5;
-}
-
-#zoom-controls .range-field {
-  margin: 8px;
-}
-
-#zoom-controls .thumb {
-  visibility: hidden;
+    button {
+      width: 150px;
+      margin-top: 8px;
+    }
+  }
 }
