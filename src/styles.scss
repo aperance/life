@@ -1,13 +1,19 @@
 :root {
-  --foreground-color: #5f6368;
-  --background-color: #fff;
+  --icon-color: #5f6368;
+  --navbar-color: #fff;
+  --menu-color: #fff;
   --canvas-color: #fff;
+  --text-color: #000;
+  --slider-color: #c2c0c2;
 }
 
 [data-theme="dark"] {
-  --foreground-color: #fff;
-  --background-color: #000;
-  --canvas-color: #5f6368;
+  --icon-color: #fafafa;
+  --navbar-color: #222;
+  --menu-color: #3f3f3f;
+  --canvas-color: #333;
+  --text-color: #fafafa;
+  --slider-color: #fff;
 }
 
 html {
@@ -61,15 +67,21 @@ nav {
   padding: 0 12px 0 12px;
   line-height: normal;
   height: 58px;
-  background-color: var(--background-color);
+  background-color: var(--navbar-color);
 
   #speed-dropdown a {
-    color: var(--foreground-color);
+    color: var(--text-color);
+    background-color: var(--menu-color);
     font-size: 1.2rem;
   }
 
   input[type="range"] {
-    margin-top: 25px;
+    margin-top: 27px;
+    border: none;
+
+    &::-webkit-slider-runnable-track {
+      background-color: var(--slider-color);
+    }
   }
 
   span.thumb {
@@ -77,7 +89,7 @@ nav {
   }
 
   ul a.btn-flat {
-    color: var(--foreground-color);
+    color: var(--icon-color);
     padding: 18px 18px 20px 18px;
     margin: 0;
     border-radius: unset;
@@ -112,6 +124,7 @@ nav {
   bottom: 0;
   width: 100vw;
   padding: 6px 18px 6px 18px;
+  color: var(--text-color);
 
   span {
     font-family: monospace;
@@ -125,6 +138,8 @@ nav {
 
 #pattern-modal {
   overflow-y: hidden;
+  color: var(--text-color);
+  background-color: var(--menu-color);
 
   .modal-body {
     display: flex;
@@ -142,9 +157,9 @@ nav {
     }
 
     .collapsible-header {
-      color: black;
+      color: var(--text-color);
+      background-color: var(--menu-color);
       border-bottom: none;
-      background-color: #fafafa;
     }
 
     .collection {
@@ -152,9 +167,9 @@ nav {
     }
 
     .collection-item {
-      color: black;
+      color: var(--text-color);
+      background-color: var(--menu-color);
       border-bottom: none;
-      background-color: #fafafa;
     }
   }
 
@@ -162,7 +177,6 @@ nav {
     padding: 8px;
 
     button {
-      width: 150px;
       margin-top: 8px;
     }
   }
