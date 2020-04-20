@@ -1,19 +1,19 @@
 :root {
   --icon-color: #5f6368;
-  --navbar-color: #fff;
-  --menu-color: #fff;
-  --canvas-color: #fff;
-  --text-color: #000;
+  --navbar-color: #ffffff;
+  --menu-color: #ffffff;
+  --canvas-color: #ffffff;
+  --text-color: #000000;
   --slider-color: #c2c0c2;
 }
 
 [data-theme="dark"] {
   --icon-color: #fafafa;
-  --navbar-color: #222;
+  --navbar-color: #222222;
   --menu-color: #3f3f3f;
-  --canvas-color: #333;
+  --canvas-color: #333333;
   --text-color: #fafafa;
-  --slider-color: #fff;
+  --slider-color: #fafafa;
 }
 
 html {
@@ -39,9 +39,6 @@ a > span {
 }
 
 #canvas-container {
-  position: absolute;
-  top: 0;
-  left: 0;
   height: 100vh;
   width: 100vw;
   background-color: var(--canvas-color);
@@ -84,10 +81,6 @@ nav {
     }
   }
 
-  span.thumb {
-    display: none;
-  }
-
   ul a.btn-flat {
     color: var(--icon-color);
     padding: 18px 18px 20px 18px;
@@ -124,15 +117,15 @@ nav {
   bottom: 0;
   width: 100vw;
   padding: 6px 18px 6px 18px;
-  color: var(--text-color);
 
   span {
     font-family: monospace;
     font-size: 1.2rem;
-  }
+    color: var(--text-color);
 
-  #right-status {
-    float: right;
+    &:nth-child(2) {
+      float: right;
+    }
   }
 }
 
