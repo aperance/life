@@ -21,7 +21,7 @@ export interface ViewController {
     width: number;
     height: number;
   };
-  isDarkMode?: boolean;
+  isDarkMode: boolean;
   isRedrawNeeded: boolean;
   minZoom: number;
   maxPanX: number;
@@ -55,6 +55,7 @@ export interface ViewController {
  * @param {CanvasRenderingContext2D} gridCtx Canvas context used for drawing grid lines
  * @param {CanvasRenderingContext2D} cellCtx Canvas context used for drawing cells
  * @param {number} cellCount Number of cells per side of the total game area
+ * @param {string?} initialTheme Initial color theme. Set dark mode to true if value equals "dark", false otherwise
  * @param {function(number, number, number): void} observer Function called when zoom or pan values are modified
  * @returns {ViewController}
  */
@@ -62,10 +63,13 @@ export function createViewController(
   gridCtx: CanvasRenderingContext2D,
   cellCtx: CanvasRenderingContext2D,
   cellCount: number,
+  initialTheme: string | undefined,
   observer: any
 ): ViewController {
   const viewController: ViewController = {
     view: {},
+
+    isDarkMode: initialTheme === "dark",
 
     /**
      * True if all canvases need to be fully redrawn on the next

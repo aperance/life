@@ -31,6 +31,9 @@ const isWasm = true;
 let viewController: ViewController | null = null;
 let gameController: GameController | null = null;
 
+document.documentElement.dataset.theme =
+  localStorage.getItem("theme") ?? "light";
+
 /** Perform all actions required on page load to bring game to a working state. */
 (async () => {
   try {
@@ -64,6 +67,7 @@ function initializeGame() {
     gridCtx,
     cellCtx,
     5000,
+    document.documentElement.dataset.theme,
     handleViewChange
   );
   /** Factory function for GameController object. */
@@ -177,6 +181,7 @@ domEvents.navButtonClick$.subscribe(btn => {
       document.documentElement.dataset.theme =
         document.documentElement.dataset.theme === "dark" ? "light" : "dark";
       viewController?.setColorTheme(document.documentElement.dataset.theme);
+      localStorage.setItem("theme", document.documentElement.dataset.theme);
       break;
     default:
       /** Update game speed on selection of new spped in dropdown. */
