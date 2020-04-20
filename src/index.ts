@@ -26,7 +26,6 @@ const dom = {
 };
 
 const isWasm = true;
-const isDarkMode = false;
 
 /** Variables for most game related objects. To be set by initializeGame function. */
 let viewController: ViewController | null = null;
@@ -65,7 +64,6 @@ function initializeGame() {
     gridCtx,
     cellCtx,
     5000,
-    isDarkMode,
     handleViewChange
   );
   /** Factory function for GameController object. */
@@ -174,6 +172,11 @@ domEvents.navButtonClick$.subscribe(btn => {
       terminateGame();
       initializeGame();
       viewController?.setWindow(window.innerWidth, window.innerHeight);
+      break;
+    case "dark-btn":
+      document.documentElement.dataset.theme =
+        document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      viewController?.setColorTheme(document.documentElement.dataset.theme);
       break;
     default:
       /** Update game speed on selection of new spped in dropdown. */

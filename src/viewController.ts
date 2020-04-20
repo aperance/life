@@ -21,7 +21,8 @@ export interface ViewController {
     width: number;
     height: number;
   };
-  redrawNeeded: boolean;
+  isDarkMode?: boolean;
+  isRedrawNeeded: boolean;
   minZoom: number;
   maxPanX: number;
   maxPanY: number;
@@ -29,6 +30,7 @@ export interface ViewController {
   setWindow(width: number, height: number): void;
   setView(newView: {zoom?: number; panX?: number; panY?: number} | null): void;
   zoomAtPoint(zoom: number, x: number, y: number): void;
+  setColorTheme(theme?: string): void;
   clearCanvases(): void;
   updateCanvases(
     alive: Array<number>,
@@ -53,7 +55,6 @@ export interface ViewController {
  * @param {CanvasRenderingContext2D} gridCtx Canvas context used for drawing grid lines
  * @param {CanvasRenderingContext2D} cellCtx Canvas context used for drawing cells
  * @param {number} cellCount Number of cells per side of the total game area
- * @param {boolean} isDarkMode Should colors be inverted on canvas
  * @param {function(number, number, number): void} observer Function called when zoom or pan values are modified
  * @returns {ViewController}
  */
@@ -61,7 +62,6 @@ export function createViewController(
   gridCtx: CanvasRenderingContext2D,
   cellCtx: CanvasRenderingContext2D,
   cellCount: number,
-  isDarkMode: boolean,
   observer: any
 ): ViewController {
   const viewController: ViewController = {
@@ -73,7 +73,7 @@ export function createViewController(
      * @memberof ViewController#
      * @type {boolean}
      */
-    redrawNeeded: true,
+    isRedrawNeeded: true,
 
     /**
      * The minimum zoom value where the game area is not smaller than the window.
@@ -172,7 +172,7 @@ export function createViewController(
         this.maxPanY
       );
 
-      this.redrawNeeded = true;
+      this.isRedrawNeeded = true;
 
       const {row, col} = this.centerRowCol;
       observer(this.view.zoom, row, col);
@@ -196,6 +196,11 @@ export function createViewController(
       const newPanX = Math.round(oldPanX + scale * (oldPanX + x));
       const newPanY = Math.round(oldPanY + scale * (oldPanY + y));
       this.setView({zoom: newZoom, panX: newPanX, panY: newPanY});
+    },
+
+    setColorTheme(theme) {
+      this.isDarkMode = theme === "dark" ? true : false;
+      this.isRedrawNeeded = true;
     },
 
     /**
@@ -225,13 +230,13 @@ export function createViewController(
     updateCanvases(alive, born, died, preview, didCellsChange) {
       if (!this.window) return;
 
-      if (born && died && !this.redrawNeeded)
+      if (born && died && !this.isRedrawNeeded)
         this.renderChangedCells(born, died);
-      else if (didCellsChange || this.redrawNeeded) {
+      else if (didCellsChange || this.isRedrawNeeded) {
         this.clearCanvases();
         this.renderGrid();
         this.renderAllCells(alive, preview);
-        this.redrawNeeded = false;
+        this.isRedrawNeeded = false;
       }
     },
 
@@ -266,7 +271,7 @@ export function createViewController(
       }
       gridCtx.stroke();
 
-      gridCtx.strokeStyle = "darkgray";
+      gridCtx.strokeStyle = this.isDarkMode ? "white" : "darkgray";
       gridCtx.beginPath();
       for (let col = startCol + 1; col <= endCol; col++) {
         if (col % 10 === 0) {
@@ -296,13 +301,17 @@ export function createViewController(
       const {zoom, panX, panY} = this.view;
       cellCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
 
-      cellCtx.fillStyle = "rgba(0, 0, 0, 1)";
+      cellCtx.fillStyle = this.isDarkMode
+        ? "rgba(255, 255, 255, 1)"
+        : "rgba(0, 0, 0, 1)";
       for (let i = 0; i < alive.length; ++i) {
         const {row, col} = this.indexToRowCol(alive[i]);
         cellCtx.fillRect(col, row, 1, 1);
       }
 
-      cellCtx.fillStyle = "rgba(0, 0, 0, 0.5)";
+      cellCtx.fillStyle = this.isDarkMode
+        ? "rgba(255, 255, 255, 0.5)"
+        : "rgba(0, 0, 0, 0.5)";
       for (let i = 0; i < preview.length; ++i) {
         const {row, col} = this.indexToRowCol(preview[i]);
         cellCtx.fillRect(col, row, 1, 1);
