@@ -30,8 +30,12 @@ const isWasm = true;
 let canvasController: CanvasController | null = null;
 let gameController: GameController | null = null;
 
+/** Get color theme from local storage. If not set use prefrence from client os. Defaults to light. */
 document.documentElement.dataset.theme =
-  localStorage.getItem("theme") ?? "light";
+  localStorage.getItem("theme") ??
+  (window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light");
 
 /** Perform all actions required on page load to bring game to a working state. */
 (async () => {
