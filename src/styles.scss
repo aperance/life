@@ -1,19 +1,35 @@
 :root {
-  --icon-color: #5f6368;
-  --navbar-color: #ffffff;
-  --menu-color: #ffffff;
-  --canvas-color: #ffffff;
   --text-color: #000000;
-  --slider-color: #c2c0c2;
+  --canvas-color: #ffffff;
+  --navbar-color: #ffffff;
+  --btn-icon-color: #5f6368;
+  --btn-active-color: #f4f4f4;
+  --btn-hover-color: #e7e7e7;
+  --menu-color: #ffffff;
+
+  .dark-only {
+    display: none;
+  }
+  .light-only {
+    display: inline-block;
+  }
 }
 
 [data-theme="dark"] {
-  --icon-color: #fafafa;
-  --navbar-color: #222222;
-  --menu-color: #3f3f3f;
+  --text-color: #eeeeee;
   --canvas-color: #333333;
-  --text-color: #fafafa;
-  --slider-color: #fafafa;
+  --navbar-color: #222222;
+  --btn-icon-color: #eeeeee;
+  --btn-active-color: #333333;
+  --btn-hover-color: #3f3f3f;
+  --menu-color: #3f3f3f;
+
+  .dark-only {
+    display: inline-block;
+  }
+  .light-only {
+    display: none;
+  }
 }
 
 html {
@@ -77,12 +93,12 @@ nav {
     border: none;
 
     &::-webkit-slider-runnable-track {
-      background-color: var(--slider-color);
+      background-color: var(--btn-hover-color);
     }
   }
 
   ul a.btn-flat {
-    color: var(--icon-color);
+    color: var(--btn-icon-color);
     padding: 18px 18px 20px 18px;
     margin: 0;
     border-radius: unset;
@@ -90,7 +106,11 @@ nav {
     height: 58px;
 
     &.active {
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: var(--btn-active-color);
+    }
+
+    &:hover {
+      background-color: var(--btn-hover-color);
     }
 
     &[hidden] {
