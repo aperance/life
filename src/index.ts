@@ -2,7 +2,7 @@ import {switchMap, map, first} from "rxjs/operators";
 import "materialize-css/sass/materialize.scss";
 import "./styles.scss";
 
-import {ViewController, createViewController} from "./viewController";
+import {CanvasController, createCanvasController} from "./canvasController";
 import {GameController, createGameController} from "./gameController";
 import * as patternLibrary from "./patternLibrary";
 import * as domEvents from "./domEvents";
@@ -27,7 +27,7 @@ const dom = {
 const isWasm = true;
 
 /** Variables for most game related objects. To be set by initializeGame function. */
-let viewController: ViewController | null = null;
+let canvasController: CanvasController | null = null;
 let gameController: GameController | null = null;
 
 document.documentElement.dataset.theme =
@@ -62,7 +62,7 @@ function initializeGame() {
   const cellCtx = dom.cellCanvas.getContext("2d") as CanvasRenderingContext2D;
 
   /** Factory function for GameRenderer object. */
-  viewController = createViewController(
+  canvasController = createCanvasController(
     gridCtx,
     cellCtx,
     5000,
@@ -72,7 +72,7 @@ function initializeGame() {
   /** Factory function for GameController object. */
   gameController = createGameController(
     worker,
-    viewController,
+    canvasController,
     5000,
     isWasm,
     handleGameChange
@@ -88,10 +88,10 @@ function initializeGame() {
 function terminateGame() {
   /** Call methods necessary to stop game fumctionality. */
   gameController?.terminate();
-  viewController?.clearCanvases();
+  canvasController?.clearCanvases();
   patternLibrary.setSelected(null);
   /** Delete references to relevant object to ensure they are garbage collected */
-  viewController = null;
+  canvasController = null;
   gameController = null;
   /** Hide all UI elements. */
   document.body.hidden = true;
@@ -153,7 +153,7 @@ dom.main.addEventListener("wheel", e => e.preventDefault(), {
  */
 domEvents.windowResize$.subscribe(() => {
   /** Updates game state with current window dimensions. */
-  viewController?.setWindow(window.innerWidth, window.innerHeight);
+  canvasController?.setWindow(window.innerWidth, window.innerHeight);
   /** Adjust all canvas dimensions to match window dimensions. */
   [dom.gridCanvas, dom.cellCanvas].forEach(canvas => {
     canvas.width = window.innerWidth;
@@ -174,12 +174,12 @@ domEvents.navButtonClick$.subscribe(btn => {
     case "reset-btn":
       terminateGame();
       initializeGame();
-      viewController?.setWindow(window.innerWidth, window.innerHeight);
+      canvasController?.setWindow(window.innerWidth, window.innerHeight);
       break;
     case "dark-btn":
       document.documentElement.dataset.theme =
         document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-      viewController?.setColorTheme(document.documentElement.dataset.theme);
+      canvasController?.setColorTheme(document.documentElement.dataset.theme);
       localStorage.setItem("theme", document.documentElement.dataset.theme);
       break;
     default:
@@ -192,7 +192,7 @@ domEvents.navButtonClick$.subscribe(btn => {
 
 /** Update game zoom value on change in zoon slider position. */
 domEvents.zoomSlider$.subscribe(value => {
-  viewController?.zoomAtPoint(
+  canvasController?.zoomAtPoint(
     Math.round(Math.pow(parseFloat(value), 2)),
     window.innerWidth / 2,
     window.innerHeight / 2
@@ -200,19 +200,19 @@ domEvents.zoomSlider$.subscribe(value => {
 });
 
 domEvents.arrowKeyPress$.subscribe(key => {
-  if (viewController?.view?.panX && viewController?.view?.panY)
+  if (canvasController?.view?.panX && canvasController?.view?.panY)
     switch (key) {
       case "ArrowUp":
-        viewController.setView({panY: viewController.view.panY - 2});
+        canvasController.setView({panY: canvasController.view.panY - 2});
         break;
       case "ArrowDown":
-        viewController.setView({panY: viewController.view.panY + 2});
+        canvasController.setView({panY: canvasController.view.panY + 2});
         break;
       case "ArrowLeft":
-        viewController.setView({panX: viewController.view.panX - 2});
+        canvasController.setView({panX: canvasController.view.panX - 2});
         break;
       case "ArrowRight":
-        viewController.setView({panX: viewController.view.panX + 2});
+        canvasController.setView({panX: canvasController.view.panX + 2});
         break;
       default:
         break;
@@ -262,10 +262,10 @@ domEvents.canvasClick$
   });
 
 domEvents.canvasDrag$.subscribe(({deltaX, deltaY}) => {
-  if (viewController?.view?.panX && viewController?.view?.panY)
-    viewController.setView({
-      panX: Math.round(viewController.view.panX + deltaX),
-      panY: Math.round(viewController.view.panY + deltaY)
+  if (canvasController?.view?.panX && canvasController?.view?.panY)
+    canvasController.setView({
+      panX: Math.round(canvasController.view.panX + deltaX),
+      panY: Math.round(canvasController.view.panY + deltaY)
     });
   gameController?.clearPreview();
   document.body.style.cursor = "all-scroll";
@@ -274,21 +274,21 @@ domEvents.canvasDrag$.subscribe(({deltaX, deltaY}) => {
 domEvents.canvasLeave$.subscribe(() => gameController?.clearPreview());
 
 domEvents.canvasPinch$.subscribe(({scale, centerX, centerY}) => {
-  if (viewController?.view?.zoom)
-    viewController.zoomAtPoint(
-      viewController.view.zoom * scale,
+  if (canvasController?.view?.zoom)
+    canvasController.zoomAtPoint(
+      canvasController.view.zoom * scale,
       Math.round(centerX),
       Math.round(centerY)
     );
 });
 
 domEvents.canvasScroll$.subscribe(e => {
-  if (viewController?.view?.zoom) {
+  if (canvasController?.view?.zoom) {
     const newZoom =
-      viewController.view.zoom +
-      Math.ceil(viewController.view.zoom / 25) * Math.sign(e.deltaY);
+      canvasController.view.zoom +
+      Math.ceil(canvasController.view.zoom / 25) * Math.sign(e.deltaY);
 
-    viewController.zoomAtPoint(newZoom, e.clientX, e.clientY);
+    canvasController.zoomAtPoint(newZoom, e.clientX, e.clientY);
   }
 });
 

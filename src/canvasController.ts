@@ -1,17 +1,17 @@
 /**
- * ViewController is the object reponsible for modifying the HTML canvas elements
+ * CanvasController is the object reponsible for modifying the HTML canvas elements
  * used to visualize the game area. Three canvas elements are used for drawing
  * grid lines, alive cells, and translucent pattern preview, respectively. The
  * canvases are transformed based on user specified zoom and pan properties.
- * @namespace ViewController
+ * @namespace CanvasController
  */
 
 /**
- * Exports a factory function used to generate a ViewController object.
- * @module createViewController
+ * Exports a factory function used to generate a CanvasController object.
+ * @module createCanvasController
  */
 
-export interface ViewController {
+export interface CanvasController {
   view: {
     zoom?: number;
     panX?: number;
@@ -51,7 +51,7 @@ export interface ViewController {
 }
 
 /**
- * Factory function to create ViewController object with dependencies injected.
+ * Factory function to create CanvasController object with dependencies injected.
  * @param {CanvasRenderingContext2D} gridCtx Canvas context used for drawing grid lines
  * @param {CanvasRenderingContext2D} cellCtx Canvas context used for drawing cells
  * @param {number} cellCount Number of cells per side of the total game area
@@ -59,14 +59,14 @@ export interface ViewController {
  * @param {function(number, number, number): void} observer Function called when zoom or pan values are modified
  * @returns {ViewController}
  */
-export function createViewController(
+export function createCanvasController(
   gridCtx: CanvasRenderingContext2D,
   cellCtx: CanvasRenderingContext2D,
   cellCount: number,
   initialTheme: string | undefined,
   observer: any
-): ViewController {
-  const viewController: ViewController = {
+): CanvasController {
+  const canvasController: CanvasController = {
     view: {},
 
     isDarkMode: initialTheme === "dark",
@@ -380,5 +380,5 @@ export function createViewController(
       return val > max ? max : val < min ? min : val;
     }
   };
-  return viewController;
+  return canvasController;
 }

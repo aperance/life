@@ -11,7 +11,7 @@
  * @module gameController
  */
 
-import {ViewController} from "./viewController";
+import {CanvasController} from "./canvasController";
 
 export interface GameController {
   aliveCells: Set<number>;
@@ -50,7 +50,7 @@ const bufferSize = 50;
 /**
  * Factory function to create GameController object with dependencies injected.
  * @param {Worker} worker Reference to an initialized web worker to calculate game results
- * @param {ViewController} viewController Reference to viewController object
+ * @param {CanvasController} canvasController Reference to canvasController object
  * @param {number} cellCount Number of cells per side of the total game area
  * @param {boolean} wasm True if wasm implementation of game logic should be used
  * @param {function(boolean, boolean, number, number, number): void} observer Function called when game state is modified
@@ -58,7 +58,7 @@ const bufferSize = 50;
  */
 export function createGameController(
   worker: Worker,
-  viewController: ViewController,
+  viewController: CanvasController,
   cellCount: number,
   wasm: boolean,
   // @ts-ignore
