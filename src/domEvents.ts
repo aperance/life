@@ -8,8 +8,7 @@ import {
   first,
   skipUntil,
   pluck,
-  mapTo,
-  tap
+  mapTo
 } from "rxjs/operators";
 
 const cellCanvas = document.getElementById("cell-canvas") as HTMLCanvasElement;
