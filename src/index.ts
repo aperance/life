@@ -1,5 +1,4 @@
 import {switchMap, map, first} from "rxjs/operators";
-import "@fortawesome/fontawesome-free/js/all";
 import "materialize-css/sass/materialize.scss";
 import "./styles.scss";
 

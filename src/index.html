@@ -18,9 +18,13 @@
         <div class="nav-wrapper">
           <ul class="left">
             <li>
-              <a id="play-btn" class="waves-effect waves-light btn-flat"
-                ><span id="play-icon"><i class="fas fa-play"></i></span
-                ><span id="pause-icon"><i class="fas fa-pause"></i></span>
+              <a id="play-btn" class="waves-effect waves-light btn-flat">
+                <span id="play-icon">
+                  <svg><use xlink:href="icons.svg#play"></use></svg>
+                </span>
+                <span id="pause-icon">
+                  <svg><use xlink:href="icons.svg#pause"></use></svg>
+                </span>
               </a>
             </li>
             <li>
@@ -29,17 +33,24 @@
                 class="dropdown-trigger waves-effect waves-light btn-flat"
                 data-target="speed-dropdown"
               >
-                <i class="fas fa-tachometer-alt"></i>
+                <svg>
+                  <use xlink:href="icons.svg#tachometer-alt"></use>
+                </svg>
                 <span> </span>
-                <i class="fas fa-angle-down"></i>
+                <svg>
+                  <use xlink:href="icons.svg#angle-down"></use>
+                </svg>
               </a>
             </li>
             <li>
               <a
                 id="default-btn"
                 class="active waves-effect waves-light btn-flat"
-                ><i class="fas fa-pen"></i
-              ></a>
+              >
+                <svg>
+                  <use xlink:href="icons.svg#pen"></use>
+                </svg>
+              </a>
             </li>
             <li>
               <a
@@ -47,21 +58,10 @@
                 class="modal-trigger waves-effect waves-light btn-flat"
                 data-target="pattern-modal"
               >
-                <svg
-                  class="svg-inline--fa fa-pen fa-w-16"
-                  aria-hidden="true"
-                  focusable="false"
-                  role="img"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 512 512"
-                  data-toggle="modal"
-                  data-target="#pattern-modal"
-                >
-                  <path
-                    fill="currentColor"
-                    d="M 174 0 v 164 h 164 v -164 h -164 z M 348 174 v 164 h 164 v -164 h -164 z M 0 348 v 164 h 164 v -164 h -164 z M 174 348 v 164 h 164 v -164 h -164 z M 348 348 v 164 h 164 v -164 h -164 z"
-                  ></path></svg
-              ></a>
+                <svg data-toggle="modal" data-target="#pattern-modal">
+                  <use xlink:href="icons.svg#glider"></use>
+                </svg>
+              </a>
             </li>
           </ul>
           <ul class="right">
@@ -77,18 +77,26 @@
             </li>
             <li>
               <a id="reset-btn" class="waves-effect waves-light btn-flat">
-                <i class="fas fa-redo"></i>
+                <svg>
+                  <use xlink:href="icons.svg#redo"></use>
+                </svg>
               </a>
             </li>
             <li>
               <a id="dark-btn" class="waves-effect waves-light btn-flat">
-                <i class="fas fa-sun dark-only"></i>
-                <i class="fas fa-moon light-only"></i>
+                <svg class="dark-only">
+                  <use xlink:href="icons.svg#sun"></use>
+                </svg>
+                <svg class="light-only">
+                  <use xlink:href="icons.svg#moon"></use>
+                </svg>
               </a>
             </li>
             <li>
               <a id="help-btn" class="waves-effect waves-light btn-flat">
-                <i class="fas fa-question"></i>
+                <svg>
+                  <use xlink:href="icons.svg#question"></use>
+                </svg>
               </a>
             </li>
             <li>
@@ -98,7 +106,9 @@
                 target="_blank"
                 class="waves-effect waves-light btn-flat"
               >
-                <i class="fab fa-github"></i>
+                <svg>
+                  <use xlink:href="icons.svg#github"></use>
+                </svg>
               </a>
             </li>
           </ul>
