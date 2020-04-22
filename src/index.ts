@@ -21,6 +21,7 @@ const dom = {
   patternBtn: document.getElementById("pattern-btn") as HTMLButtonElement,
   patternList: document.getElementById("pattern-list") as HTMLDivElement,
   patternDetails: document.getElementById("pattern-details") as HTMLDivElement,
+  speedSlider: document.getElementById("speed-slider") as HTMLInputElement,
   zoomSlider: document.getElementById("zoom-slider") as HTMLInputElement
 };
 
@@ -113,7 +114,8 @@ function handleGameChange(
   isPaused: boolean,
   generation: number,
   population: number,
-  speed: number
+  speedID: number,
+  cyclesPerRender: number
 ) {
   const state = isPlaying ? (isPaused ? "Paused" : "Running") : "Stopped";
   /** Update bottom bar with current game state. */
@@ -127,7 +129,11 @@ function handleGameChange(
   /** Ensure speed button value matches the current game speed. */
   //@ts-ignore
   dom.speedBtn.querySelector("span").textContent =
-    (6 / speed).toString().replace("0.5", "1/2").replace("0.25", "1/4") + "x";
+    (6 / cyclesPerRender)
+      .toString()
+      .replace("0.5", "1/2")
+      .replace("0.25", "1/4") + "x";
+  dom.speedSlider.value = speedID.toString();
 }
 
 /**
@@ -187,11 +193,16 @@ domEvents.navButtonClick$.subscribe(btn => {
       localStorage.setItem("theme", document.documentElement.dataset.theme);
       break;
     default:
-      /** Update game speed on selection of new spped in dropdown. */
-      if (btn.dataset.speed)
-        gameController?.setSpeed(parseFloat(btn.dataset.speed));
+      // /** Update game speed on selection of new spped in dropdown. */
+      // if (btn.dataset.speed)
+      //   gameController?.setSpeed(parseFloat(btn.dataset.speed));
       break;
   }
+});
+
+domEvents.speedSlider$.subscribe(value => {
+  const speedID = parseInt(value);
+  gameController?.speed.set(speedID);
 });
 
 /** Update game zoom value on change in zoon slider position. */

@@ -21,7 +21,12 @@ export interface GameController {
   resultBuffer: Array<{born: Array<number>; died: Array<number>}>;
   resultsRequestedAt: number | null;
   didCellsChange: boolean;
-  speed: {cyclesPerRender: number; currentCycle: number};
+  speed: {
+    id: number;
+    cyclesPerRender: number;
+    currentCycle: number;
+    set(id: number): void;
+  };
   generation: number;
   haltAnimationCycle: boolean;
   nextResult: {born: Array<number>; died: Array<number>} | null;
@@ -38,7 +43,6 @@ export interface GameController {
   clearPreview(): void;
   play(): void;
   pause(): void;
-  setSpeed(speed: number): void;
   terminate(): void;
   animationCycle(): void;
   handleWorkerMessage(e: MessageEvent): void;
@@ -53,7 +57,7 @@ const bufferSize = 50;
  * @param {CanvasController} canvasController Reference to canvasController object
  * @param {number} cellCount Number of cells per side of the total game area
  * @param {boolean} wasm True if wasm implementation of game logic should be used
- * @param {function(boolean, boolean, number, number, number): void} observer Function called when game state is modified
+ * @param {function(boolean, boolean, number, number, number, number): void} observer Function called when game state is modified
  * @return {GameController}
  */
 export function createGameController(
@@ -119,7 +123,17 @@ export function createGameController(
      * @memberof GameController#
      * @type {{cyclesPerRender: number, currentCycle: number}}
      */
-    speed: {cyclesPerRender: 6, currentCycle: 1},
+    speed: {
+      id: 3,
+      currentCycle: 1,
+      get cyclesPerRender() {
+        const lookup = [60, 30, 12, 6, 3, 2];
+        return lookup[this.id];
+      },
+      set(id: number) {
+        this.id = Math.round(Math.max(0, Math.min(id, 5)));
+      }
+    },
 
     /**
      * The generation number of the results currently being displayed.
@@ -281,15 +295,6 @@ export function createGameController(
     },
 
     /**
-     * Updates the number of cycles to elapse per game generation.
-     * @memberof GameController#
-     * @param {number} genPerSecond
-     */
-    setSpeed(genPerSecond) {
-      this.speed.cyclesPerRender = 6 / genPerSecond;
-    },
-
-    /**
      * Terminates worker and recursive animationCycle calls, to prepare for
      * object deletion.
      * @memberof GameController#
@@ -344,6 +349,7 @@ export function createGameController(
         this.isGamePaused,
         this.generation,
         this.aliveCells.size,
+        this.speed.id,
         this.speed.cyclesPerRender
       );
 
@@ -358,8 +364,8 @@ export function createGameController(
     handleWorkerMessage(e) {
       if (e.data === "started") this.isGameStarted = true;
       else {
-        this.resultBuffer.push(...e.data.results);
         const workerDuration = e.data.duration;
+        this.resultBuffer.push(...e.data.results);
 
         performance.mark("Request End");
         performance.measure("Request Duration", "Request Start", "Request End");
@@ -384,12 +390,8 @@ export function createGameController(
           "Effective Minimum Animation Cycles / Generation": minCylesPerGeneration
         });
 
-        // @ts-ignore
-        const duration = Date.now() - this.resultsRequestedAt;
-        const limit = 17 * batchSize * this.speed.cyclesPerRender;
-
-        if (duration > limit) {
-          this.speed.cyclesPerRender++;
+        if (this.speed.cyclesPerRender < minCylesPerGeneration) {
+          this.speed.set(this.speed.id - 1);
           console.warn("Reducing speed to " + 60 / this.speed.cyclesPerRender);
         }
 

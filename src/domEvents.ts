@@ -14,6 +14,7 @@ import {
 const cellCanvas = document.getElementById("cell-canvas") as HTMLCanvasElement;
 const nav = document.getElementById("nav") as HTMLElement;
 const patternModal = document.getElementById("pattern-modal") as HTMLDivElement;
+const speedSlider = document.getElementById("speed-slider") as HTMLInputElement;
 const zoomSlider = document.getElementById("zoom-slider") as HTMLInputElement;
 
 export const windowResize$ = merge(
@@ -38,6 +39,11 @@ export const navButtonClick$ = fromEvent<MouseEvent>(nav, "click").pipe(
   pluck<MouseEvent, HTMLLinkElement>("target"),
   filter(target => target.tagName === "A"),
   filter(target => target.href === "" || target.href === "#!")
+);
+
+export const speedSlider$ = fromEvent<InputEvent>(speedSlider, "input").pipe(
+  pluck<Event, string>("target", "value"),
+  filter(value => value !== null)
 );
 
 export const zoomSlider$ = fromEvent<InputEvent>(zoomSlider, "input").pipe(
