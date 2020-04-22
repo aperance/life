@@ -145,6 +145,7 @@ export function createGameController(
       if (!this.isGameStarted) return null;
 
       if (this.resultBuffer.length < bufferSize && !this.resultsRequestedAt) {
+        performance.mark("Request Start");
         worker.postMessage({
           action: "requestResults",
           payload: {count: batchSize}
@@ -357,7 +358,31 @@ export function createGameController(
     handleWorkerMessage(e) {
       if (e.data === "started") this.isGameStarted = true;
       else {
-        this.resultBuffer.push(...e.data);
+        this.resultBuffer.push(...e.data.results);
+        const workerDuration = e.data.duration;
+
+        performance.mark("Request End");
+        performance.measure("Request Duration", "Request Start", "Request End");
+        const requestDuration = performance
+          .getEntriesByName("Request Duration")
+          .map(x => x.duration)[0];
+        const durationAverage = requestDuration / batchSize;
+        const minCylesPerGeneration = Math.ceil((durationAverage * 60) / 1000);
+        performance.clearMeasures();
+
+        console.table({
+          "Worker Duration (ms)": workerDuration,
+          "Request Duration (ms)": requestDuration,
+          "Worker Latency (ms)": requestDuration - workerDuration,
+          "Worker Latency / Generation (ms)":
+            (requestDuration - workerDuration) / batchSize,
+          "Average Generation Duration (ms)": durationAverage,
+          "Theoretical Maximum Generations / Second": Math.floor(
+            1000 / durationAverage
+          ),
+          "Effective Maximum Generations / Second": 60 / minCylesPerGeneration,
+          "Effective Minimum Animation Cycles / Generation": minCylesPerGeneration
+        });
 
         // @ts-ignore
         const duration = Date.now() - this.resultsRequestedAt;

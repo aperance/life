@@ -47,16 +47,27 @@ async function messageHandler(e) {
  *
  * @memberof worker
  * @param {number} count
- * @returns {Array<Object>}
+ * @returns {Object}
  */
 function batchResults(count) {
+  performance.mark("Batch Start");
+
   let arr = [];
+
   for (let i = 0; i < count; i++) {
     // @ts-ignore
     const {born, died} = generator.next().value;
     arr[i] = {born: [...born], died: [...died]};
   }
-  return arr;
+
+  performance.mark("Batch End");
+  performance.measure("Batch Duration", "Batch Start", "Batch End");
+  const duration = performance
+    .getEntriesByName("Batch Duration")
+    .map(x => x.duration)[0];
+  performance.clearMeasures();
+
+  return {results: arr, duration};
 }
 
 /**
