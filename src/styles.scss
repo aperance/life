@@ -75,29 +75,47 @@ a > span {
 }
 
 nav {
-  z-index: 2;
   position: absolute;
+  display: flex;
+  z-index: 2;
   padding: 0 12px 0 12px;
   line-height: normal;
   height: 58px;
   background-color: var(--navbar-color);
+  justify-content: space-between;
 
-  #speed-dropdown a {
-    color: var(--text-color);
-    background-color: var(--menu-color);
+  .slider-group {
+    display: flex;
+    flex-grow: 1;
+    color: var(--btn-icon-color);
     font-size: 1.2rem;
-  }
+    line-height: 22px;
 
-  input[type="range"] {
-    margin-top: 27px;
-    border: none;
+    & > div {
+      display: flex;
+      padding: 18px 8px 20px 36px;
+    }
 
-    &::-webkit-slider-runnable-track {
-      background-color: var(--btn-hover-color);
+    .slider-icon {
+      display: flex;
+      width: 28px;
+    }
+
+    .thumb {
+      display: none;
+    }
+
+    input[type="range"] {
+      border: none;
+      margin: 10px 0 10px 0;
+
+      &::-webkit-slider-runnable-track {
+        background-color: var(--btn-hover-color);
+      }
     }
   }
 
-  ul a.btn-flat {
+  .btn-flat {
     color: var(--btn-icon-color);
     padding: 18px 18px 20px 18px;
     margin: 0;

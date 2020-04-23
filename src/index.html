@@ -6,114 +6,84 @@
   </head>
   <body>
     <div id="main">
-      <!-- Dropdown Structure -->
-      <ul id="speed-dropdown" class="dropdown-content">
-        <li><a href="#!" data-speed="0.25">1/4x</a></li>
-        <li><a href="#!" data-speed="0.5">1/2x</a></li>
-        <li><a href="#!" data-speed="1">1x</a></li>
-        <li><a href="#!" data-speed="2">2x</a></li>
-        <li><a href="#!" data-speed="3">3x</a></li>
-      </ul>
       <nav id="nav">
-        <div class="nav-wrapper">
-          <ul class="left">
-            <li>
-              <a id="play-btn" class="waves-effect waves-light btn-flat">
-                <span id="play-icon">
-                  <svg><use xlink:href="icons.svg#play"></use></svg>
-                </span>
-                <span id="pause-icon" hidden>
-                  <svg><use xlink:href="icons.svg#pause"></use></svg>
-                </span>
-              </a>
-            </li>
-            <li>
-              <a
-                id="speed-btn"
-                class="dropdown-trigger waves-effect waves-light btn-flat"
-                data-target="speed-dropdown"
-              >
-                <svg>
-                  <use xlink:href="icons.svg#tachometer-alt"></use>
-                </svg>
-                <span>1x</span>
-                <svg>
-                  <use xlink:href="icons.svg#angle-down"></use>
-                </svg>
-              </a>
-            </li>
-            <li>
-              <a
-                id="default-btn"
-                class="active waves-effect waves-light btn-flat"
-              >
-                <svg>
-                  <use xlink:href="icons.svg#pen"></use>
-                </svg>
-              </a>
-            </li>
-            <li>
-              <a
-                id="pattern-btn"
-                class="modal-trigger waves-effect waves-light btn-flat"
-                data-target="pattern-modal"
-              >
-                <svg data-toggle="modal" data-target="#pattern-modal">
-                  <use xlink:href="icons.svg#glider"></use>
-                </svg>
-              </a>
-            </li>
-            <li>
-              <input id="speed-slider" type="range" min="0" max="5" step="1" />
-            </li>
-          </ul>
-          <ul class="right">
-            <li>
-              <input
-                id="zoom-slider"
-                type="range"
-                min="1"
-                max="10"
-                step="0.1"
-              />
-            </li>
-            <li>
-              <a id="reset-btn" class="waves-effect waves-light btn-flat">
-                <svg>
-                  <use xlink:href="icons.svg#redo"></use>
-                </svg>
-              </a>
-            </li>
-            <li>
-              <a id="dark-btn" class="waves-effect waves-light btn-flat">
-                <svg class="dark-only">
-                  <use xlink:href="icons.svg#sun"></use>
-                </svg>
-                <svg class="light-only">
-                  <use xlink:href="icons.svg#moon"></use>
-                </svg>
-              </a>
-            </li>
-            <li>
-              <a id="help-btn" class="waves-effect waves-light btn-flat">
-                <svg>
-                  <use xlink:href="icons.svg#question"></use>
-                </svg>
-              </a>
-            </li>
-            <li>
-              <a
-                id="github-btn"
-                href="http://www.github.com/aperance/life"
-                target="_blank"
-                class="waves-effect waves-light btn-flat"
-              >
-                <svg>
-                  <use xlink:href="icons.svg#github"></use>
-                </svg>
-              </a>
-            </li>
-          </ul>
+        <div>
+          <a id="play-btn" class="waves-effect waves-light btn-flat">
+            <span id="play-icon">
+              <svg><use xlink:href="icons.svg#play"></use></svg>
+            </span>
+            <span id="pause-icon" hidden>
+              <svg><use xlink:href="icons.svg#pause"></use></svg>
+            </span>
+          </a>
+          <a id="default-btn" class="active waves-effect waves-light btn-flat">
+            <svg>
+              <use xlink:href="icons.svg#pen"></use>
+            </svg>
+          </a>
+          <a
+            id="pattern-btn"
+            class="modal-trigger waves-effect waves-light btn-flat"
+            data-target="pattern-modal"
+          >
+            <svg data-toggle="modal" data-target="#pattern-modal">
+              <use xlink:href="icons.svg#glider"></use>
+            </svg>
+          </a>
+        </div>
+        <div class="slider-group">
+          <div class="slider-wrapper">
+            <div class="slider-icon">
+              <svg preserveAspectRatio="xMaxYMid meet">
+                <use xlink:href="icons.svg#tachometer-alt"></use>
+              </svg>
+            </div>
+            <div class="slider-label">
+              <span id="speed-label">30</span>&nbsp;Generations/s&nbsp;
+            </div>
+            <input id="speed-slider" type="range" min="0" max="5" step="1" />
+          </div>
+          <div class="slider-wrapper">
+            <div class="slider-icon">
+              <svg preserveAspectRatio="xMaxYMid meet">
+                <use xlink:href="icons.svg#search"></use>
+              </svg>
+            </div>
+            <div class="slider-label">
+              <span id="zoom-label">90</span>%&nbsp;
+            </div>
+            <input id="zoom-slider" type="range" min="1" max="10" step="0.1" />
+          </div>
+        </div>
+        <div>
+          <a id="reset-btn" class="waves-effect waves-light btn-flat">
+            <svg>
+              <use xlink:href="icons.svg#redo"></use>
+            </svg>
+          </a>
+          <a id="dark-btn" class="waves-effect waves-light btn-flat">
+            <svg class="dark-only">
+              <use xlink:href="icons.svg#sun"></use>
+            </svg>
+            <svg class="light-only">
+              <use xlink:href="icons.svg#moon"></use>
+            </svg>
+          </a>
+          <a id="help-btn" class="waves-effect waves-light btn-flat">
+            <svg>
+              <use xlink:href="icons.svg#question"></use>
+            </svg>
+          </a>
+          <a
+            id="github-btn"
+            href="http://www.github.com/aperance/life"
+            target="_blank"
+            class="waves-effect waves-light btn-flat"
+          >
+            <svg>
+              <use xlink:href="icons.svg#github"></use>
+            </svg>
+          </a>
         </div>
       </nav>
       <div id="canvas-container">

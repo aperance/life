@@ -16,13 +16,14 @@ const dom = {
   rightStatus: document.getElementById("right-status") as HTMLSpanElement,
   playIcon: document.getElementById("play-icon") as HTMLElement,
   pauseIcon: document.getElementById("pause-icon") as HTMLElement,
-  speedBtn: document.getElementById("speed-btn") as HTMLButtonElement,
   defaultBtn: document.getElementById("default-btn") as HTMLButtonElement,
   patternBtn: document.getElementById("pattern-btn") as HTMLButtonElement,
   patternList: document.getElementById("pattern-list") as HTMLDivElement,
   patternDetails: document.getElementById("pattern-details") as HTMLDivElement,
   speedSlider: document.getElementById("speed-slider") as HTMLInputElement,
-  zoomSlider: document.getElementById("zoom-slider") as HTMLInputElement
+  speedLabel: document.getElementById("speed-label") as HTMLSpanElement,
+  zoomSlider: document.getElementById("zoom-slider") as HTMLInputElement,
+  zoomLabel: document.getElementById("zoom-label") as HTMLSpanElement
 };
 
 const isWasm = true;
@@ -127,13 +128,14 @@ function handleGameChange(
   dom.defaultBtn.disabled = isPlaying;
   dom.patternBtn.disabled = isPlaying;
   /** Ensure speed button value matches the current game speed. */
-  //@ts-ignore
-  dom.speedBtn.querySelector("span").textContent =
-    (6 / cyclesPerRender)
-      .toString()
-      .replace("0.5", "1/2")
-      .replace("0.25", "1/4") + "x";
+  // //@ts-ignore
+  // dom.speedBtn.querySelector("span").textContent =
+  //   (6 / cyclesPerRender)
+  //     .toString()
+  //     .replace("0.5", "1/2")
+  //     .replace("0.25", "1/4") + "x";
   dom.speedSlider.value = speedID.toString();
+  dom.speedLabel.innerHTML = (60 / cyclesPerRender).toString();
 }
 
 /**
@@ -148,6 +150,7 @@ function handleViewChange(zoom: number, centerRow: number, centerCol: number) {
   dom.rightStatus.textContent = `Zoom: ${zoom}, Position: (${centerCol},${centerRow})`;
   /** Ensure zoom slider value matches the current zoom level. */
   dom.zoomSlider.value = Math.sqrt(zoom).toString();
+  dom.zoomLabel.innerHTML = zoom.toString();
 }
 
 /** Terminate game after any unhandled errors. */
