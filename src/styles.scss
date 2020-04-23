@@ -84,16 +84,20 @@ nav {
   background-color: var(--navbar-color);
   justify-content: space-between;
 
+  div {
+    display: flex;
+  }
+
   .slider-group {
     display: flex;
     flex-grow: 1;
     color: var(--btn-icon-color);
     font-size: 1.2rem;
     line-height: 22px;
+    justify-content: space-between;
 
     & > div {
-      display: flex;
-      padding: 18px 8px 20px 36px;
+      padding: 18px 42px 20px 42px;
     }
 
     .slider-icon {
@@ -107,7 +111,7 @@ nav {
 
     input[type="range"] {
       border: none;
-      margin: 10px 0 10px 0;
+      margin: 10px 4px 10px 4px;
 
       &::-webkit-slider-runnable-track {
         background-color: var(--btn-hover-color);
