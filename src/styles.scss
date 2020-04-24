@@ -1,3 +1,5 @@
+@import "balloon-css/src/balloon";
+
 :root {
   --text-color: #000000;
   --canvas-color: #ffffff;
@@ -49,6 +51,10 @@ a > span {
   pointer-events: none;
 }
 
+div[data-balloon-pos="down"]:before {
+  visibility: hidden;
+}
+
 .drop-shadow {
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
     0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
@@ -84,39 +90,8 @@ nav {
   background-color: var(--navbar-color);
   justify-content: space-between;
 
-  div {
+  & > div {
     display: flex;
-  }
-
-  .slider-group {
-    display: flex;
-    flex-grow: 1;
-    color: var(--btn-icon-color);
-    font-size: 1.2rem;
-    line-height: 22px;
-    justify-content: space-between;
-
-    & > div {
-      padding: 18px 42px 20px 42px;
-    }
-
-    .slider-icon {
-      display: flex;
-      width: 28px;
-    }
-
-    .thumb {
-      display: none;
-    }
-
-    input[type="range"] {
-      border: none;
-      margin: 10px 4px 10px 4px;
-
-      &::-webkit-slider-runnable-track {
-        background-color: var(--btn-hover-color);
-      }
-    }
   }
 
   .btn-flat {
@@ -144,13 +119,30 @@ nav {
       height: 20px !important;
       vertical-align: -0.125em;
     }
+  }
 
-    span {
-      vertical-align: bottom;
-      font-size: 16px;
-      text-transform: none;
-      line-height: 20px;
+  .slider-group {
+    display: flex;
+    margin: 0 32px 0 42px;
+
+    svg {
+      width: 28px;
       height: 20px;
+      margin: 18px 8px 20px 8px;
+      color: var(--btn-icon-color);
+    }
+
+    .thumb {
+      display: none;
+    }
+
+    input[type="range"] {
+      border: none;
+      margin: 0;
+
+      &::-webkit-slider-runnable-track {
+        background-color: var(--btn-hover-color);
+      }
     }
   }
 }

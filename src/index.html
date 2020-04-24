@@ -24,38 +24,25 @@
           <a
             id="pattern-btn"
             class="modal-trigger waves-effect waves-light btn-flat"
-            data-target="pattern-modal"
           >
             <svg data-toggle="modal" data-target="#pattern-modal">
               <use xlink:href="icons.svg#glider"></use>
             </svg>
           </a>
-        </div>
-        <div class="slider-group">
-          <div>
-            <div class="slider-icon">
-              <svg>
-                <use xlink:href="icons.svg#tachometer-alt"></use>
-              </svg>
-            </div>
-            <div class="slider-label">
-              <span id="speed-label">30</span>&nbsp;Generations/s&nbsp;
-            </div>
+          <div class="slider-group" aria-label="" data-balloon-pos="down">
+            <svg>
+              <use xlink:href="icons.svg#tachometer-alt"></use>
+            </svg>
             <input id="speed-slider" type="range" min="0" max="5" step="1" />
-          </div>
-          <div>
-            <div class="slider-icon">
-              <svg>
-                <use xlink:href="icons.svg#search"></use>
-              </svg>
-            </div>
-            <div class="slider-label">
-              <span id="zoom-label">90</span>%&nbsp;
-            </div>
-            <input id="zoom-slider" type="range" min="1" max="10" step="0.1" />
           </div>
         </div>
         <div>
+          <div class="slider-group" aria-label="" data-balloon-pos="down">
+            <svg>
+              <use xlink:href="icons.svg#search"></use>
+            </svg>
+            <input id="zoom-slider" type="range" min="1" max="10" step="0.1" />
+          </div>
           <a id="reset-btn" class="waves-effect waves-light btn-flat">
             <svg>
               <use xlink:href="icons.svg#redo"></use>
@@ -78,7 +65,9 @@
             id="github-btn"
             href="http://www.github.com/aperance/life"
             target="_blank"
-            class="waves-effect waves-light btn-flat"
+            class="waves-effect waves-light btn-flat tooltipped"
+            data-position="bottom"
+            data-tooltip="I am a tooltip"
           >
             <svg>
               <use xlink:href="icons.svg#github"></use>

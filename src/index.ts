@@ -21,9 +21,7 @@ const dom = {
   patternList: document.getElementById("pattern-list") as HTMLDivElement,
   patternDetails: document.getElementById("pattern-details") as HTMLDivElement,
   speedSlider: document.getElementById("speed-slider") as HTMLInputElement,
-  speedLabel: document.getElementById("speed-label") as HTMLSpanElement,
-  zoomSlider: document.getElementById("zoom-slider") as HTMLInputElement,
-  zoomLabel: document.getElementById("zoom-label") as HTMLSpanElement
+  zoomSlider: document.getElementById("zoom-slider") as HTMLInputElement
 };
 
 const isWasm = true;
@@ -127,15 +125,12 @@ function handleGameChange(
   /** Disable edit buttons after game has started. */
   dom.defaultBtn.disabled = isPlaying;
   dom.patternBtn.disabled = isPlaying;
-  /** Ensure speed button value matches the current game speed. */
-  // //@ts-ignore
-  // dom.speedBtn.querySelector("span").textContent =
-  //   (6 / cyclesPerRender)
-  //     .toString()
-  //     .replace("0.5", "1/2")
-  //     .replace("0.25", "1/4") + "x";
+  /** Ensure speed slider values match the current game speed. */
   dom.speedSlider.value = speedID.toString();
-  dom.speedLabel.innerHTML = (60 / cyclesPerRender).toString();
+  dom.speedSlider.parentElement?.setAttribute(
+    "aria-label",
+    `Speed: ${60 / cyclesPerRender} Generations / second`
+  );
 }
 
 /**
@@ -150,7 +145,7 @@ function handleViewChange(zoom: number, centerRow: number, centerCol: number) {
   dom.rightStatus.textContent = `Zoom: ${zoom}, Position: (${centerCol},${centerRow})`;
   /** Ensure zoom slider value matches the current zoom level. */
   dom.zoomSlider.value = Math.sqrt(zoom).toString();
-  dom.zoomLabel.innerHTML = zoom.toString();
+  dom.zoomSlider.parentElement?.setAttribute("aria-label", `Zoom: ${zoom}%`);
 }
 
 /** Terminate game after any unhandled errors. */
