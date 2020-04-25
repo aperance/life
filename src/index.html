@@ -8,7 +8,11 @@
     <div id="main">
       <nav id="nav">
         <div>
-          <a id="play-btn" class="waves-effect waves-light btn-flat">
+          <a
+            id="play-btn"
+            class="waves-effect waves-light btn-flat"
+            data-tooltip="Run"
+          >
             <span id="play-icon">
               <svg><use xlink:href="icons.svg#play"></use></svg>
             </span>
@@ -16,7 +20,11 @@
               <svg><use xlink:href="icons.svg#pause"></use></svg>
             </span>
           </a>
-          <a id="default-btn" class="active waves-effect waves-light btn-flat">
+          <a
+            id="default-btn"
+            class="active waves-effect waves-light btn-flat"
+            data-tooltip="Toggle Cells"
+          >
             <svg>
               <use xlink:href="icons.svg#pen"></use>
             </svg>
@@ -24,12 +32,13 @@
           <a
             id="pattern-btn"
             class="modal-trigger waves-effect waves-light btn-flat"
+            data-tooltip="Pattern Library"
           >
             <svg data-toggle="modal" data-target="#pattern-modal">
               <use xlink:href="icons.svg#glider"></use>
             </svg>
           </a>
-          <div class="slider-group" aria-label="" data-balloon-pos="down">
+          <div class="slider-group" data-tooltip="Speed">
             <svg>
               <use xlink:href="icons.svg#tachometer-alt"></use>
             </svg>
@@ -37,18 +46,26 @@
           </div>
         </div>
         <div>
-          <div class="slider-group" aria-label="" data-balloon-pos="down">
+          <div class="slider-group" data-tooltip="Zoom">
             <svg>
               <use xlink:href="icons.svg#search"></use>
             </svg>
             <input id="zoom-slider" type="range" min="1" max="10" step="0.1" />
           </div>
-          <a id="reset-btn" class="waves-effect waves-light btn-flat">
+          <a
+            id="reset-btn"
+            class="waves-effect waves-light btn-flat"
+            data-tooltip="Reset Game"
+          >
             <svg>
               <use xlink:href="icons.svg#redo"></use>
             </svg>
           </a>
-          <a id="dark-btn" class="waves-effect waves-light btn-flat">
+          <a
+            id="dark-btn"
+            class="waves-effect waves-light btn-flat"
+            data-tooltip="Dark Mode"
+          >
             <svg class="dark-only">
               <use xlink:href="icons.svg#sun"></use>
             </svg>
@@ -56,7 +73,11 @@
               <use xlink:href="icons.svg#moon"></use>
             </svg>
           </a>
-          <a id="help-btn" class="waves-effect waves-light btn-flat">
+          <a
+            id="help-btn"
+            class="waves-effect waves-light btn-flat"
+            data-tooltip="Help"
+          >
             <svg>
               <use xlink:href="icons.svg#question"></use>
             </svg>
@@ -65,9 +86,8 @@
             id="github-btn"
             href="http://www.github.com/aperance/life"
             target="_blank"
-            class="waves-effect waves-light btn-flat tooltipped"
-            data-position="bottom"
-            data-tooltip="I am a tooltip"
+            class="waves-effect waves-light btn-flat"
+            data-tooltip="GitHub Repo"
           >
             <svg>
               <use xlink:href="icons.svg#github"></use>
