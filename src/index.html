@@ -11,7 +11,8 @@
           <a
             id="play-btn"
             class="waves-effect waves-light btn-flat"
-            data-tooltip="Run"
+            data-tooltip-content="Run"
+            data-tooltip-direction="down"
           >
             <span id="play-icon">
               <svg><use xlink:href="icons.svg#play"></use></svg>
@@ -23,22 +24,34 @@
           <a
             id="default-btn"
             class="active waves-effect waves-light btn-flat"
-            data-tooltip="Toggle Cells"
+            data-tooltip-content="Toggle Cells"
+            data-tooltip-direction="down"
           >
             <svg>
               <use xlink:href="icons.svg#pen"></use>
             </svg>
           </a>
-          <a
-            id="pattern-btn"
-            class="modal-trigger waves-effect waves-light btn-flat"
-            data-tooltip="Pattern Library"
+
+          <div>
+            <div id="pattern-dropdown" hidden></div>
+            <a
+              id="pattern-btn"
+              class="waves-effect waves-light btn-flat"
+              tabindex="-1"
+              data-tooltip-content="Pattern Library"
+              data-tooltip-direction="down"
+            >
+              <svg>
+                <use xlink:href="icons.svg#glider"></use>
+              </svg>
+            </a>
+          </div>
+
+          <div
+            class="slider-group"
+            data-tooltip-content="Speed"
+            data-tooltip-direction="down"
           >
-            <svg data-toggle="modal" data-target="#pattern-modal">
-              <use xlink:href="icons.svg#glider"></use>
-            </svg>
-          </a>
-          <div class="slider-group" data-tooltip="Speed">
             <svg>
               <use xlink:href="icons.svg#tachometer-alt"></use>
             </svg>
@@ -46,7 +59,11 @@
           </div>
         </div>
         <div>
-          <div class="slider-group" data-tooltip="Zoom">
+          <div
+            class="slider-group"
+            data-tooltip-content="Zoom"
+            data-tooltip-direction="down"
+          >
             <svg>
               <use xlink:href="icons.svg#search"></use>
             </svg>
@@ -55,7 +72,8 @@
           <a
             id="reset-btn"
             class="waves-effect waves-light btn-flat"
-            data-tooltip="Reset Game"
+            data-tooltip-content="Reset Game"
+            data-tooltip-direction="down"
           >
             <svg>
               <use xlink:href="icons.svg#redo"></use>
@@ -64,7 +82,8 @@
           <a
             id="dark-btn"
             class="waves-effect waves-light btn-flat"
-            data-tooltip="Dark Mode"
+            data-tooltip-content="Dark Mode"
+            data-tooltip-direction="down"
           >
             <svg class="dark-only">
               <use xlink:href="icons.svg#sun"></use>
@@ -76,7 +95,8 @@
           <a
             id="help-btn"
             class="waves-effect waves-light btn-flat"
-            data-tooltip="Help"
+            data-tooltip-content="Help"
+            data-tooltip-direction="down"
           >
             <svg>
               <use xlink:href="icons.svg#question"></use>
@@ -87,7 +107,8 @@
             href="http://www.github.com/aperance/life"
             target="_blank"
             class="waves-effect waves-light btn-flat"
-            data-tooltip="GitHub Repo"
+            data-tooltip-content="GitHub Repo"
+            data-tooltip-direction="down"
           >
             <svg>
               <use xlink:href="icons.svg#github"></use>

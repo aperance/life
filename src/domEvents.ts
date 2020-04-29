@@ -1,4 +1,4 @@
-import {fromEvent, merge, interval} from "rxjs";
+import {fromEvent, merge, interval, Observable} from "rxjs";
 import {
   map,
   switchMap,
@@ -8,12 +8,16 @@ import {
   first,
   skipUntil,
   pluck,
-  mapTo
+  mapTo,
+  tap
 } from "rxjs/operators";
 
 const cellCanvas = document.getElementById("cell-canvas") as HTMLCanvasElement;
 const nav = document.getElementById("nav") as HTMLElement;
-const patternModal = document.getElementById("pattern-modal") as HTMLDivElement;
+//const patternModal = document.getElementById("pattern-modal") as HTMLDivElement;
+const patternDropdown = document.getElementById(
+  "pattern-dropdown"
+) as HTMLDivElement;
 const speedSlider = document.getElementById("speed-slider") as HTMLInputElement;
 const zoomSlider = document.getElementById("zoom-slider") as HTMLInputElement;
 
@@ -35,7 +39,13 @@ export const arrowKeyPress$ = keyDown$.pipe(
   )
 );
 
+export const navDown$ = fromEvent<MouseEvent>(nav, "mousedown").pipe(
+  tap(e => console.log(e)),
+  pluck<MouseEvent, HTMLLinkElement>("target")
+);
+
 export const navButtonClick$ = fromEvent<MouseEvent>(nav, "click").pipe(
+  tap(e => console.log(e)),
   pluck<MouseEvent, HTMLLinkElement>("target"),
   filter(target => target.tagName === "A"),
   filter(target => target.href === "" || target.href === "#!")
@@ -155,18 +165,26 @@ export const canvasHover$ = merge(
   fromEvent<MouseEvent>(cellCanvas, "mousemove").pipe(
     filter(e => e.buttons === 0)
   ),
-  fromEvent<MouseEvent>(cellCanvas, "mouseup")
+  fromEvent<MouseEvent>(patternDropdown, "mouseup")
 );
 
 export const canvasLeave$ = fromEvent<MouseEvent>(cellCanvas, "mouseleave");
 
-export const patternModalCLick$ = fromEvent<MouseEvent>(
-  patternModal,
+// export const patternModalCLick$ = fromEvent<MouseEvent>(
+//   patternModal,
+//   "click"
+// ).pipe(
+//   pluck<Event, {pattern: string; role: string}>("target", "dataset"),
+//   // @ts-ignore
+//   filter(dataset => dataset && dataset.pattern && dataset.role)
+// );
+
+export const patternDropdownCLick$ = fromEvent<MouseEvent>(
+  patternDropdown,
   "click"
 ).pipe(
-  pluck<Event, {pattern: string; role: string}>("target", "dataset"),
-  // @ts-ignore
-  filter(dataset => dataset && dataset.pattern && dataset.role)
+  pluck<Event, string>("target", "dataset", "pattern"),
+  filter(pattern => typeof pattern === "string")
 );
 
 function isDragging(downEvent: MouseEvent, moveEvent: MouseEvent): boolean {

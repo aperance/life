@@ -49,31 +49,103 @@ a > span {
   pointer-events: none;
 }
 
-a[data-tooltip],
-div[data-tooltip] {
+a[data-tooltip-content],
+div[data-tooltip-content] {
   position: relative;
   overflow: visible;
 
   &::after {
     position: absolute;
     display: block;
-    top: 100%;
-    left: 50%;
-    transform: translate(-50%, 0);
     padding: 8px;
     background-color: black;
     color: white;
     font-size: 14px;
-    content: attr(data-tooltip);
+    content: attr(data-tooltip-content);
     white-space: nowrap;
     pointer-events: none;
     opacity: 0;
   }
 
   &:hover::after {
-    margin-top: 10px;
     opacity: 1;
     transition: all 0.2s ease-out 0.2s;
+
+    #pattern-dropdown:not([hidden]) + & {
+      opacity: 0;
+      transition: none;
+    }
+  }
+
+  &[data-tooltip-direction="down"] {
+    &::after {
+      top: 100%;
+      left: 50%;
+      transform: translate(-50%, 0);
+    }
+
+    &:hover::after {
+      margin-top: 10px;
+    }
+  }
+
+  &[data-tooltip-direction="right"] {
+    &::after {
+      top: 50%;
+      left: 100%;
+      transform: translate(0, -50%);
+    }
+
+    &:hover::after {
+      margin-left: 10px;
+    }
+  }
+}
+
+#pattern-dropdown {
+  overflow: visible;
+  color: black;
+  top: 100%;
+  position: relative;
+
+  &:not([hidden]) + a.btn-flat {
+    background-color: var(--btn-hover-color);
+  }
+
+  .pattern-list {
+    top: 0px;
+    left: 101%;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .pattern-list:hover,
+  a:hover + ul {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  ul {
+    position: absolute;
+    width: min-content;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+      0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  li {
+    position: relative;
+    background-color: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    width: 100%;
+
+    span,
+    a.btn-flat {
+      margin: 0;
+      padding: 12px 24px;
+      height: min-content;
+      width: 100%;
+      white-space: nowrap;
+    }
   }
 }
 
@@ -187,48 +259,48 @@ nav {
   }
 }
 
-#pattern-modal {
-  overflow-y: hidden;
-  color: var(--text-color);
-  background-color: var(--menu-color);
+// #pattern-modal {
+//   overflow-y: hidden;
+//   color: var(--text-color);
+//   background-color: var(--menu-color);
 
-  .modal-body {
-    display: flex;
-  }
+//   .modal-body {
+//     display: flex;
+//   }
 
-  #pattern-list {
-    flex: 0 0 200px;
-    padding-right: 8px;
-    overflow-y: scroll;
-    height: 72vh;
+//   #pattern-list {
+//     flex: 0 0 200px;
+//     padding-right: 8px;
+//     overflow-y: scroll;
+//     height: 72vh;
 
-    .collapsible {
-      box-shadow: none;
-      border: none;
-    }
+//     .collapsible {
+//       box-shadow: none;
+//       border: none;
+//     }
 
-    .collapsible-header {
-      color: var(--text-color);
-      background-color: var(--menu-color);
-      border-bottom: none;
-    }
+//     .collapsible-header {
+//       color: var(--text-color);
+//       background-color: var(--menu-color);
+//       border-bottom: none;
+//     }
 
-    .collection {
-      padding: 0;
-    }
+//     .collection {
+//       padding: 0;
+//     }
 
-    .collection-item {
-      color: var(--text-color);
-      background-color: var(--menu-color);
-      border-bottom: none;
-    }
-  }
+//     .collection-item {
+//       color: var(--text-color);
+//       background-color: var(--menu-color);
+//       border-bottom: none;
+//     }
+//   }
 
-  #pattern-details {
-    padding: 8px;
+//   #pattern-details {
+//     padding: 8px;
 
-    button {
-      margin-top: 8px;
-    }
-  }
-}
+//     button {
+//       margin-top: 8px;
+//     }
+//   }
+// }

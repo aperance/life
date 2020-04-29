@@ -155,29 +155,32 @@ function rleParser(rle: string): number[][] {
  *
  * @returns {string}
  */
-export function generateListHTML(): string {
+export function generateDropdownHTML(): string {
   return `
-      <ul class="collapsible">
+      <ul>
         ${Object.entries(categories)
           .map(([category, contents]) => {
             return `
               <li>
-                <div class="collapsible-header">${category}</div>
-                <div class="collapsible-body collection">
-                  ${contents
-                    .map(id => {
-                      return `
-                        <a href="#"
-                          class="collection-item"
+                <a class="waves-effect waves-teal btn-flat">${category}</a>
+                <ul class="pattern-list">
+                ${contents
+                  .map(id => {
+                    return `
+                      <li>
+                        <a
+                          class="waves-effect waves-teal btn-flat"
                           data-pattern="${id}"
-                          data-role="listItem"
+                          data-tooltip-content="${getData(id).description[0]}"
+                          data-tooltip-direction="right"
                         >
-                          &nbsp;&nbsp;${getData(id).name}
+                          ${getData(id).name}
                         </a>
-                      `;
-                    })
-                    .join("")}
-                </div>
+                      </li>
+                    `;
+                  })
+                  .join("")}
+                </ul>
               <li>
             `;
           })
@@ -186,33 +189,68 @@ export function generateListHTML(): string {
     `;
 }
 
-/**
- *
- * @returns {string}
- */
-export function generateDetailHTML(id: string): string {
-  const {name, author, description} = getData(id);
+// /**
+//  *
+//  * @returns {string}
+//  */
+// export function generateListHTML(): string {
+//   return `
+//       <ul class="collapsible">
+//         ${Object.entries(categories)
+//           .map(([category, contents]) => {
+//             return `
+//               <li>
+//                 <div class="collapsible-header">${category}</div>
+//                 <div class="collapsible-body collection">
+//                   ${contents
+//                     .map(id => {
+//                       return `
+//                         <a href="#"
+//                           class="collection-item"
+//                           data-pattern="${id}"
+//                           data-role="listItem"
+//                         >
+//                           &nbsp;&nbsp;${getData(id).name}
+//                         </a>
+//                       `;
+//                     })
+//                     .join("")}
+//                 </div>
+//               <li>
+//             `;
+//           })
+//           .join("")}
+//       </ul>
+//     `;
+// }
 
-  return `
-        <div>
-          <h4>${name}</h4>
-          <p>Discovered by ${author}</p>
-          ${description
-            .map(string => {
-              const link = string.match(/conwaylife.com.*/)?.[0];
-              if (link)
-                return `<a target=”_blank” href="http://www.${link}">LifeWiki</a>`;
-              else return `<p>${string}</p>`;
-            })
-            .join("")}
-          <br></br>
-          <button type="button"
-            class="btn modal-close"
-            data-pattern="${id}"
-            data-role="selectBtn"
-          >
-            Select Pattern
-          </button>
-        </div>
-      `;
-}
+// /**
+//  *
+//  * @returns {string}
+//  */
+// export function generateDetailHTML(id: string): string {
+//   const {name, author, description} = getData(id);
+
+//   return `
+//         <div>
+//           <h4>${name}</h4>
+//           <p>Discovered by ${author}</p>
+//           ${description
+//             .map(string => {
+//               const link = string.match(/conwaylife.com.*/)?.[0];
+//               if (link)
+//                 return `<a target=”_blank” href="http://www.${link}">LifeWiki</a>`;
+//               else return `<p>${string}</p>`;
+//             })
+//             .join("")}
+//           <br></br>
+//           <button type="button"
+//             class="btn modal-close"
+//             data-pattern="${id}"
+//             data-role="selectBtn"
+//           >
+//             Select Pattern
+//           </button>
+//         </div>
+//       `;
+// }

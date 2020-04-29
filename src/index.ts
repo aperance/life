@@ -18,6 +18,9 @@ const dom = {
   pauseIcon: document.getElementById("pause-icon") as HTMLElement,
   defaultBtn: document.getElementById("default-btn") as HTMLButtonElement,
   patternBtn: document.getElementById("pattern-btn") as HTMLButtonElement,
+  patternDropdown: document.getElementById(
+    "pattern-dropdown"
+  ) as HTMLDivElement,
   patternList: document.getElementById("pattern-list") as HTMLDivElement,
   patternDetails: document.getElementById("pattern-details") as HTMLDivElement,
   speedSlider: document.getElementById("speed-slider") as HTMLInputElement,
@@ -44,7 +47,8 @@ document.documentElement.dataset.theme =
     // Initialize pattern library object and related DOM elements.
     // Placed after game init to prevent any noticible delay in page load.
     await patternLibrary.loadDataFromFiles();
-    dom.patternList.innerHTML = patternLibrary.generateListHTML();
+    //dom.patternList.innerHTML = patternLibrary.generateListHTML();
+    dom.patternDropdown.innerHTML = patternLibrary.generateDropdownHTML();
     // @ts-ignore
     M.AutoInit();
   } catch (err) {
@@ -156,6 +160,10 @@ dom.main.addEventListener("wheel", e => e.preventDefault(), {
   passive: false
 });
 
+dom.patternBtn.addEventListener("mousedown", e => e.preventDefault());
+
+dom.patternDropdown.addEventListener("mousedown", e => e.preventDefault());
+
 /**
  * Perform necessary adjustments after window initialization or resize.
  */
@@ -191,11 +199,18 @@ domEvents.navButtonClick$.subscribe(btn => {
       localStorage.setItem("theme", document.documentElement.dataset.theme);
       break;
     default:
-      // /** Update game speed on selection of new spped in dropdown. */
-      // if (btn.dataset.speed)
-      //   gameController?.setSpeed(parseFloat(btn.dataset.speed));
       break;
   }
+});
+
+domEvents.navDown$.subscribe(target => {
+  if (target.id === "pattern-btn") {
+    dom.patternDropdown.hidden = !dom.patternDropdown.hidden;
+  } else if (
+    dom.patternDropdown.hidden === false &&
+    target.closest("div")?.id !== "pattern-dropdown"
+  )
+    dom.patternDropdown.hidden = true;
 });
 
 domEvents.speedSlider$.subscribe(value => {
@@ -270,6 +285,11 @@ domEvents.canvasClick$
     )
   )
   .subscribe(({e, pattern}) => {
+    if (dom.patternDropdown.hidden === false) {
+      dom.patternDropdown.hidden = true;
+      return;
+    }
+
     if (pattern === null) gameController?.toggleCell(e.clientX, e.clientY);
     else gameController?.placePattern(e.clientX, e.clientY, pattern);
   });
@@ -305,13 +325,21 @@ domEvents.canvasScroll$.subscribe(e => {
   }
 });
 
-//@ts-ignore
-domEvents.patternModalCLick$.subscribe(({pattern, role}) => {
-  /** Update details section on selection of pattern from list. */
-  if (role === "listItem")
-    dom.patternDetails.innerHTML = patternLibrary.generateDetailHTML(pattern);
-  /** Set a new selected pattern on confirmation button click. */
-  if (role === "selectBtn") patternLibrary.setSelected(pattern);
+// //@ts-ignore
+// domEvents.patternModalCLick$.subscribe(({pattern, role}) => {
+//   /** Update details section on selection of pattern from list. */
+//   if (role === "listItem")
+//     dom.patternDetails.innerHTML = patternLibrary.generateDetailHTML(pattern);
+//   /** Set a new selected pattern on confirmation button click. */
+//   if (role === "selectBtn") patternLibrary.setSelected(pattern);
+// });
+
+domEvents.patternDropdownCLick$.subscribe(pattern => {
+  console.log(pattern);
+
+  /** Set a new selected pattern on button click. */
+  patternLibrary.setSelected(pattern);
+  dom.patternDropdown.hidden = true;
 });
 
 /** Set pattern library button as active when a pattern is selected, default otherwise. */
