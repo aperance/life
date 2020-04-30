@@ -29,8 +29,7 @@ const categories = {
     "tannersp46",
     "toad",
     "twinbeesshuttle"
-  ],
-  "Gardens of Eden": ["gardenofeden1", "gardenofeden4", "gardenofeden5"]
+  ]
 };
 
 /**
@@ -162,7 +161,11 @@ export function generateDropdownHTML(): string {
           .map(([category, contents]) => {
             return `
               <li>
-                <a class="waves-effect waves-teal btn-flat">${category}</a>
+                <a class="waves-effect waves-teal btn-flat">${category}
+                  <svg>
+                    <use xlink:href="icons.svg#chevron-right"></use>
+                  </svg>
+                </a>
                 <ul class="pattern-list">
                 ${contents
                   .map(id => {
