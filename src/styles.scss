@@ -105,6 +105,7 @@ div[data-tooltip-content] {
 #pattern-dropdown {
   position: relative;
   top: 100%;
+  z-index: 2;
 
   & > ul {
     width: 140px;
