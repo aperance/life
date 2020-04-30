@@ -131,7 +131,7 @@ function handleGameChange(
   /** Ensure speed slider values match the current game speed. */
   dom.speedSlider.value = speedID.toString();
   dom.speedSlider.parentElement?.setAttribute(
-    "data-tooltip",
+    "data-tooltip-content",
     `Speed: ${60 / cyclesPerRender} Generations / second`
   );
 }
@@ -148,7 +148,10 @@ function handleViewChange(zoom: number, centerRow: number, centerCol: number) {
   dom.rightStatus.textContent = `Zoom: ${zoom}, Position: (${centerCol},${centerRow})`;
   /** Ensure zoom slider value matches the current zoom level. */
   dom.zoomSlider.value = Math.sqrt(zoom).toString();
-  dom.zoomSlider.parentElement?.setAttribute("data-tooltip", `Zoom: ${zoom}%`);
+  dom.zoomSlider.parentElement?.setAttribute(
+    "data-tooltip-content",
+    `Zoom: ${zoom}%`
+  );
 }
 
 /** Terminate game after any unhandled errors. */
