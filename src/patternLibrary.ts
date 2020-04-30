@@ -159,33 +159,27 @@ export function generateDropdownHTML(): string {
       <ul>
         ${Object.entries(categories)
           .map(([category, contents]) => {
-            return `
-              <li>
-                <a class="waves-effect waves-teal btn-flat">${category}
-                  <svg>
-                    <use xlink:href="icons.svg#chevron-right"></use>
-                  </svg>
-                </a>
-                <ul class="pattern-list">
-                ${contents
-                  .map(id => {
-                    return `
-                      <li>
-                        <a
-                          class="waves-effect waves-teal btn-flat"
-                          data-pattern="${id}"
-                          data-tooltip-content="${getData(id).description[0]}"
-                          data-tooltip-direction="right"
-                        >
-                          ${getData(id).name}
-                        </a>
-                      </li>
-                    `;
-                  })
-                  .join("")}
-                </ul>
-              <li>
-            `;
+            return `<li>
+              <a class="btn-flat">${category}
+                <svg><use xlink:href="icons.svg#chevron-right"></use></svg>
+              </a>
+              <ul class="pattern-list">
+              ${contents
+                .map(id => {
+                  return `<li>
+                    <a
+                      class="btn-flat"
+                      data-pattern="${id}"
+                      data-tooltip-content="${getData(id).description[0]}"
+                      data-tooltip-direction="right"
+                    >
+                      ${getData(id).name}
+                    </a>
+                  </li>`;
+                })
+                .join("")}
+              </ul>
+            <li>`;
           })
           .join("")}
       </ul>
