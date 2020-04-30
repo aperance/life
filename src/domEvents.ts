@@ -1,4 +1,4 @@
-import {fromEvent, merge, interval, Observable} from "rxjs";
+import {fromEvent, merge, interval} from "rxjs";
 import {
   map,
   switchMap,
@@ -169,15 +169,6 @@ export const canvasHover$ = merge(
 );
 
 export const canvasLeave$ = fromEvent<MouseEvent>(cellCanvas, "mouseleave");
-
-// export const patternModalCLick$ = fromEvent<MouseEvent>(
-//   patternModal,
-//   "click"
-// ).pipe(
-//   pluck<Event, {pattern: string; role: string}>("target", "dataset"),
-//   // @ts-ignore
-//   filter(dataset => dataset && dataset.pattern && dataset.role)
-// );
 
 export const patternDropdownCLick$ = fromEvent<MouseEvent>(
   patternDropdown,

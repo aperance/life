@@ -47,7 +47,6 @@ document.documentElement.dataset.theme =
     // Initialize pattern library object and related DOM elements.
     // Placed after game init to prevent any noticible delay in page load.
     await patternLibrary.loadDataFromFiles();
-    //dom.patternList.innerHTML = patternLibrary.generateListHTML();
     dom.patternDropdown.innerHTML = patternLibrary.generateDropdownHTML();
     // @ts-ignore
     M.AutoInit();
@@ -324,15 +323,6 @@ domEvents.canvasScroll$.subscribe(e => {
     canvasController.zoomAtPoint(newZoom, e.clientX, e.clientY);
   }
 });
-
-// //@ts-ignore
-// domEvents.patternModalCLick$.subscribe(({pattern, role}) => {
-//   /** Update details section on selection of pattern from list. */
-//   if (role === "listItem")
-//     dom.patternDetails.innerHTML = patternLibrary.generateDetailHTML(pattern);
-//   /** Set a new selected pattern on confirmation button click. */
-//   if (role === "selectBtn") patternLibrary.setSelected(pattern);
-// });
 
 domEvents.patternDropdownCLick$.subscribe(pattern => {
   console.log(pattern);
