@@ -317,14 +317,19 @@ domEvents.canvasPinch$.subscribe(({scale, centerX, centerY}) => {
     );
 });
 
-domEvents.canvasScroll$.subscribe(e => {
-  if (canvasController?.view?.zoom) {
-    const newZoom =
-      canvasController.view.zoom +
-      Math.ceil(canvasController.view.zoom / 25) * Math.sign(e.deltaY);
+domEvents.canvasScroll$.subscribe((arr: WheelEvent[]) => {
+  const currentZoom = canvasController?.view?.zoom;
+  if (!canvasController || !currentZoom) return;
 
-    canvasController.zoomAtPoint(newZoom, e.clientX, e.clientY);
-  }
+  const zoomFactor = arr
+    .map(e => Math.max(-7, Math.min(e.deltaY, 10)) / 50)
+    .reduce((accumulator, x) => accumulator + x, 0);
+
+  const newZoom =
+    currentZoom +
+    Math.ceil(currentZoom * Math.abs(zoomFactor)) * Math.sign(zoomFactor);
+
+  canvasController.zoomAtPoint(newZoom, arr[0].clientX, arr[0].clientY);
 });
 
 domEvents.patternDropdownCLick$.subscribe(pattern => {
@@ -339,4 +344,8 @@ domEvents.patternDropdownCLick$.subscribe(pattern => {
 patternLibrary.selection$.subscribe(pattern => {
   dom.defaultBtn.classList.toggle("active", pattern === null);
   dom.patternBtn.classList.toggle("active", pattern !== null);
+});
+
+window.addEventListener("scroll", function (e) {
+  console.log(e);
 });

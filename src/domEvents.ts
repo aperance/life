@@ -9,7 +9,8 @@ import {
   skipUntil,
   pluck,
   mapTo,
-  tap
+  tap,
+  bufferTime
 } from "rxjs/operators";
 
 const cellCanvas = document.getElementById("cell-canvas") as HTMLCanvasElement;
@@ -65,7 +66,10 @@ export const mouseUp$ = fromEvent<MouseEvent>(document, "mouseup");
 
 export const canvasScroll$ = fromEvent<WheelEvent>(cellCanvas, "mousewheel", {
   passive: true
-});
+}).pipe(
+  bufferTime(50),
+  filter(arr => arr.length !== 0)
+);
 
 export const canvasDrag$ = merge(
   fromEvent<MouseEvent>(cellCanvas, "mousedown").pipe(
