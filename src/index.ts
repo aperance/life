@@ -1,4 +1,4 @@
-import {switchMap, map, first} from "rxjs/operators";
+import {switchMap, map, first, delay, takeUntil, take} from "rxjs/operators";
 import "materialize-css/sass/materialize.scss";
 import "./styles.scss";
 
@@ -6,10 +6,14 @@ import {CanvasController, createCanvasController} from "./canvasController";
 import {GameController, createGameController} from "./gameController";
 import * as patternLibrary from "./patternLibrary";
 import * as domEvents from "./domEvents";
+import {interval} from "rxjs";
 
 /** Stores refrences to used DOM elements with JSDoc type casting */
 const dom = {
   main: document.getElementById("main") as HTMLDivElement,
+  canvasContainer: document.getElementById(
+    "canvas-container"
+  ) as HTMLDivElement,
   gridCanvas: document.getElementById("grid-canvas") as HTMLCanvasElement,
   cellCanvas: document.getElementById("cell-canvas") as HTMLCanvasElement,
   leftStatus: document.getElementById("left-status") as HTMLSpanElement,
@@ -274,7 +278,31 @@ domEvents.canvasHover$
   )
   .subscribe(({e, pattern}) => {
     if (pattern) gameController?.placePreview(e.clientX, e.clientY, pattern);
+
+    dom.canvasContainer.style.setProperty(
+      "--tooltip-x-position",
+      e.clientX.toString() + "px"
+    );
+    dom.canvasContainer.style.setProperty(
+      "--tooltip-y-position",
+      e.clientY.toString() + "px"
+    );
+    dom.canvasContainer.style.setProperty("--tooltip-transition", "none");
+    dom.canvasContainer.style.setProperty("--tooltip-opacity", "0");
+
     document.body.style.cursor = "default";
+  });
+
+domEvents.canvasHoverPaused$
+  .pipe(switchMap(() => patternLibrary.selection$))
+  .subscribe(pattern => {
+    if (pattern) {
+      dom.canvasContainer.style.setProperty(
+        "--tooltip-transition",
+        "opacity 0.5s"
+      );
+      dom.canvasContainer.style.setProperty("--tooltip-opacity", "1");
+    }
   });
 
 domEvents.canvasClick$

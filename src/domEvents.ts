@@ -172,6 +172,16 @@ export const canvasHover$ = merge(
   fromEvent<MouseEvent>(patternDropdown, "mouseup")
 );
 
+export const canvasHoverPaused$ = canvasHover$.pipe(
+  switchMap(e =>
+    interval(1000).pipe(
+      take(1),
+      takeUntil(canvasHover$),
+      takeUntil(canvasLeave$)
+    )
+  )
+);
+
 export const canvasLeave$ = fromEvent<MouseEvent>(cellCanvas, "mouseleave");
 
 export const patternDropdownCLick$ = fromEvent<MouseEvent>(

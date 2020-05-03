@@ -50,6 +50,7 @@ a > span {
 }
 
 a[data-tooltip-content],
+canvas[data-tooltip-content],
 div[data-tooltip-content] {
   position: relative;
   overflow: visible;
@@ -69,7 +70,7 @@ div[data-tooltip-content] {
 
   &:hover::after {
     opacity: 1;
-    transition: all 0.2s ease-out 0.2s;
+    transition: all 0.2s ease-out 0.5s;
 
     #pattern-dropdown:not([hidden]) + & {
       opacity: 0;
@@ -98,6 +99,16 @@ div[data-tooltip-content] {
 
     &:hover::after {
       margin-left: 10px;
+    }
+  }
+
+  &[data-tooltip-direction="none"] {
+    &::after {
+      margin: 36px;
+      top: var(--tooltip-y-position, 50%);
+      left: var(--tooltip-x-position, 50%);
+      opacity: var(--tooltip-opacity, 0);
+      transition: var(--tooltip-transition, none);
     }
   }
 }
