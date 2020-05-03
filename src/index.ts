@@ -189,6 +189,9 @@ domEvents.navButtonClick$.subscribe(btn => {
       if (gameController?.isGamePaused || !gameController?.isGameStarted)
         gameController?.play();
       else gameController?.pause();
+      patternLibrary.setSelected(null);
+      dom.defaultBtn.classList.add("disabled");
+      dom.patternBtn.classList.add("disabled");
       break;
     case "default-btn":
       patternLibrary.setSelected(null);
@@ -197,6 +200,8 @@ domEvents.navButtonClick$.subscribe(btn => {
       terminateGame();
       initializeGame();
       canvasController?.setWindow(window.innerWidth, window.innerHeight);
+      dom.defaultBtn.classList.remove("disabled");
+      dom.patternBtn.classList.remove("disabled");
       break;
     case "dark-btn":
       document.documentElement.dataset.theme =
@@ -289,8 +294,6 @@ domEvents.canvasHover$
     );
     dom.canvasContainer.style.setProperty("--tooltip-transition", "none");
     dom.canvasContainer.style.setProperty("--tooltip-opacity", "0");
-
-    document.body.style.cursor = "default";
   });
 
 domEvents.canvasHoverPaused$
@@ -333,6 +336,8 @@ domEvents.canvasDrag$.subscribe(({deltaX, deltaY}) => {
   gameController?.clearPreview();
   document.body.style.cursor = "all-scroll";
 });
+
+domEvents.mouseUp$.subscribe(e => (document.body.style.cursor = "default"));
 
 domEvents.canvasLeave$.subscribe(() => gameController?.clearPreview());
 
