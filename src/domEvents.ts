@@ -173,7 +173,7 @@ export const canvasHover$ = merge(
 );
 
 export const canvasHoverPaused$ = canvasHover$.pipe(
-  switchMap(e =>
+  switchMap(() =>
     interval(1000).pipe(
       take(1),
       takeUntil(canvasHover$),
