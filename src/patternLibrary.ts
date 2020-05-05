@@ -16,8 +16,6 @@ export const selected: BehaviorSubject<number[][] | null> = new BehaviorSubject(
 export const selection$ = selected.asObservable();
 
 const categories = {
-  Spaceships: ["copperhead", "glider", "loafer", "lwss", "mwss", "hwss"],
-  Guns: ["bigun", "gosperglidergun", "p41660p5h2v0gun", "simkinglidergun"],
   Oscillators: [
     "beacon",
     "blinker",
@@ -29,6 +27,52 @@ const categories = {
     "tannersp46",
     "toad",
     "twinbeesshuttle"
+  ],
+  Spaceships: ["copperhead", "glider", "loafer", "lwss", "mwss", "hwss"],
+  Puffers: [
+    "birthdaypuffer",
+    "blinkerpuffer1",
+    "blinkerpuffer2",
+    "blocklayingswitchengine",
+    "frothingpuffer",
+    "gliderproducingswitchengine",
+    "glidertrain",
+    "hivenudger2",
+    "noahsark",
+    "ponyexpress",
+    "puffer1",
+    "puffer2",
+    "pufferfish",
+    "slowpuffer1",
+    "slowpuffer2"
+  ],
+  Rakes: [
+    "3enginecordershiprake",
+    "backrake1",
+    "backrake2",
+    "backrake3",
+    "c5diagonalrake",
+    "spacerake",
+    "weekenderdistaff"
+  ],
+  Guns: [
+    "bigun",
+    "gosperglidergun",
+    "p41660p5h2v0gun",
+    "p448dartgun",
+    "p69060p5h2v0gun",
+    "p94s",
+    "simkinglidergun"
+  ],
+  Methuselahs: [
+    "acorn",
+    "bheptomino",
+    "bunnies",
+    "herschel",
+    "lidka",
+    "piheptomino",
+    "rpentomino",
+    "switchengine"
   ]
 };
 
@@ -94,8 +138,13 @@ export async function loadDataFromFiles() {
 
   await Promise.all(
     patternList.map(async id => {
-      const patternData = await readPatternFile(id);
-      map.set(id, patternData);
+      try {
+        const patternData = await readPatternFile(id);
+        map.set(id, patternData);
+      } catch (err) {
+        console.error(`Error parsingzzs ${id}.rle`);
+        throw err;
+      }
     })
   );
 }
@@ -107,15 +156,13 @@ export async function loadDataFromFiles() {
  * @returns {Promise<PatternData>}
  */
 async function readPatternFile(id: string): Promise<PatternData> {
-  const file = await import(`../patterns/${id}.rle`);
-  const data = file.default.split(/x.*[sS]23/) as string[];
-  const rle = data[1].replace(/(\r\n|\n|\r)/gm, "");
+  const data = (await import(`../patterns/${id}.rle`)).default as string;
+  const rle = data.match(/^[^#xX]*!/m)?.[0].replace(/(\r\n|\n|\r)/gm, "") ?? "";
 
   return {
-    name: data[0].match(/#N .*/g)?.[0].replace(/#N /, "") ?? "",
-    author: data[0].match(/#O .*/g)?.[0].replace(/#O /, "") ?? "",
-    description:
-      data[0].match(/#C .*/g)?.map(str => str.replace(/#C /, "")) ?? [],
+    name: data.match(/#N .*/g)?.[0].replace(/#N /, "") ?? "",
+    author: data.match(/#O .*/g)?.[0].replace(/#O /, "") ?? "",
+    description: data.match(/#C .*/g)?.map(str => str.replace(/#C /, "")) ?? [],
     array: rleParser(rle)
   };
 }
