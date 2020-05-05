@@ -20,6 +20,8 @@ export interface GameController {
   isGamePaused: boolean;
   resultBuffer: Array<{born: Array<number>; died: Array<number>}>;
   resultsRequestedAt: number | null;
+  changedCellCount: number;
+  calcTimePerGeneration: number;
   didCellsChange: boolean;
   speed: {
     id: number;
@@ -57,7 +59,7 @@ const bufferSize = 50;
  * @param {CanvasController} canvasController Reference to canvasController object
  * @param {number} cellCount Number of cells per side of the total game area
  * @param {boolean} wasm True if wasm implementation of game logic should be used
- * @param {function(boolean, boolean, number, number, number, number): void} observer Function called when game state is modified
+ * @param {function} observer Function called when game state is modified
  * @return {GameController}
  */
 export function createGameController(
@@ -110,6 +112,18 @@ export function createGameController(
      * @type {number?}
      */
     resultsRequestedAt: null,
+
+    /**
+     * @memberof GameController#
+     * @type {number}
+     */
+    changedCellCount: 0,
+
+    /**
+     * @memberof GameController#
+     * @type {number}
+     */
+    calcTimePerGeneration: 0,
 
     /**
      * True if aliveCells was modified since last animation cycle.
@@ -328,6 +342,8 @@ export function createGameController(
             for (let cellIndex of result.born) this.aliveCells.add(cellIndex);
             for (let cellIndex of result.died)
               this.aliveCells.delete(cellIndex);
+
+            this.changedCellCount = result.born.length + result.died.length;
             this.didCellsChange = true;
             this.generation++;
           }
@@ -350,7 +366,9 @@ export function createGameController(
         this.generation,
         this.aliveCells.size,
         this.speed.id,
-        this.speed.cyclesPerRender
+        this.speed.cyclesPerRender,
+        this.calcTimePerGeneration,
+        this.changedCellCount
       );
 
       requestAnimationFrame(this.animationCycle.bind(this));
@@ -394,6 +412,8 @@ export function createGameController(
           this.speed.set(this.speed.id - 1);
           console.warn("Reducing speed to " + 60 / this.speed.cyclesPerRender);
         }
+
+        this.calcTimePerGeneration = durationAverage;
 
         this.resultsRequestedAt = null;
       }

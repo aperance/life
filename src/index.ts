@@ -121,11 +121,18 @@ function handleGameChange(
   generation: number,
   population: number,
   speedID: number,
-  cyclesPerRender: number
+  cyclesPerRender: number,
+  calcTimePerGeneration: number,
+  changedCellCount: number
 ) {
   const state = isPlaying ? (isPaused ? "Paused" : "Running") : "Stopped";
   /** Update bottom bar with current game state. */
-  dom.leftStatus.textContent = `${state}, Generation: ${generation}, Population: ${population}`;
+  dom.leftStatus.textContent =
+    `${state}, ` +
+    `Generation: ${generation}, ` +
+    `Population: ${population}, ` +
+    `Changed Cells: ${changedCellCount}, ` +
+    `Processing Time: ${calcTimePerGeneration.toFixed(3)} ms/generation`;
   /** Toggle play/pause buttons based on current game state. */
   dom.playIcon.hidden = isPlaying && !isPaused;
   dom.pauseIcon.hidden = !isPlaying || isPaused;
