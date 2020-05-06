@@ -333,8 +333,6 @@ export function createCanvasController(
      * @param {Array<number>} died Indices of all cells died this generation
      */
     renderChangedCells(born, died) {
-      console.log("rendering changed cells");
-
       cellCtx.fillStyle = "rgba(0, 0, 0, 1)";
       for (let i = 0; i < born.length; ++i) {
         const {row, col} = this.indexToRowCol(born[i]);

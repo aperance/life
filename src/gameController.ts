@@ -316,23 +316,20 @@ export function createGameController(
 
       let born: Array<number> | null = null;
       let died: Array<number> | null = null;
-      let changedCount: number | undefined;
 
       if (this.isGameStarted && !this.isGamePaused) {
         if (this.speed.currentCycle < this.speed.cyclesPerRender) {
           this.speed.currentCycle++;
         } else {
           this.speed.currentCycle = 1;
-          const result: {
-            born: Array<number>;
-            died: Array<number>;
-          } | null = this.nextResult;
+          const result = this.nextResult;
           if (result) {
-            for (let cellIndex of result.born) this.aliveCells.add(cellIndex);
-            for (let cellIndex of result.died)
-              this.aliveCells.delete(cellIndex);
+            born = result.born;
+            died = result.died;
 
-            changedCount = result.born.length + result.died.length;
+            for (let cellIndex of born) this.aliveCells.add(cellIndex);
+            for (let cellIndex of died) this.aliveCells.delete(cellIndex);
+
             this.didCellsChange = true;
             this.generation++;
           }
@@ -355,7 +352,7 @@ export function createGameController(
         generation: this.generation,
         aliveCount: this.aliveCells.size,
         speed: this.speed,
-        ...(changedCount && {changedCount})
+        ...(born && died && {changedCount: born.length + died.length})
       });
 
       requestAnimationFrame(this.animationCycle.bind(this));
