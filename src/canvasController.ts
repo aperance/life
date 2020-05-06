@@ -6,6 +6,8 @@
  * @namespace CanvasController
  */
 
+import {Subject} from "rxjs";
+
 /**
  * Exports a factory function used to generate a CanvasController object.
  * @module createCanvasController
@@ -64,7 +66,8 @@ export function createCanvasController(
   cellCtx: CanvasRenderingContext2D,
   cellCount: number,
   initialTheme: string | undefined,
-  observer: any
+  //observer: any,
+  subject: Subject<object>
 ): CanvasController {
   const canvasController: CanvasController = {
     view: {},
@@ -179,7 +182,8 @@ export function createCanvasController(
       this.isRedrawNeeded = true;
 
       const {row, col} = this.centerRowCol;
-      observer(this.view.zoom, row, col);
+      // observer(this.view.zoom, row, col);
+      subject.next({zoom: this.view.zoom, row, col});
     },
 
     /**
@@ -329,6 +333,8 @@ export function createCanvasController(
      * @param {Array<number>} died Indices of all cells died this generation
      */
     renderChangedCells(born, died) {
+      console.log("rendering changed cells");
+
       cellCtx.fillStyle = "rgba(0, 0, 0, 1)";
       for (let i = 0; i < born.length; ++i) {
         const {row, col} = this.indexToRowCol(born[i]);

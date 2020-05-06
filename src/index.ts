@@ -1,4 +1,4 @@
-import {switchMap, map, first, delay, takeUntil, take} from "rxjs/operators";
+import {switchMap, map, first, scan} from "rxjs/operators";
 import "materialize-css/sass/materialize.scss";
 import "./styles.scss";
 
@@ -6,7 +6,7 @@ import {CanvasController, createCanvasController} from "./canvasController";
 import {GameController, createGameController} from "./gameController";
 import * as patternLibrary from "./patternLibrary";
 import * as domEvents from "./domEvents";
-import {interval} from "rxjs";
+import {Subject, Observable} from "rxjs";
 
 /** Stores refrences to used DOM elements with JSDoc type casting */
 const dom = {
@@ -36,6 +36,21 @@ const isWasm = true;
 /** Variables for most game related objects. To be set by initializeGame function. */
 let canvasController: CanvasController | null = null;
 let gameController: GameController | null = null;
+
+interface ControllerState {
+  zoom?: number;
+  row?: number;
+  col?: number;
+  isPlaying?: boolean;
+  isPaused?: boolean;
+  generation?: number;
+  aliveCount?: number;
+  speed?: any;
+  calcTimePerGeneration?: number;
+  changedCount?: number;
+}
+
+const controllerSubject = new Subject<ControllerState>();
 
 /** Get color theme from local storage. If not set use prefrence from client os. Defaults to light. */
 document.documentElement.dataset.theme =
@@ -78,7 +93,8 @@ function initializeGame() {
     cellCtx,
     5000,
     document.documentElement.dataset.theme,
-    handleViewChange
+    //  handleViewChange,
+    controllerSubject
   );
   /** Factory function for GameController object. */
   gameController = createGameController(
@@ -86,7 +102,8 @@ function initializeGame() {
     canvasController,
     5000,
     isWasm,
-    handleGameChange
+    // handleGameChange,
+    controllerSubject
   );
 
   /** Ensure all UI elements are visible */
@@ -108,62 +125,62 @@ function terminateGame() {
   document.body.hidden = true;
 }
 
-/**
- * Observer function passed to GameController object.
- * Updates UI elements on changes to GameController state.
- * @param {boolean} isPlaying
- * @param {number} generation
- * @param {number} speed
- */
-function handleGameChange(
-  isPlaying: boolean,
-  isPaused: boolean,
-  generation: number,
-  population: number,
-  speedID: number,
-  cyclesPerRender: number,
-  calcTimePerGeneration: number,
-  changedCellCount: number
-) {
-  const state = isPlaying ? (isPaused ? "Paused" : "Running") : "Stopped";
-  /** Update bottom bar with current game state. */
-  dom.leftStatus.textContent =
-    `${state}, ` +
-    `Generation: ${generation}, ` +
-    `Population: ${population}, ` +
-    `Changed Cells: ${changedCellCount}, ` +
-    `Processing Time: ${calcTimePerGeneration.toFixed(3)} ms/generation`;
-  /** Toggle play/pause buttons based on current game state. */
-  dom.playIcon.hidden = isPlaying && !isPaused;
-  dom.pauseIcon.hidden = !isPlaying || isPaused;
-  /** Disable edit buttons after game has started. */
-  dom.defaultBtn.disabled = isPlaying;
-  dom.patternBtn.disabled = isPlaying;
-  /** Ensure speed slider values match the current game speed. */
-  dom.speedSlider.value = speedID.toString();
-  dom.speedSlider.parentElement?.setAttribute(
-    "data-tooltip-content",
-    `Speed: ${60 / cyclesPerRender} Generations / second`
-  );
-}
+// /**
+//  * Observer function passed to GameController object.
+//  * Updates UI elements on changes to GameController state.
+//  * @param {boolean} isPlaying
+//  * @param {number} generation
+//  * @param {number} speed
+//  */
+// function handleGameChange(
+//   isPlaying: boolean,
+//   isPaused: boolean,
+//   generation: number,
+//   population: number,
+//   speedID: number,
+//   cyclesPerRender: number,
+//   calcTimePerGeneration: number,
+//   changedCellCount: number
+// ) {
+//   const state = isPlaying ? (isPaused ? "Paused" : "Running") : "Stopped";
+//   /** Update bottom bar with current game state. */
+//   dom.leftStatus.textContent =
+//     `${state}, ` +
+//     `Generation: ${generation}, ` +
+//     `Population: ${population}, ` +
+//     `Changed Cells: ${changedCellCount}, ` +
+//     `Processing Time: ${calcTimePerGeneration.toFixed(3)} ms/generation`;
+//   /** Toggle play/pause buttons based on current game state. */
+//   dom.playIcon.hidden = isPlaying && !isPaused;
+//   dom.pauseIcon.hidden = !isPlaying || isPaused;
+//   /** Disable edit buttons after game has started. */
+//   dom.defaultBtn.disabled = isPlaying;
+//   dom.patternBtn.disabled = isPlaying;
+//   /** Ensure speed slider values match the current game speed. */
+//   dom.speedSlider.value = speedID.toString();
+//   dom.speedSlider.parentElement?.setAttribute(
+//     "data-tooltip-content",
+//     `Speed: ${60 / cyclesPerRender} Generations / second`
+//   );
+// }
 
-/**
- * Observer function passed to GameRenderer object.
- * Updates UI elements on changes to GameRenderer view state.
- * @param {number} zoom
- * @param {number} centerRow
- * @param {number} centerCol
- */
-function handleViewChange(zoom: number, centerRow: number, centerCol: number) {
-  /** Update bottom bar with current view state. */
-  dom.rightStatus.textContent = `Zoom: ${zoom}, Position: (${centerCol},${centerRow})`;
-  /** Ensure zoom slider value matches the current zoom level. */
-  dom.zoomSlider.value = Math.sqrt(zoom).toString();
-  dom.zoomSlider.parentElement?.setAttribute(
-    "data-tooltip-content",
-    `Zoom: ${zoom}%`
-  );
-}
+// /**
+//  * Observer function passed to GameRenderer object.
+//  * Updates UI elements on changes to GameRenderer view state.
+//  * @param {number} zoom
+//  * @param {number} centerRow
+//  * @param {number} centerCol
+//  */
+// function handleViewChange(zoom: number, centerRow: number, centerCol: number) {
+//   /** Update bottom bar with current view state. */
+//   dom.rightStatus.textContent = `Zoom: ${zoom}, Position: (${centerCol},${centerRow})`;
+//   /** Ensure zoom slider value matches the current zoom level. */
+//   dom.zoomSlider.value = Math.sqrt(zoom).toString();
+//   dom.zoomSlider.parentElement?.setAttribute(
+//     "data-tooltip-content",
+//     `Zoom: ${zoom}%`
+//   );
+// }
 
 /** Terminate game after any unhandled errors. */
 window.addEventListener("error", terminateGame);
@@ -389,3 +406,47 @@ patternLibrary.selection$.subscribe(pattern => {
 window.addEventListener("scroll", function (e) {
   console.log(e);
 });
+
+const controllerUpdate$: Observable<ControllerState> = controllerSubject
+  .asObservable()
+  .pipe(
+    scan((acc, x) => {
+      const next = {...acc, ...x};
+      return next;
+    }, {})
+  );
+
+controllerUpdate$.subscribe(({isPlaying, isPaused, speed, zoom}) => {
+  /** Toggle play/pause buttons based on current game state. */
+  dom.playIcon.hidden = (isPlaying && !isPaused) ?? true;
+  dom.pauseIcon.hidden = (!isPlaying || isPaused) ?? true;
+  /** Disable edit buttons after game has started. */
+  dom.defaultBtn.disabled = isPlaying ?? true;
+  dom.patternBtn.disabled = isPlaying ?? true;
+  /** Ensure speed slider values match the current game speed. */
+  dom.speedSlider.value = speed?.id.toString();
+  dom.speedSlider.parentElement?.setAttribute(
+    "data-tooltip-content",
+    `Speed: ${60 / speed?.cyclesPerRender} Generations / second`
+  );
+  /** Ensure zoom slider value matches the current zoom level. */
+  dom.zoomSlider.value = Math.sqrt(zoom ?? 1).toString();
+  dom.zoomSlider.parentElement?.setAttribute(
+    "data-tooltip-content",
+    `Zoom: ${zoom}%`
+  );
+});
+
+controllerUpdate$.subscribe(
+  ({isPlaying, isPaused, generation, aliveCount, changedCount, row, col}) => {
+    /** Update bottom bar with current game state. */
+    dom.leftStatus.textContent =
+      `${!isPlaying ? "Stopped" : !isPaused ? "Running" : "Paused"}, ` +
+      `Generation: ${generation}, ` +
+      `Population: ${aliveCount}, ` +
+      `Changed Cells: ${changedCount ?? "0"}`;
+
+    /** Update bottom bar with current view state. */
+    dom.rightStatus.textContent = `Position: (${col},${row})`;
+  }
+);

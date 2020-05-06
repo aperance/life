@@ -12,6 +12,7 @@
  */
 
 import {CanvasController} from "./canvasController";
+import {Subject} from "rxjs";
 
 export interface GameController {
   aliveCells: Set<number>;
@@ -20,8 +21,6 @@ export interface GameController {
   isGamePaused: boolean;
   resultBuffer: Array<{born: Array<number>; died: Array<number>}>;
   resultsRequestedAt: number | null;
-  changedCellCount: number;
-  calcTimePerGeneration: number;
   didCellsChange: boolean;
   speed: {
     id: number;
@@ -68,7 +67,8 @@ export function createGameController(
   cellCount: number,
   wasm: boolean,
   // @ts-ignore
-  observer: any
+  //observer: any
+  subject: Subject<object>
 ) {
   const gameController: GameController = {
     /**
@@ -112,18 +112,6 @@ export function createGameController(
      * @type {number?}
      */
     resultsRequestedAt: null,
-
-    /**
-     * @memberof GameController#
-     * @type {number}
-     */
-    changedCellCount: 0,
-
-    /**
-     * @memberof GameController#
-     * @type {number}
-     */
-    calcTimePerGeneration: 0,
 
     /**
      * True if aliveCells was modified since last animation cycle.
@@ -328,6 +316,7 @@ export function createGameController(
 
       let born: Array<number> | null = null;
       let died: Array<number> | null = null;
+      let changedCount: number | undefined;
 
       if (this.isGameStarted && !this.isGamePaused) {
         if (this.speed.currentCycle < this.speed.cyclesPerRender) {
@@ -343,7 +332,7 @@ export function createGameController(
             for (let cellIndex of result.died)
               this.aliveCells.delete(cellIndex);
 
-            this.changedCellCount = result.born.length + result.died.length;
+            changedCount = result.born.length + result.died.length;
             this.didCellsChange = true;
             this.generation++;
           }
@@ -360,16 +349,14 @@ export function createGameController(
 
       this.didCellsChange = false;
 
-      observer(
-        this.isGameStarted,
-        this.isGamePaused,
-        this.generation,
-        this.aliveCells.size,
-        this.speed.id,
-        this.speed.cyclesPerRender,
-        this.calcTimePerGeneration,
-        this.changedCellCount
-      );
+      subject.next({
+        isPlaying: this.isGameStarted,
+        isPaused: this.isGamePaused,
+        generation: this.generation,
+        aliveCount: this.aliveCells.size,
+        speed: this.speed,
+        ...(changedCount && {changedCount})
+      });
 
       requestAnimationFrame(this.animationCycle.bind(this));
     },
@@ -412,8 +399,6 @@ export function createGameController(
           this.speed.set(this.speed.id - 1);
           console.warn("Reducing speed to " + 60 / this.speed.cyclesPerRender);
         }
-
-        this.calcTimePerGeneration = durationAverage;
 
         this.resultsRequestedAt = null;
       }
