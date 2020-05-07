@@ -1,12 +1,12 @@
-import {switchMap, map, first, scan} from "rxjs/operators";
+import {switchMap, map, first} from "rxjs/operators";
+
 import "materialize-css/sass/materialize.scss";
 import "./styles.scss";
 
 import {CanvasController, createCanvasController} from "./canvasController";
 import {GameController, createGameController} from "./gameController";
 import * as patternLibrary from "./patternLibrary";
-import * as domEvents from "./domEvents";
-import {Subject, Observable} from "rxjs";
+import * as observables from "./observables";
 
 /** Stores refrences to used DOM elements with JSDoc type casting */
 const dom = {
@@ -37,29 +37,9 @@ const isWasm = true;
 let canvasController: CanvasController | null = null;
 let gameController: GameController | null = null;
 
-interface ControllerState {
-  zoom?: number;
-  row?: number;
-  col?: number;
-  isPlaying?: boolean;
-  isPaused?: boolean;
-  generation?: number;
-  aliveCount?: number;
-  speed?: any;
-  calcTimePerGeneration?: number;
-  changedCount?: number;
-}
-
-const controllerSubject = new Subject<ControllerState>();
-
-/** Get color theme from local storage. If not set use prefrence from client os. Defaults to light. */
-document.documentElement.dataset.theme =
-  localStorage.getItem("theme") ??
-  (window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light");
-
-/** Perform all actions required on page load to bring game to a working state. */
+/**
+ * Perform all actions required on page load to bring game to a working state.
+ */
 (async () => {
   try {
     initializeGame();
@@ -69,6 +49,12 @@ document.documentElement.dataset.theme =
     dom.patternDropdown.innerHTML = patternLibrary.generateDropdownHTML();
     // @ts-ignore
     M.AutoInit();
+    // Get color theme from local storage. If not set use prefrence from client os.
+    document.documentElement.dataset.theme =
+      localStorage.getItem("theme") ??
+      (window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light");
   } catch (err) {
     /** Terminate game on error (most likely from pattern library). */
     console.error(err);
@@ -94,7 +80,7 @@ function initializeGame() {
     5000,
     document.documentElement.dataset.theme,
     //  handleViewChange,
-    controllerSubject
+    observables.controllerSubject
   );
   /** Factory function for GameController object. */
   gameController = createGameController(
@@ -103,7 +89,7 @@ function initializeGame() {
     5000,
     isWasm,
     // handleGameChange,
-    controllerSubject
+    observables.controllerSubject
   );
 
   /** Ensure all UI elements are visible */
@@ -125,63 +111,6 @@ function terminateGame() {
   document.body.hidden = true;
 }
 
-// /**
-//  * Observer function passed to GameController object.
-//  * Updates UI elements on changes to GameController state.
-//  * @param {boolean} isPlaying
-//  * @param {number} generation
-//  * @param {number} speed
-//  */
-// function handleGameChange(
-//   isPlaying: boolean,
-//   isPaused: boolean,
-//   generation: number,
-//   population: number,
-//   speedID: number,
-//   cyclesPerRender: number,
-//   calcTimePerGeneration: number,
-//   changedCellCount: number
-// ) {
-//   const state = isPlaying ? (isPaused ? "Paused" : "Running") : "Stopped";
-//   /** Update bottom bar with current game state. */
-//   dom.leftStatus.textContent =
-//     `${state}, ` +
-//     `Generation: ${generation}, ` +
-//     `Population: ${population}, ` +
-//     `Changed Cells: ${changedCellCount}, ` +
-//     `Processing Time: ${calcTimePerGeneration.toFixed(3)} ms/generation`;
-//   /** Toggle play/pause buttons based on current game state. */
-//   dom.playIcon.hidden = isPlaying && !isPaused;
-//   dom.pauseIcon.hidden = !isPlaying || isPaused;
-//   /** Disable edit buttons after game has started. */
-//   dom.defaultBtn.disabled = isPlaying;
-//   dom.patternBtn.disabled = isPlaying;
-//   /** Ensure speed slider values match the current game speed. */
-//   dom.speedSlider.value = speedID.toString();
-//   dom.speedSlider.parentElement?.setAttribute(
-//     "data-tooltip-content",
-//     `Speed: ${60 / cyclesPerRender} Generations / second`
-//   );
-// }
-
-// /**
-//  * Observer function passed to GameRenderer object.
-//  * Updates UI elements on changes to GameRenderer view state.
-//  * @param {number} zoom
-//  * @param {number} centerRow
-//  * @param {number} centerCol
-//  */
-// function handleViewChange(zoom: number, centerRow: number, centerCol: number) {
-//   /** Update bottom bar with current view state. */
-//   dom.rightStatus.textContent = `Zoom: ${zoom}, Position: (${centerCol},${centerRow})`;
-//   /** Ensure zoom slider value matches the current zoom level. */
-//   dom.zoomSlider.value = Math.sqrt(zoom).toString();
-//   dom.zoomSlider.parentElement?.setAttribute(
-//     "data-tooltip-content",
-//     `Zoom: ${zoom}%`
-//   );
-// }
-
 /** Terminate game after any unhandled errors. */
 window.addEventListener("error", terminateGame);
 
@@ -191,13 +120,12 @@ dom.main.addEventListener("wheel", e => e.preventDefault(), {
 });
 
 dom.patternBtn.addEventListener("mousedown", e => e.preventDefault());
-
 dom.patternDropdown.addEventListener("mousedown", e => e.preventDefault());
 
 /**
  * Perform necessary adjustments after window initialization or resize.
  */
-domEvents.windowResize$.subscribe(() => {
+observables.windowResize$.subscribe(() => {
   /** Updates game state with current window dimensions. */
   canvasController?.setWindow(window.innerWidth, window.innerHeight);
   /** Adjust all canvas dimensions to match window dimensions. */
@@ -207,7 +135,7 @@ domEvents.windowResize$.subscribe(() => {
   });
 });
 
-domEvents.navButtonClick$.subscribe(btn => {
+observables.navButtonClick$.subscribe(btn => {
   switch (btn.id) {
     case "play-btn":
       if (gameController?.isGamePaused || !gameController?.isGameStarted)
@@ -238,7 +166,7 @@ domEvents.navButtonClick$.subscribe(btn => {
   }
 });
 
-domEvents.navDown$.subscribe(target => {
+observables.navDown$.subscribe(target => {
   if (target.id === "pattern-btn") {
     dom.patternDropdown.hidden = !dom.patternDropdown.hidden;
   } else if (
@@ -248,13 +176,13 @@ domEvents.navDown$.subscribe(target => {
     dom.patternDropdown.hidden = true;
 });
 
-domEvents.speedSlider$.subscribe(value => {
+observables.speedSlider$.subscribe(value => {
   const speedID = parseInt(value);
   gameController?.speed.set(speedID);
 });
 
 /** Update game zoom value on change in zoon slider position. */
-domEvents.zoomSlider$.subscribe(value => {
+observables.zoomSlider$.subscribe(value => {
   canvasController?.zoomAtPoint(
     Math.round(Math.pow(parseFloat(value), 2)),
     window.innerWidth / 2,
@@ -262,7 +190,7 @@ domEvents.zoomSlider$.subscribe(value => {
   );
 });
 
-domEvents.arrowKeyPress$.subscribe(key => {
+observables.arrowKeyPress$.subscribe(key => {
   if (canvasController?.view?.panX && canvasController?.view?.panY)
     switch (key) {
       case "ArrowUp":
@@ -282,7 +210,7 @@ domEvents.arrowKeyPress$.subscribe(key => {
     }
 });
 
-domEvents.keyDown$.subscribe(e => {
+observables.keyDown$.subscribe(e => {
   switch (e.key) {
     case "Escape":
       patternLibrary.setSelected(null);
@@ -299,10 +227,10 @@ domEvents.keyDown$.subscribe(e => {
   }
 });
 
-domEvents.canvasHover$
+observables.canvasHover$
   .pipe(
     switchMap(e =>
-      patternLibrary.selection$.pipe(map(pattern => ({e, pattern})))
+      observables.patternSelection$.pipe(map(pattern => ({e, pattern})))
     )
   )
   .subscribe(({e, pattern}) => {
@@ -320,8 +248,8 @@ domEvents.canvasHover$
     dom.canvasContainer.style.setProperty("--tooltip-opacity", "0");
   });
 
-domEvents.canvasHoverPaused$
-  .pipe(switchMap(() => patternLibrary.selection$))
+observables.canvasHoverPaused$
+  .pipe(switchMap(() => observables.patternSelection$))
   .subscribe(pattern => {
     if (pattern) {
       dom.canvasContainer.style.setProperty(
@@ -332,10 +260,10 @@ domEvents.canvasHoverPaused$
     }
   });
 
-domEvents.canvasClick$
+observables.canvasClick$
   .pipe(
     switchMap(e =>
-      patternLibrary.selection$.pipe(
+      observables.patternSelection$.pipe(
         first(),
         map(pattern => ({e, pattern}))
       )
@@ -351,7 +279,7 @@ domEvents.canvasClick$
     else gameController?.placePattern(e.clientX, e.clientY, pattern);
   });
 
-domEvents.canvasDrag$.subscribe(({deltaX, deltaY}) => {
+observables.canvasDrag$.subscribe(({deltaX, deltaY}) => {
   if (canvasController?.view?.panX && canvasController?.view?.panY)
     canvasController.setView({
       panX: Math.round(canvasController.view.panX + deltaX),
@@ -361,11 +289,11 @@ domEvents.canvasDrag$.subscribe(({deltaX, deltaY}) => {
   document.body.style.cursor = "all-scroll";
 });
 
-domEvents.mouseUp$.subscribe(e => (document.body.style.cursor = "default"));
+observables.mouseUp$.subscribe(() => (document.body.style.cursor = "default"));
 
-domEvents.canvasLeave$.subscribe(() => gameController?.clearPreview());
+observables.canvasLeave$.subscribe(() => gameController?.clearPreview());
 
-domEvents.canvasPinch$.subscribe(({scale, centerX, centerY}) => {
+observables.canvasPinch$.subscribe(({scale, centerX, centerY}) => {
   if (canvasController?.view?.zoom)
     canvasController.zoomAtPoint(
       canvasController.view.zoom * scale,
@@ -374,7 +302,7 @@ domEvents.canvasPinch$.subscribe(({scale, centerX, centerY}) => {
     );
 });
 
-domEvents.canvasScroll$.subscribe((arr: WheelEvent[]) => {
+observables.canvasScroll$.subscribe((arr: WheelEvent[]) => {
   const currentZoom = canvasController?.view?.zoom;
   if (!canvasController || !currentZoom) return;
 
@@ -389,55 +317,44 @@ domEvents.canvasScroll$.subscribe((arr: WheelEvent[]) => {
   canvasController.zoomAtPoint(newZoom, arr[0].clientX, arr[0].clientY);
 });
 
-domEvents.patternDropdownCLick$.subscribe(pattern => {
-  console.log(pattern);
-
-  /** Set a new selected pattern on button click. */
+/** Set a new selected pattern on button click. */
+observables.patternDropdownCLick$.subscribe(pattern => {
   patternLibrary.setSelected(pattern);
   dom.patternDropdown.hidden = true;
 });
 
 /** Set pattern library button as active when a pattern is selected, default otherwise. */
-patternLibrary.selection$.subscribe(pattern => {
+observables.patternSelection$.subscribe(pattern => {
   dom.defaultBtn.classList.toggle("active", pattern === null);
   dom.patternBtn.classList.toggle("active", pattern !== null);
 });
 
-window.addEventListener("scroll", function (e) {
-  console.log(e);
-});
+/** Updates navbar based on changes to gameController and viewController state. */
+observables.controllerUpdate$.subscribe(
+  ({isPlaying, isPaused, speed, zoom}) => {
+    /** Toggle play/pause buttons based on current game state. */
+    dom.playIcon.hidden = (isPlaying && !isPaused) ?? true;
+    dom.pauseIcon.hidden = (!isPlaying || isPaused) ?? true;
+    /** Disable edit buttons after game has started. */
+    dom.defaultBtn.disabled = isPlaying ?? true;
+    dom.patternBtn.disabled = isPlaying ?? true;
+    /** Ensure speed slider values match the current game speed. */
+    dom.speedSlider.value = speed?.id.toString();
+    dom.speedSlider.parentElement?.setAttribute(
+      "data-tooltip-content",
+      `Speed: ${60 / speed?.cyclesPerRender} Generations / second`
+    );
+    /** Ensure zoom slider value matches the current zoom level. */
+    dom.zoomSlider.value = Math.sqrt(zoom ?? 1).toString();
+    dom.zoomSlider.parentElement?.setAttribute(
+      "data-tooltip-content",
+      `Zoom: ${zoom}%`
+    );
+  }
+);
 
-const controllerUpdate$: Observable<ControllerState> = controllerSubject
-  .asObservable()
-  .pipe(
-    scan((acc, x) => {
-      const next = {...acc, ...x};
-      return next;
-    }, {})
-  );
-
-controllerUpdate$.subscribe(({isPlaying, isPaused, speed, zoom}) => {
-  /** Toggle play/pause buttons based on current game state. */
-  dom.playIcon.hidden = (isPlaying && !isPaused) ?? true;
-  dom.pauseIcon.hidden = (!isPlaying || isPaused) ?? true;
-  /** Disable edit buttons after game has started. */
-  dom.defaultBtn.disabled = isPlaying ?? true;
-  dom.patternBtn.disabled = isPlaying ?? true;
-  /** Ensure speed slider values match the current game speed. */
-  dom.speedSlider.value = speed?.id.toString();
-  dom.speedSlider.parentElement?.setAttribute(
-    "data-tooltip-content",
-    `Speed: ${60 / speed?.cyclesPerRender} Generations / second`
-  );
-  /** Ensure zoom slider value matches the current zoom level. */
-  dom.zoomSlider.value = Math.sqrt(zoom ?? 1).toString();
-  dom.zoomSlider.parentElement?.setAttribute(
-    "data-tooltip-content",
-    `Zoom: ${zoom}%`
-  );
-});
-
-controllerUpdate$.subscribe(
+/** Updates status bar based on changes to gameController and viewController state. */
+observables.controllerUpdate$.subscribe(
   ({isPlaying, isPaused, generation, aliveCount, changedCount, row, col}) => {
     /** Update bottom bar with current game state. */
     dom.leftStatus.textContent =

@@ -1,3 +1,5 @@
+import {patternSubject} from "./observables";
+
 interface PatternData {
   name: string;
   author: string;
@@ -5,15 +7,7 @@ interface PatternData {
   array: number[][];
 }
 
-import {BehaviorSubject} from "rxjs";
-
 const map = new Map();
-
-//@ts-ignore
-export const selected: BehaviorSubject<number[][] | null> = new BehaviorSubject(
-  null
-);
-export const selection$ = selected.asObservable();
 
 const categories = {
   Oscillators: [
@@ -81,40 +75,40 @@ const categories = {
  * @param {string?} id
  */
 export function setSelected(id: string | null) {
-  selected.next(id ? getData(id).array : null);
+  patternSubject.next(id ? getData(id).array : null);
 }
 
 /**
  *
  */
 export function rotateSelected() {
-  if (!selected.value) return;
+  if (!patternSubject.value) return;
 
-  const width = selected.value.length;
-  const height = selected.value[0].length;
+  const width = patternSubject.value.length;
+  const height = patternSubject.value[0].length;
 
   let newArray = new Array(height);
   for (let row = 0; row < height; row++) {
     newArray[row] = new Array(width);
     for (let col = 0; col < width; col++) {
-      newArray[row][col] = selected.value[width - col - 1][row];
+      newArray[row][col] = patternSubject.value[width - col - 1][row];
     }
   }
 
-  selected.next(newArray);
+  patternSubject.next(newArray);
 }
 
 /**
  *
  */
 export function flipSelected() {
-  if (!selected.value) return;
-  let newArr = selected.value;
+  if (!patternSubject.value) return;
+  let newArr = patternSubject.value;
 
   for (let i = 0; i < newArr.length; i++) {
     newArr[i].reverse();
   }
-  selected.next(newArr);
+  patternSubject.next(newArr);
 }
 
 /**

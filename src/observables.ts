@@ -1,4 +1,12 @@
-import {fromEvent, merge, interval} from "rxjs";
+import {
+  Subject,
+  BehaviorSubject,
+  Observable,
+  fromEvent,
+  merge,
+  interval
+} from "rxjs";
+
 import {
   map,
   switchMap,
@@ -10,17 +18,49 @@ import {
   pluck,
   mapTo,
   tap,
-  bufferTime
+  bufferTime,
+  scan
 } from "rxjs/operators";
 
 const cellCanvas = document.getElementById("cell-canvas") as HTMLCanvasElement;
 const nav = document.getElementById("nav") as HTMLElement;
-//const patternModal = document.getElementById("pattern-modal") as HTMLDivElement;
+
 const patternDropdown = document.getElementById(
   "pattern-dropdown"
 ) as HTMLDivElement;
 const speedSlider = document.getElementById("speed-slider") as HTMLInputElement;
 const zoomSlider = document.getElementById("zoom-slider") as HTMLInputElement;
+
+interface ControllerState {
+  zoom?: number;
+  row?: number;
+  col?: number;
+  isPlaying?: boolean;
+  isPaused?: boolean;
+  generation?: number;
+  aliveCount?: number;
+  speed?: any;
+  calcTimePerGeneration?: number;
+  changedCount?: number;
+}
+
+export const controllerSubject = new Subject<ControllerState>();
+
+export const controllerUpdate$: Observable<ControllerState> = controllerSubject
+  .asObservable()
+  .pipe(
+    scan((acc, x) => {
+      const next = {...acc, ...x};
+      return next;
+    }, {})
+  );
+
+//@ts-ignore
+export const patternSubject: BehaviorSubject<
+  number[][] | null
+> = new BehaviorSubject(null);
+
+export const patternSelection$ = patternSubject.asObservable();
 
 export const windowResize$ = merge(
   fromEvent(window, "resize"),
