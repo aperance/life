@@ -23,8 +23,6 @@ const dom = {
   patternDropdown: document.getElementById(
     "pattern-dropdown"
   ) as HTMLDivElement,
-  patternList: document.getElementById("pattern-list") as HTMLDivElement,
-  patternDetails: document.getElementById("pattern-details") as HTMLDivElement,
   speedSlider: document.getElementById("speed-slider") as HTMLInputElement,
   zoomSlider: document.getElementById("zoom-slider") as HTMLInputElement
 };
@@ -34,6 +32,15 @@ const isWasm = true;
 /** Variables for most game related objects. To be set by initializeGame function. */
 let canvasController: CanvasController | null = null;
 let gameController: GameController | null = null;
+
+/**
+ *  Get color theme from local storage. If not set use prefrence from client os.
+ */
+document.documentElement.dataset.theme =
+  localStorage.getItem("theme") ??
+  (window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light");
 
 /**
  * Perform all actions required on page load to bring game to a working state.
@@ -47,12 +54,6 @@ let gameController: GameController | null = null;
     dom.patternDropdown.innerHTML = patternLibrary.generateDropdownHTML();
     // @ts-ignore
     M.AutoInit();
-    // Get color theme from local storage. If not set use prefrence from client os.
-    document.documentElement.dataset.theme =
-      localStorage.getItem("theme") ??
-      (window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light");
   } catch (err) {
     /** Terminate game on error (most likely from pattern library). */
     console.error(err);
@@ -77,7 +78,6 @@ function initializeGame() {
     cellCtx,
     5000,
     document.documentElement.dataset.theme,
-    //  handleViewChange,
     observables.controllerSubject
   );
   /** Factory function for GameController object. */
@@ -86,7 +86,6 @@ function initializeGame() {
     canvasController,
     5000,
     isWasm,
-    // handleGameChange,
     observables.controllerSubject
   );
 

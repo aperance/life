@@ -55,10 +55,7 @@ export const controllerUpdate$: Observable<ControllerState> = controllerSubject
     }, {})
   );
 
-//@ts-ignore
-export const patternSubject: BehaviorSubject<
-  number[][] | null
-> = new BehaviorSubject(null);
+export const patternSubject = new BehaviorSubject<number[][] | null>(null);
 
 export const patternSelection$ = patternSubject.asObservable();
 
