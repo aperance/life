@@ -178,6 +178,12 @@ export const canvasClick$ = fromEvent<MouseEvent>(cellCanvas, "mousedown").pipe(
         )
       )
     )
+  ),
+  switchMap(e =>
+    patternSelection$.pipe(
+      first(),
+      map(pattern => ({e, pattern}))
+    )
   )
 );
 
@@ -210,11 +216,12 @@ export const canvasHover$ = merge(
     filter(e => e.buttons === 0)
   ),
   fromEvent<MouseEvent>(patternDropdown, "mouseup")
-);
+).pipe(switchMap(e => patternSelection$.pipe(map(pattern => ({e, pattern})))));
 
 export const canvasHoverPaused$ = canvasHover$.pipe(
-  switchMap(() =>
+  switchMap(({e, pattern}) =>
     interval(1000).pipe(
+      map(() => ({e, pattern})),
       take(1),
       takeUntil(canvasHover$),
       takeUntil(canvasLeave$)

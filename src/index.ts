@@ -1,5 +1,3 @@
-import {switchMap, map, first} from "rxjs/operators";
-
 import "materialize-css/sass/materialize.scss";
 import "./styles.scss";
 
@@ -123,6 +121,49 @@ dom.patternBtn.addEventListener("mousedown", e => e.preventDefault());
 dom.patternDropdown.addEventListener("mousedown", e => e.preventDefault());
 
 /**
+ * Updates navbar based on changes to gameController and viewController state.
+ */
+observables.controllerUpdate$.subscribe(
+  ({isPlaying, isPaused, speed, zoom}) => {
+    /** Toggle play/pause buttons based on current game state. */
+    dom.playIcon.hidden = (isPlaying && !isPaused) ?? true;
+    dom.pauseIcon.hidden = (!isPlaying || isPaused) ?? true;
+    /** Disable edit buttons after game has started. */
+    dom.defaultBtn.disabled = isPlaying ?? true;
+    dom.patternBtn.disabled = isPlaying ?? true;
+    /** Ensure speed slider values match the current game speed. */
+    dom.speedSlider.value = speed?.id.toString();
+    dom.speedSlider.parentElement?.setAttribute(
+      "data-tooltip-content",
+      `Speed: ${60 / speed?.cyclesPerRender} Generations / second`
+    );
+    /** Ensure zoom slider value matches the current zoom level. */
+    dom.zoomSlider.value = Math.sqrt(zoom ?? 1).toString();
+    dom.zoomSlider.parentElement?.setAttribute(
+      "data-tooltip-content",
+      `Zoom: ${zoom}%`
+    );
+  }
+);
+
+/**
+ * Updates status bar based on changes to gameController and viewController state.
+ */
+observables.controllerUpdate$.subscribe(
+  ({isPlaying, isPaused, generation, aliveCount, changedCount, row, col}) => {
+    /** Update bottom bar with current game state. */
+    dom.leftStatus.textContent =
+      `${!isPlaying ? "Stopped" : !isPaused ? "Running" : "Paused"}, ` +
+      `Generation: ${generation}, ` +
+      `Population: ${aliveCount}, ` +
+      `Changed Cells: ${changedCount ?? "0"}`;
+
+    /** Update bottom bar with current view state. */
+    dom.rightStatus.textContent = `Position: (${col},${row})`;
+  }
+);
+
+/**
  * Perform necessary adjustments after window initialization or resize.
  */
 observables.windowResize$.subscribe(() => {
@@ -167,9 +208,9 @@ observables.navButtonClick$.subscribe(btn => {
 });
 
 observables.navDown$.subscribe(target => {
-  if (target.id === "pattern-btn") {
+  if (target.id === "pattern-btn")
     dom.patternDropdown.hidden = !dom.patternDropdown.hidden;
-  } else if (
+  else if (
     dom.patternDropdown.hidden === false &&
     target.closest("div")?.id !== "pattern-dropdown"
   )
@@ -227,57 +268,38 @@ observables.keyDown$.subscribe(e => {
   }
 });
 
-observables.canvasHover$
-  .pipe(
-    switchMap(e =>
-      observables.patternSelection$.pipe(map(pattern => ({e, pattern})))
-    )
-  )
-  .subscribe(({e, pattern}) => {
-    if (pattern) gameController?.placePreview(e.clientX, e.clientY, pattern);
+observables.canvasHover$.subscribe(({e, pattern}) => {
+  if (pattern) gameController?.placePreview(e.clientX, e.clientY, pattern);
 
+  dom.canvasContainer.style.setProperty(
+    "--tooltip-x-position",
+    e.clientX.toString() + "px"
+  );
+  dom.canvasContainer.style.setProperty(
+    "--tooltip-y-position",
+    e.clientY.toString() + "px"
+  );
+  dom.canvasContainer.style.setProperty("--tooltip-transition", "none");
+  dom.canvasContainer.style.setProperty("--tooltip-opacity", "0");
+});
+
+observables.canvasHoverPaused$.subscribe(({pattern}) => {
+  if (pattern) {
     dom.canvasContainer.style.setProperty(
-      "--tooltip-x-position",
-      e.clientX.toString() + "px"
+      "--tooltip-transition",
+      "opacity 0.5s"
     );
-    dom.canvasContainer.style.setProperty(
-      "--tooltip-y-position",
-      e.clientY.toString() + "px"
-    );
-    dom.canvasContainer.style.setProperty("--tooltip-transition", "none");
-    dom.canvasContainer.style.setProperty("--tooltip-opacity", "0");
-  });
+    dom.canvasContainer.style.setProperty("--tooltip-opacity", "1");
+  }
+});
 
-observables.canvasHoverPaused$
-  .pipe(switchMap(() => observables.patternSelection$))
-  .subscribe(pattern => {
-    if (pattern) {
-      dom.canvasContainer.style.setProperty(
-        "--tooltip-transition",
-        "opacity 0.5s"
-      );
-      dom.canvasContainer.style.setProperty("--tooltip-opacity", "1");
-    }
-  });
-
-observables.canvasClick$
-  .pipe(
-    switchMap(e =>
-      observables.patternSelection$.pipe(
-        first(),
-        map(pattern => ({e, pattern}))
-      )
-    )
-  )
-  .subscribe(({e, pattern}) => {
-    if (dom.patternDropdown.hidden === false) {
-      dom.patternDropdown.hidden = true;
-      return;
-    }
-
+observables.canvasClick$.subscribe(({e, pattern}) => {
+  if (dom.patternDropdown.hidden === false) dom.patternDropdown.hidden = true;
+  else {
     if (pattern === null) gameController?.toggleCell(e.clientX, e.clientY);
     else gameController?.placePattern(e.clientX, e.clientY, pattern);
-  });
+  }
+});
 
 observables.canvasDrag$.subscribe(({deltaX, deltaY}) => {
   if (canvasController?.view?.panX && canvasController?.view?.panY)
@@ -328,42 +350,3 @@ observables.patternSelection$.subscribe(pattern => {
   dom.defaultBtn.classList.toggle("active", pattern === null);
   dom.patternBtn.classList.toggle("active", pattern !== null);
 });
-
-/** Updates navbar based on changes to gameController and viewController state. */
-observables.controllerUpdate$.subscribe(
-  ({isPlaying, isPaused, speed, zoom}) => {
-    /** Toggle play/pause buttons based on current game state. */
-    dom.playIcon.hidden = (isPlaying && !isPaused) ?? true;
-    dom.pauseIcon.hidden = (!isPlaying || isPaused) ?? true;
-    /** Disable edit buttons after game has started. */
-    dom.defaultBtn.disabled = isPlaying ?? true;
-    dom.patternBtn.disabled = isPlaying ?? true;
-    /** Ensure speed slider values match the current game speed. */
-    dom.speedSlider.value = speed?.id.toString();
-    dom.speedSlider.parentElement?.setAttribute(
-      "data-tooltip-content",
-      `Speed: ${60 / speed?.cyclesPerRender} Generations / second`
-    );
-    /** Ensure zoom slider value matches the current zoom level. */
-    dom.zoomSlider.value = Math.sqrt(zoom ?? 1).toString();
-    dom.zoomSlider.parentElement?.setAttribute(
-      "data-tooltip-content",
-      `Zoom: ${zoom}%`
-    );
-  }
-);
-
-/** Updates status bar based on changes to gameController and viewController state. */
-observables.controllerUpdate$.subscribe(
-  ({isPlaying, isPaused, generation, aliveCount, changedCount, row, col}) => {
-    /** Update bottom bar with current game state. */
-    dom.leftStatus.textContent =
-      `${!isPlaying ? "Stopped" : !isPaused ? "Running" : "Paused"}, ` +
-      `Generation: ${generation}, ` +
-      `Population: ${aliveCount}, ` +
-      `Changed Cells: ${changedCount ?? "0"}`;
-
-    /** Update bottom bar with current view state. */
-    dom.rightStatus.textContent = `Position: (${col},${row})`;
-  }
-);
