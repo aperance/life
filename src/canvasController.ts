@@ -58,7 +58,7 @@ export interface CanvasController {
  * @param {CanvasRenderingContext2D} cellCtx Canvas context used for drawing cells
  * @param {number} cellCount Number of cells per side of the total game area
  * @param {string?} initialTheme Initial color theme. Set dark mode to true if value equals "dark", false otherwise
- * @param {function(number, number, number): void} observer Function called when zoom or pan values are modified
+ * @param {Subject} subject Function called when zoom or pan values are modified
  * @returns {ViewController}
  */
 export function createCanvasController(
@@ -66,7 +66,6 @@ export function createCanvasController(
   cellCtx: CanvasRenderingContext2D,
   cellCount: number,
   initialTheme: string | undefined,
-  //observer: any,
   subject: Subject<object>
 ): CanvasController {
   const canvasController: CanvasController = {
@@ -333,7 +332,10 @@ export function createCanvasController(
      * @param {Array<number>} died Indices of all cells died this generation
      */
     renderChangedCells(born, died) {
-      cellCtx.fillStyle = "rgba(0, 0, 0, 1)";
+      cellCtx.fillStyle = this.isDarkMode
+        ? "rgba(255, 255, 255, 1)"
+        : "rgba(0, 0, 0, 1)";
+
       for (let i = 0; i < born.length; ++i) {
         const {row, col} = this.indexToRowCol(born[i]);
         cellCtx.fillRect(col, row, 1, 1);
