@@ -22,6 +22,31 @@ import {
   scan
 } from "rxjs/operators";
 
+import {canvasController} from "./canvasController";
+import {gameController} from "./gameController";
+import * as patternLibrary from "./patternLibrary";
+import {initializeGame, terminateGame} from "./index";
+
+/** Stores refrences to used DOM elements with JSDoc type casting */
+const dom = {
+  canvasContainer: document.getElementById(
+    "canvas-container"
+  ) as HTMLDivElement,
+  gridCanvas: document.getElementById("grid-canvas") as HTMLCanvasElement,
+  cellCanvas: document.getElementById("cell-canvas") as HTMLCanvasElement,
+  leftStatus: document.getElementById("left-status") as HTMLSpanElement,
+  rightStatus: document.getElementById("right-status") as HTMLSpanElement,
+  playIcon: document.getElementById("play-icon") as HTMLElement,
+  pauseIcon: document.getElementById("pause-icon") as HTMLElement,
+  defaultBtn: document.getElementById("default-btn") as HTMLButtonElement,
+  patternBtn: document.getElementById("pattern-btn") as HTMLButtonElement,
+  patternDropdown: document.getElementById(
+    "pattern-dropdown"
+  ) as HTMLDivElement,
+  speedSlider: document.getElementById("speed-slider") as HTMLInputElement,
+  zoomSlider: document.getElementById("zoom-slider") as HTMLInputElement
+};
+
 const cellCanvas = document.getElementById("cell-canvas") as HTMLCanvasElement;
 const nav = document.getElementById("nav") as HTMLElement;
 
@@ -59,56 +84,253 @@ export const patternSubject = new BehaviorSubject<number[][] | null>(null);
 
 export const patternSelection$ = patternSubject.asObservable();
 
-export const windowResize$ = merge(
+/**
+ * Updates navbar based on changes to gameController and viewController state.
+ */
+controllerUpdate$.subscribe(({isPlaying, isPaused, speed, zoom}) => {
+  /** Toggle play/pause buttons based on current game state. */
+  dom.playIcon.hidden = (isPlaying && !isPaused) ?? true;
+  dom.pauseIcon.hidden = (!isPlaying || isPaused) ?? true;
+  /** Disable edit buttons after game has started. */
+  dom.defaultBtn.disabled = isPlaying ?? true;
+  dom.patternBtn.disabled = isPlaying ?? true;
+  /** Ensure speed slider values match the current game speed. */
+  dom.speedSlider.value = speed?.id.toString();
+  dom.speedSlider.parentElement?.setAttribute(
+    "data-tooltip-content",
+    `Speed: ${60 / speed?.cyclesPerRender} Generations / second`
+  );
+  /** Ensure zoom slider value matches the current zoom level. */
+  dom.zoomSlider.value = Math.sqrt(zoom ?? 1).toString();
+  dom.zoomSlider.parentElement?.setAttribute(
+    "data-tooltip-content",
+    `Zoom: ${zoom}%`
+  );
+});
+
+/**
+ * Updates status bar based on changes to gameController and viewController state.
+ */
+controllerUpdate$.subscribe(
+  ({isPlaying, isPaused, generation, aliveCount, changedCount, row, col}) => {
+    /** Update bottom bar with current game state. */
+    dom.leftStatus.textContent =
+      `${!isPlaying ? "Stopped" : !isPaused ? "Running" : "Paused"}, ` +
+      `Generation: ${generation}, ` +
+      `Population: ${aliveCount}, ` +
+      `Changed Cells: ${changedCount ?? "0"}`;
+
+    /** Update bottom bar with current view state. */
+    dom.rightStatus.textContent = `Position: (${col},${row})`;
+  }
+);
+
+/**
+ * Set pattern library button as active when a pattern is selected, default otherwise.
+ */
+patternSelection$.subscribe(pattern => {
+  dom.defaultBtn.classList.toggle("active", pattern === null);
+  dom.patternBtn.classList.toggle("active", pattern !== null);
+});
+
+/**
+ * Perform necessary adjustments after window initialization or resize.
+ */
+merge(
   fromEvent(window, "resize"),
   fromEvent(window, "DOMContentLoaded")
-);
+).subscribe(() => {
+  /** Updates game state with current window dimensions. */
+  canvasController?.setWindow(window.innerWidth, window.innerHeight);
+  /** Adjust all canvas dimensions to match window dimensions. */
+  [dom.gridCanvas, dom.cellCanvas].forEach(canvas => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+});
 
-export const keyDown$ = fromEvent<KeyboardEvent>(document, "keydown");
-export const keyUp$ = fromEvent<KeyboardEvent>(document, "keyup");
+/**
+ * Perform action on key press (excluding arrow keys).
+ */
+fromEvent<KeyboardEvent>(document, "keydown").subscribe(e => {
+  switch (e.key) {
+    case "Escape":
+      patternLibrary.setSelected(null);
+      gameController?.clearPreview();
+      break;
+    case "r":
+      patternLibrary.rotateSelected();
+      break;
+    case "f":
+      patternLibrary.flipSelected();
+      break;
+    default:
+      break;
+  }
+});
 
-export const arrowKeyPress$ = keyDown$.pipe(
-  filter(e => e.key.includes("Arrow")),
-  switchMap(e =>
-    interval(10).pipe(
-      takeUntil(keyUp$.pipe(filter(e => e.key.includes("Arrow")))),
-      mapTo(e.key)
+/**
+ * Update canvas position when holding an arrow key button.
+ */
+fromEvent<KeyboardEvent>(document, "keydown")
+  .pipe(
+    filter(e => e.key.includes("Arrow")),
+    switchMap(e =>
+      interval(10).pipe(
+        takeUntil(
+          fromEvent<KeyboardEvent>(document, "keyup").pipe(
+            filter(e => e.key.includes("Arrow"))
+          )
+        ),
+        mapTo(e.key)
+      )
     )
   )
-);
+  .subscribe(key => {
+    if (canvasController?.view?.panX && canvasController?.view?.panY)
+      switch (key) {
+        case "ArrowUp":
+          canvasController.setView({panY: canvasController.view.panY - 2});
+          break;
+        case "ArrowDown":
+          canvasController.setView({panY: canvasController.view.panY + 2});
+          break;
+        case "ArrowLeft":
+          canvasController.setView({panX: canvasController.view.panX - 2});
+          break;
+        case "ArrowRight":
+          canvasController.setView({panX: canvasController.view.panX + 2});
+          break;
+        default:
+          break;
+      }
+  });
 
-export const navDown$ = fromEvent<MouseEvent>(nav, "mousedown").pipe(
-  tap(e => console.log(e)),
-  pluck<MouseEvent, HTMLLinkElement>("target")
-);
+/**
+ *
+ */
+fromEvent<MouseEvent>(nav, "click")
+  .pipe(
+    tap(e => console.log(e)),
+    pluck<MouseEvent, HTMLLinkElement>("target"),
+    filter(target => target.tagName === "A"),
+    filter(target => target.href === "" || target.href === "#!")
+  )
+  .subscribe(btn => {
+    switch (btn.id) {
+      case "play-btn":
+        if (gameController?.isGamePaused || !gameController?.isGameStarted)
+          gameController?.play();
+        else gameController?.pause();
+        patternLibrary.setSelected(null);
+        dom.defaultBtn.classList.add("disabled");
+        dom.patternBtn.classList.add("disabled");
+        break;
+      case "default-btn":
+        patternLibrary.setSelected(null);
+        break;
+      case "reset-btn":
+        terminateGame();
+        initializeGame();
+        canvasController?.setWindow(window.innerWidth, window.innerHeight);
+        dom.defaultBtn.classList.remove("disabled");
+        dom.patternBtn.classList.remove("disabled");
+        break;
+      case "dark-btn":
+        document.documentElement.dataset.theme =
+          document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+        canvasController?.setColorTheme(document.documentElement.dataset.theme);
+        localStorage.setItem("theme", document.documentElement.dataset.theme);
+        break;
+      default:
+        break;
+    }
+  });
 
-export const navButtonClick$ = fromEvent<MouseEvent>(nav, "click").pipe(
-  tap(e => console.log(e)),
-  pluck<MouseEvent, HTMLLinkElement>("target"),
-  filter(target => target.tagName === "A"),
-  filter(target => target.href === "" || target.href === "#!")
-);
+/**
+ * Toggle pattern dropdown on pattern library button click,
+ * or close dropdown if clicked elsewhere on navbar.
+ */
+fromEvent<MouseEvent>(nav, "mousedown")
+  .pipe(
+    tap(e => console.log(e)),
+    pluck<MouseEvent, HTMLLinkElement>("target")
+  )
+  .subscribe(target => {
+    if (target.id === "pattern-btn")
+      dom.patternDropdown.hidden = !dom.patternDropdown.hidden;
+    else if (
+      dom.patternDropdown.hidden === false &&
+      target.closest("div")?.id !== "pattern-dropdown"
+    )
+      dom.patternDropdown.hidden = true;
+  });
 
-export const speedSlider$ = fromEvent<InputEvent>(speedSlider, "input").pipe(
-  pluck<Event, string>("target", "value"),
-  filter(value => value !== null)
-);
+/**
+ * Update game speed value on change in speed slider position.
+ */
+fromEvent<InputEvent>(speedSlider, "input")
+  .pipe(
+    pluck<Event, string>("target", "value"),
+    filter(value => value !== null)
+  )
+  .subscribe(value => {
+    const speedID = parseInt(value);
+    gameController?.speed.set(speedID);
+  });
 
-export const zoomSlider$ = fromEvent<InputEvent>(zoomSlider, "input").pipe(
-  pluck<Event, string>("target", "value"),
-  filter(value => value !== null)
-);
+/**
+ * Update game zoom value on change in zoon slider position.
+ */
+fromEvent<InputEvent>(zoomSlider, "input")
+  .pipe(
+    pluck<Event, string>("target", "value"),
+    filter(value => value !== null)
+  )
+  .subscribe(value => {
+    canvasController?.zoomAtPoint(
+      Math.round(Math.pow(parseFloat(value), 2)),
+      window.innerWidth / 2,
+      window.innerHeight / 2
+    );
+  });
 
-export const mouseUp$ = fromEvent<MouseEvent>(document, "mouseup");
+/**
+ * Toggle canvas cell on click, or place pattern if selected.
+ * Observable structured to not emit on canvas dragging.
+ * Skip if pattern dropdown is open.
+ */
+fromEvent<MouseEvent>(cellCanvas, "mousedown")
+  .pipe(
+    switchMap(downEvent =>
+      fromEvent<MouseEvent>(document, "mouseup").pipe(
+        take(1),
+        takeUntil(
+          fromEvent<MouseEvent>(document, "mousemove").pipe(
+            first(moveEvent => isDragging(downEvent, moveEvent))
+          )
+        )
+      )
+    ),
+    switchMap(e =>
+      patternSelection$.pipe(
+        first(),
+        map(pattern => ({e, pattern}))
+      )
+    )
+  )
+  .subscribe(({e, pattern}) => {
+    if (dom.patternDropdown.hidden === false) dom.patternDropdown.hidden = true;
+    else {
+      if (pattern === null) gameController?.toggleCell(e.clientX, e.clientY);
+      else gameController?.placePattern(e.clientX, e.clientY, pattern);
+    }
+  });
 
-export const canvasScroll$ = fromEvent<WheelEvent>(cellCanvas, "mousewheel", {
-  passive: true
-}).pipe(
-  bufferTime(50),
-  filter(arr => arr.length !== 0)
-);
-
-export const canvasDrag$ = merge(
+/**
+ * Update canvas position when dragging. Merged observables for mouse and touch.
+ */
+merge(
   fromEvent<MouseEvent>(cellCanvas, "mousedown").pipe(
     switchMap(downEvent => {
       let prevEvent = downEvent;
@@ -127,7 +349,7 @@ export const canvasDrag$ = merge(
             first(moveEvent => isDragging(downEvent, moveEvent))
           )
         ),
-        takeUntil(mouseUp$)
+        takeUntil(fromEvent<MouseEvent>(document, "mouseup"))
       );
     })
   ),
@@ -163,50 +385,15 @@ export const canvasDrag$ = merge(
       );
     })
   )
-);
-
-export const canvasClick$ = fromEvent<MouseEvent>(cellCanvas, "mousedown").pipe(
-  switchMap(downEvent =>
-    fromEvent<MouseEvent>(document, "mouseup").pipe(
-      take(1),
-      takeUntil(
-        fromEvent<MouseEvent>(document, "mousemove").pipe(
-          first(moveEvent => isDragging(downEvent, moveEvent))
-        )
-      )
-    )
-  ),
-  switchMap(e =>
-    patternSelection$.pipe(
-      first(),
-      map(pattern => ({e, pattern}))
-    )
-  )
-);
-
-export const canvasPinch$ = fromEvent<TouchEvent>(
-  cellCanvas,
-  "touchstart"
-).pipe(
-  pluck("touches"),
-  filter(({length}) => length === 2),
-  switchMap(() => {
-    let prevScale = 1;
-
-    return fromEvent<TouchEvent>(document, "touchmove").pipe(
-      map(e => {
-        //@ts-ignore
-        let scale = e.scale / prevScale;
-        let centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-        let centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-        // @ts-ignore
-        prevScale = e.scale;
-        return {scale, centerX, centerY};
-      }),
-      takeUntil(fromEvent<TouchEvent>(document, "touchend"))
-    );
-  })
-);
+).subscribe(({deltaX, deltaY}) => {
+  if (canvasController?.view?.panX && canvasController?.view?.panY)
+    canvasController.setView({
+      panX: Math.round(canvasController.view.panX + deltaX),
+      panY: Math.round(canvasController.view.panY + deltaY)
+    });
+  gameController?.clearPreview();
+  document.body.style.cursor = "all-scroll";
+});
 
 export const canvasHover$ = merge(
   fromEvent<MouseEvent>(cellCanvas, "mousemove").pipe(
@@ -216,26 +403,124 @@ export const canvasHover$ = merge(
   fromEvent<MouseEvent>(patternDropdown, "mouseup")
 ).pipe(switchMap(e => patternSelection$.pipe(map(pattern => ({e, pattern})))));
 
-export const canvasHoverPaused$ = canvasHover$.pipe(
-  switchMap(({e, pattern}) =>
-    interval(1000).pipe(
-      map(() => ({e, pattern})),
-      take(1),
-      takeUntil(canvasHover$),
-      takeUntil(canvasLeave$)
+canvasHover$.subscribe(({e, pattern}) => {
+  if (pattern) gameController?.placePreview(e.clientX, e.clientY, pattern);
+
+  dom.canvasContainer.style.setProperty(
+    "--tooltip-x-position",
+    e.clientX.toString() + "px"
+  );
+  dom.canvasContainer.style.setProperty(
+    "--tooltip-y-position",
+    e.clientY.toString() + "px"
+  );
+  dom.canvasContainer.style.setProperty("--tooltip-transition", "none");
+  dom.canvasContainer.style.setProperty("--tooltip-opacity", "0");
+});
+
+canvasHover$
+  .pipe(
+    switchMap(({e, pattern}) =>
+      interval(1000).pipe(
+        map(() => ({e, pattern})),
+        take(1),
+        takeUntil(canvasHover$),
+        takeUntil(fromEvent<MouseEvent>(cellCanvas, "mouseleave"))
+      )
     )
   )
+  .subscribe(({pattern}) => {
+    if (pattern) {
+      dom.canvasContainer.style.setProperty(
+        "--tooltip-transition",
+        "opacity 0.5s"
+      );
+      dom.canvasContainer.style.setProperty("--tooltip-opacity", "1");
+    }
+  });
+
+/**
+ * Ensure default cursor is set on dragging is stopped (mouse button up).
+ */
+fromEvent<MouseEvent>(document, "mouseup").subscribe(
+  () => (document.body.style.cursor = "default")
 );
 
-export const canvasLeave$ = fromEvent<MouseEvent>(cellCanvas, "mouseleave");
-
-export const patternDropdownCLick$ = fromEvent<MouseEvent>(
-  patternDropdown,
-  "click"
-).pipe(
-  pluck<Event, string>("target", "dataset", "pattern"),
-  filter(pattern => typeof pattern === "string")
+/**
+ * Clear pattern preview when mouse pointer leaves canvas.
+ */
+fromEvent<MouseEvent>(cellCanvas, "mouseleave").subscribe(() =>
+  gameController?.clearPreview()
 );
+
+/**
+ * Update zoom on mouse wheel scroll.
+ */
+fromEvent<WheelEvent>(cellCanvas, "mousewheel", {
+  passive: true
+})
+  .pipe(
+    bufferTime(50),
+    filter(arr => arr.length !== 0)
+  )
+  .subscribe((arr: WheelEvent[]) => {
+    const currentZoom = canvasController?.view?.zoom;
+    if (!canvasController || !currentZoom) return;
+
+    const zoomFactor = arr
+      .map(e => Math.max(-7, Math.min(e.deltaY, 10)) / 50)
+      .reduce((accumulator, x) => accumulator + x, 0);
+
+    const newZoom =
+      currentZoom +
+      Math.ceil(currentZoom * Math.abs(zoomFactor)) * Math.sign(zoomFactor);
+
+    canvasController.zoomAtPoint(newZoom, arr[0].clientX, arr[0].clientY);
+  });
+
+/**
+ * Update zoom on canvas pinch gesture.
+ */
+fromEvent<TouchEvent>(cellCanvas, "touchstart")
+  .pipe(
+    pluck("touches"),
+    filter(({length}) => length === 2),
+    switchMap(() => {
+      let prevScale = 1;
+
+      return fromEvent<TouchEvent>(document, "touchmove").pipe(
+        map(e => {
+          //@ts-ignore
+          let scale = e.scale / prevScale;
+          let centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+          let centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+          // @ts-ignore
+          prevScale = e.scale;
+          return {scale, centerX, centerY};
+        }),
+        takeUntil(fromEvent<TouchEvent>(document, "touchend"))
+      );
+    })
+  )
+  .subscribe(({scale, centerX, centerY}) => {
+    if (canvasController?.view?.zoom)
+      canvasController.zoomAtPoint(
+        canvasController.view.zoom * scale,
+        Math.round(centerX),
+        Math.round(centerY)
+      );
+  });
+
+/** Set a new selected pattern on button click. */
+fromEvent<MouseEvent>(patternDropdown, "click")
+  .pipe(
+    pluck<Event, string>("target", "dataset", "pattern"),
+    filter(pattern => typeof pattern === "string")
+  )
+  .subscribe(pattern => {
+    patternLibrary.setSelected(pattern);
+    dom.patternDropdown.hidden = true;
+  });
 
 function isDragging(downEvent: MouseEvent, moveEvent: MouseEvent): boolean {
   return (
