@@ -152,12 +152,18 @@ export async function loadDataFromFiles() {
 async function readPatternFile(id: string): Promise<PatternData> {
   const data = (await import(`../patterns/${id}.rle`)).default as string;
   const rle = data.match(/^[^#xX]*!/m)?.[0].replace(/(\r\n|\n|\r)/gm, "") ?? "";
+  const width = parseInt(
+    data.match(/[xX] = [^,]*/)?.[0].replace(/[xX] = /, "") ?? ""
+  );
+  const height = parseInt(
+    data.match(/[yY] = [^,]*/)?.[0].replace(/[yY] = /, "") ?? ""
+  );
 
   return {
     name: data.match(/#N .*/g)?.[0].replace(/#N /, "") ?? "",
     author: data.match(/#O .*/g)?.[0].replace(/#O /, "") ?? "",
     description: data.match(/#C .*/g)?.map(str => str.replace(/#C /, "")) ?? [],
-    array: rleParser(rle)
+    array: rleParser(rle, width, height)
   };
 }
 
@@ -167,28 +173,41 @@ async function readPatternFile(id: string): Promise<PatternData> {
  * @returns {number[][]}
  * @throws {Error}
  */
-function rleParser(rle: string): number[][] {
-  let outerArray: number[][] = [];
-  let innerArray: number[] = [];
+function rleParser(rle: string, width: number, height: number): number[][] {
+  let array: number[][] = [...Array(height)].map(() => Array(width).fill(0));
+
+  let rowIndex = 0;
+  let colIndex = 0;
   let countString = "";
 
   Array.from(rle).forEach(char => {
     if (char >= "0" && char <= "9") countString += char;
-    else if (char === "b" || char === "o" || char === "$" || char === "!") {
-      const count = parseInt(countString, 10) || 1;
-      for (let i = 0; i < count; i++) {
-        if (char === "b") innerArray.push(0);
-        if (char === "o") innerArray.push(1);
-        if (char === "$" || char === "!") {
-          outerArray.push(innerArray);
-          innerArray = [];
+    else {
+      for (let i = 0; i < (parseInt(countString, 10) || 1); i++) {
+        switch (char) {
+          case "b":
+            array[rowIndex][colIndex] = 0;
+            colIndex++;
+            break;
+          case "o":
+            array[rowIndex][colIndex] = 1;
+            colIndex++;
+            break;
+          case "$":
+            rowIndex++;
+            colIndex = 0;
+            break;
+          case "!":
+            break;
+          default:
+            throw new Error("Invalid character in pattern file");
         }
       }
       countString = "";
-    } else throw new Error("Invalid character in pattern file");
+    }
   });
 
-  return outerArray;
+  return array;
 }
 
 /**
