@@ -212,6 +212,7 @@ export const canvasHover$ = merge(
   fromEvent<MouseEvent>(cellCanvas, "mousemove").pipe(
     filter(e => e.buttons === 0)
   ),
+  fromEvent<MouseEvent>(cellCanvas, "mouseup"),
   fromEvent<MouseEvent>(patternDropdown, "mouseup")
 ).pipe(switchMap(e => patternSelection$.pipe(map(pattern => ({e, pattern})))));
 
