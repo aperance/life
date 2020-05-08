@@ -1,8 +1,16 @@
 import "materialize-css/sass/materialize.scss";
 import "./styles.scss";
 
-import {CanvasController, createCanvasController} from "./canvasController";
-import {GameController, createGameController} from "./gameController";
+import {
+  canvasController,
+  createCanvasController,
+  destroyCanvasController
+} from "./canvasController";
+import {
+  gameController,
+  createGameController,
+  destroyGameController
+} from "./gameController";
 import * as patternLibrary from "./patternLibrary";
 import * as observables from "./observables";
 
@@ -28,10 +36,6 @@ const dom = {
 };
 
 const isWasm = true;
-
-/** Variables for most game related objects. To be set by initializeGame function. */
-let canvasController: CanvasController | null = null;
-let gameController: GameController | null = null;
 
 /**
  *  Get color theme from local storage. If not set use prefrence from client os.
@@ -73,21 +77,24 @@ function initializeGame() {
   const cellCtx = dom.cellCanvas.getContext("2d") as CanvasRenderingContext2D;
 
   /** Factory function for GameRenderer object. */
-  canvasController = createCanvasController(
+  createCanvasController(
     gridCtx,
     cellCtx,
     5000,
     document.documentElement.dataset.theme,
     observables.controllerSubject
   );
+  if (canvasController === null) throw Error("");
+
   /** Factory function for GameController object. */
-  gameController = createGameController(
+  createGameController(
     worker,
     canvasController,
     5000,
     isWasm,
     observables.controllerSubject
   );
+  if (gameController === null) throw Error("");
 
   /** Ensure all UI elements are visible */
   document.body.hidden = false;
@@ -98,12 +105,12 @@ function initializeGame() {
  */
 function terminateGame() {
   /** Call methods necessary to stop game fumctionality. */
-  gameController?.terminate();
-  canvasController?.clearCanvases();
+  destroyCanvasController();
+  destroyGameController();
+
+  /** Clear selected pattern. */
   patternLibrary.setSelected(null);
-  /** Delete references to relevant object to ensure they are garbage collected */
-  canvasController = null;
-  gameController = null;
+
   /** Hide all UI elements. */
   document.body.hidden = true;
 }

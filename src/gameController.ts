@@ -52,6 +52,8 @@ export interface GameController {
 const batchSize = 25;
 const bufferSize = 50;
 
+export let gameController: GameController | null = null;
+
 /**
  * Factory function to create GameController object with dependencies injected.
  * @param {Worker} worker Reference to an initialized web worker to calculate game results
@@ -59,7 +61,6 @@ const bufferSize = 50;
  * @param {number} cellCount Number of cells per side of the total game area
  * @param {boolean} wasm True if wasm implementation of game logic should be used
  * @param {function} observer Function called when game state is modified
- * @return {GameController}
  */
 export function createGameController(
   worker: Worker,
@@ -70,7 +71,7 @@ export function createGameController(
   //observer: any
   subject: Subject<object>
 ) {
-  const gameController: GameController = {
+  gameController = {
     /**
      * Set containing the indices of the currently alive cells.
      * @memberof GameController#
@@ -404,6 +405,9 @@ export function createGameController(
 
   worker.onmessage = gameController.handleWorkerMessage.bind(gameController);
   gameController.animationCycle();
+}
 
-  return gameController;
+export function destroyGameController() {
+  gameController?.terminate();
+  gameController = null;
 }

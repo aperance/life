@@ -52,6 +52,8 @@ export interface CanvasController {
   clamp(val: number, min: number, max: number): number;
 }
 
+export let canvasController: CanvasController | null = null;
+
 /**
  * Factory function to create CanvasController object with dependencies injected.
  * @param {CanvasRenderingContext2D} gridCtx Canvas context used for drawing grid lines
@@ -59,7 +61,6 @@ export interface CanvasController {
  * @param {number} cellCount Number of cells per side of the total game area
  * @param {string?} initialTheme Initial color theme. Set dark mode to true if value equals "dark", false otherwise
  * @param {Subject} subject Function called when zoom or pan values are modified
- * @returns {ViewController}
  */
 export function createCanvasController(
   gridCtx: CanvasRenderingContext2D,
@@ -67,8 +68,8 @@ export function createCanvasController(
   cellCount: number,
   initialTheme: string | undefined,
   subject: Subject<object>
-): CanvasController {
-  const canvasController: CanvasController = {
+): void {
+  canvasController = {
     view: {},
 
     isDarkMode: initialTheme === "dark",
@@ -386,5 +387,9 @@ export function createCanvasController(
       return val > max ? max : val < min ? min : val;
     }
   };
-  return canvasController;
+}
+
+export function destroyCanvasController() {
+  canvasController?.clearCanvases();
+  canvasController = null;
 }
