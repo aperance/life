@@ -12,7 +12,7 @@ import {
   destroyGameController
 } from "./gameController";
 import * as patternLibrary from "./patternLibrary";
-import * as observables from "./observables";
+import {controllerSubject} from "./observables";
 
 const isWasm = true;
 
@@ -61,13 +61,13 @@ export function initializeGame() {
   const gridCtx = gridCanvas.getContext("2d") as CanvasRenderingContext2D;
   const cellCtx = cellCanvas.getContext("2d") as CanvasRenderingContext2D;
 
-  /** Factory function for GameRenderer object. */
+  /** Factory function for CanvasController object. */
   createCanvasController(
     gridCtx,
     cellCtx,
     5000,
     document.documentElement.dataset.theme,
-    observables.controllerSubject
+    controllerSubject
   );
   if (canvasController === null) throw Error("");
 
@@ -77,7 +77,7 @@ export function initializeGame() {
     canvasController,
     5000,
     isWasm,
-    observables.controllerSubject
+    controllerSubject
   );
   if (gameController === null) throw Error("");
 

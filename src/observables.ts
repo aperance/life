@@ -335,7 +335,7 @@ fromEvent<MouseEvent>(dom.cellCanvas, "mousedown")
 /**
  * Update canvas position when dragging. Merged observables for mouse and touch.
  */
-merge(
+const canvasDragging$ = merge(
   fromEvent<MouseEvent>(dom.cellCanvas, "mousedown").pipe(
     switchMap(downEvent => {
       let prevEvent = downEvent;
@@ -390,7 +390,9 @@ merge(
       );
     })
   )
-).subscribe(({deltaX, deltaY}) => {
+);
+
+canvasDragging$.subscribe(({deltaX, deltaY}) => {
   if (canvasController?.view?.panX && canvasController?.view?.panY)
     canvasController.setView({
       panX: Math.round(canvasController.view.panX + deltaX),
@@ -411,40 +413,48 @@ const canvasHoverMoving$ = merge(
   fromEvent<MouseEvent>(dom.patternDropdown, "mouseup")
 ).pipe(switchMap(e => patternSelection$.pipe(map(pattern => ({e, pattern})))));
 
+canvasHoverMoving$.subscribe(({e, pattern}) => {
+  if (pattern) gameController?.placePreview(e.clientX, e.clientY, pattern);
+});
+
+/**
+ *
+ */
 const canvasHoverStationary$ = canvasHoverMoving$.pipe(
   switchMap(({e, pattern}) =>
     interval(1000).pipe(
       map(() => ({e, pattern})),
       take(1),
-      takeUntil(canvasHoverMoving$),
+      takeUntil(fromEvent<MouseEvent>(dom.cellCanvas, "mousemove")),
       takeUntil(fromEvent<MouseEvent>(dom.cellCanvas, "mouseleave"))
     )
   )
 );
 
-canvasHoverMoving$.subscribe(({e, pattern}) => {
-  if (pattern) gameController?.placePreview(e.clientX, e.clientY, pattern);
-
-  dom.canvasContainer.style.setProperty(
-    "--tooltip-x-position",
-    e.clientX.toString() + "px"
-  );
-  dom.canvasContainer.style.setProperty(
-    "--tooltip-y-position",
-    e.clientY.toString() + "px"
-  );
-  dom.canvasContainer.style.setProperty("--tooltip-transition", "none");
-  dom.canvasContainer.style.setProperty("--tooltip-opacity", "0");
-});
-
-canvasHoverStationary$.subscribe(({pattern}) => {
+canvasHoverStationary$.subscribe(({e, pattern}) => {
   if (pattern) {
+    dom.canvasContainer.style.setProperty(
+      "--tooltip-x-position",
+      e.clientX.toString() + "px"
+    );
+    dom.canvasContainer.style.setProperty(
+      "--tooltip-y-position",
+      e.clientY.toString() + "px"
+    );
     dom.canvasContainer.style.setProperty(
       "--tooltip-transition",
       "opacity 0.5s"
     );
     dom.canvasContainer.style.setProperty("--tooltip-opacity", "1");
   }
+});
+
+/**
+ *
+ */
+merge(canvasHoverMoving$, canvasDragging$).subscribe(() => {
+  dom.canvasContainer.style.setProperty("--tooltip-transition", "none");
+  dom.canvasContainer.style.setProperty("--tooltip-opacity", "0");
 });
 
 /**
