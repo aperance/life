@@ -212,10 +212,11 @@ function rleParser(rle: string, width: number, height: number): number[][] {
 
 /**
  *
- * @returns {string}
  */
-export function generateDropdownHTML(): string {
-  return `<ul>
+export function generateDropdownHTML(targetId: string): void {
+  const target = document.getElementById(targetId) as HTMLDivElement;
+
+  target.innerHTML = `<ul>
     ${Object.entries(categories)
       .map(([category, contents]) => {
         return `<li>

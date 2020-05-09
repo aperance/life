@@ -27,8 +27,9 @@ import {gameController} from "./gameController";
 import * as patternLibrary from "./patternLibrary";
 import {initializeGame, terminateGame} from "./index";
 
-/** Stores refrences to used DOM elements with JSDoc type casting */
+/** Stores refrences to used DOM elements with type casting */
 const dom = {
+  main: document.getElementById("main") as HTMLDivElement,
   canvasContainer: document.getElementById(
     "canvas-container"
   ) as HTMLDivElement,
@@ -36,6 +37,7 @@ const dom = {
   cellCanvas: document.getElementById("cell-canvas") as HTMLCanvasElement,
   leftStatus: document.getElementById("left-status") as HTMLSpanElement,
   rightStatus: document.getElementById("right-status") as HTMLSpanElement,
+  nav: document.getElementById("nav") as HTMLElement,
   playIcon: document.getElementById("play-icon") as HTMLElement,
   pauseIcon: document.getElementById("pause-icon") as HTMLElement,
   defaultBtn: document.getElementById("default-btn") as HTMLButtonElement,
@@ -46,15 +48,6 @@ const dom = {
   speedSlider: document.getElementById("speed-slider") as HTMLInputElement,
   zoomSlider: document.getElementById("zoom-slider") as HTMLInputElement
 };
-
-const cellCanvas = document.getElementById("cell-canvas") as HTMLCanvasElement;
-const nav = document.getElementById("nav") as HTMLElement;
-
-const patternDropdown = document.getElementById(
-  "pattern-dropdown"
-) as HTMLDivElement;
-const speedSlider = document.getElementById("speed-slider") as HTMLInputElement;
-const zoomSlider = document.getElementById("zoom-slider") as HTMLInputElement;
 
 interface ControllerState {
   zoom?: number;
@@ -70,7 +63,6 @@ interface ControllerState {
 }
 
 export const controllerSubject = new Subject<ControllerState>();
-
 export const controllerUpdate$: Observable<ControllerState> = controllerSubject
   .asObservable()
   .pipe(
@@ -81,7 +73,6 @@ export const controllerUpdate$: Observable<ControllerState> = controllerSubject
   );
 
 export const patternSubject = new BehaviorSubject<number[][] | null>(null);
-
 export const patternSelection$ = patternSubject.asObservable();
 
 /**
@@ -134,6 +125,15 @@ patternSelection$.subscribe(pattern => {
 });
 
 /**
+ * Prevent certain default behavior.
+ */
+merge(
+  fromEvent(dom.main, "wheel", {passive: false}),
+  fromEvent(dom.patternBtn, "mousedown"),
+  fromEvent(dom.patternDropdown, "mousedown")
+).subscribe(e => e.preventDefault());
+
+/**
  * Perform necessary adjustments after window initialization or resize.
  */
 merge(
@@ -148,6 +148,11 @@ merge(
     canvas.height = window.innerHeight;
   });
 });
+
+/**
+ * Terminate game after any unhandled errors.
+ */
+fromEvent(window, "error").subscribe(() => terminateGame());
 
 /**
  * Perform action on key press (excluding arrow keys).
@@ -209,7 +214,7 @@ fromEvent<KeyboardEvent>(document, "keydown")
 /**
  *
  */
-fromEvent<MouseEvent>(nav, "click")
+fromEvent<MouseEvent>(dom.nav, "click")
   .pipe(
     tap(e => console.log(e)),
     pluck<MouseEvent, HTMLLinkElement>("target"),
@@ -251,7 +256,7 @@ fromEvent<MouseEvent>(nav, "click")
  * Toggle pattern dropdown on pattern library button click,
  * or close dropdown if clicked elsewhere on navbar.
  */
-fromEvent<MouseEvent>(nav, "mousedown")
+fromEvent<MouseEvent>(dom.nav, "mousedown")
   .pipe(
     tap(e => console.log(e)),
     pluck<MouseEvent, HTMLLinkElement>("target")
@@ -269,7 +274,7 @@ fromEvent<MouseEvent>(nav, "mousedown")
 /**
  * Update game speed value on change in speed slider position.
  */
-fromEvent<InputEvent>(speedSlider, "input")
+fromEvent<InputEvent>(dom.speedSlider, "input")
   .pipe(
     pluck<Event, string>("target", "value"),
     filter(value => value !== null)
@@ -282,7 +287,7 @@ fromEvent<InputEvent>(speedSlider, "input")
 /**
  * Update game zoom value on change in zoon slider position.
  */
-fromEvent<InputEvent>(zoomSlider, "input")
+fromEvent<InputEvent>(dom.zoomSlider, "input")
   .pipe(
     pluck<Event, string>("target", "value"),
     filter(value => value !== null)
@@ -300,7 +305,7 @@ fromEvent<InputEvent>(zoomSlider, "input")
  * Observable structured to not emit on canvas dragging.
  * Skip if pattern dropdown is open.
  */
-fromEvent<MouseEvent>(cellCanvas, "mousedown")
+fromEvent<MouseEvent>(dom.cellCanvas, "mousedown")
   .pipe(
     switchMap(downEvent =>
       fromEvent<MouseEvent>(document, "mouseup").pipe(
@@ -331,7 +336,7 @@ fromEvent<MouseEvent>(cellCanvas, "mousedown")
  * Update canvas position when dragging. Merged observables for mouse and touch.
  */
 merge(
-  fromEvent<MouseEvent>(cellCanvas, "mousedown").pipe(
+  fromEvent<MouseEvent>(dom.cellCanvas, "mousedown").pipe(
     switchMap(downEvent => {
       let prevEvent = downEvent;
 
@@ -353,7 +358,7 @@ merge(
       );
     })
   ),
-  fromEvent<TouchEvent>(cellCanvas, "touchstart").pipe(
+  fromEvent<TouchEvent>(dom.cellCanvas, "touchstart").pipe(
     pluck("touches"),
     filter(({length}) => length === 1),
     switchMap(([initialTouch]) => {
@@ -395,15 +400,29 @@ merge(
   document.body.style.cursor = "all-scroll";
 });
 
-export const canvasHover$ = merge(
-  fromEvent<MouseEvent>(cellCanvas, "mousemove").pipe(
+/**
+ *
+ */
+const canvasHoverMoving$ = merge(
+  fromEvent<MouseEvent>(dom.cellCanvas, "mousemove").pipe(
     filter(e => e.buttons === 0)
   ),
-  fromEvent<MouseEvent>(cellCanvas, "mouseup"),
-  fromEvent<MouseEvent>(patternDropdown, "mouseup")
+  fromEvent<MouseEvent>(dom.cellCanvas, "mouseup"),
+  fromEvent<MouseEvent>(dom.patternDropdown, "mouseup")
 ).pipe(switchMap(e => patternSelection$.pipe(map(pattern => ({e, pattern})))));
 
-canvasHover$.subscribe(({e, pattern}) => {
+const canvasHoverStationary$ = canvasHoverMoving$.pipe(
+  switchMap(({e, pattern}) =>
+    interval(1000).pipe(
+      map(() => ({e, pattern})),
+      take(1),
+      takeUntil(canvasHoverMoving$),
+      takeUntil(fromEvent<MouseEvent>(dom.cellCanvas, "mouseleave"))
+    )
+  )
+);
+
+canvasHoverMoving$.subscribe(({e, pattern}) => {
   if (pattern) gameController?.placePreview(e.clientX, e.clientY, pattern);
 
   dom.canvasContainer.style.setProperty(
@@ -418,26 +437,15 @@ canvasHover$.subscribe(({e, pattern}) => {
   dom.canvasContainer.style.setProperty("--tooltip-opacity", "0");
 });
 
-canvasHover$
-  .pipe(
-    switchMap(({e, pattern}) =>
-      interval(1000).pipe(
-        map(() => ({e, pattern})),
-        take(1),
-        takeUntil(canvasHover$),
-        takeUntil(fromEvent<MouseEvent>(cellCanvas, "mouseleave"))
-      )
-    )
-  )
-  .subscribe(({pattern}) => {
-    if (pattern) {
-      dom.canvasContainer.style.setProperty(
-        "--tooltip-transition",
-        "opacity 0.5s"
-      );
-      dom.canvasContainer.style.setProperty("--tooltip-opacity", "1");
-    }
-  });
+canvasHoverStationary$.subscribe(({pattern}) => {
+  if (pattern) {
+    dom.canvasContainer.style.setProperty(
+      "--tooltip-transition",
+      "opacity 0.5s"
+    );
+    dom.canvasContainer.style.setProperty("--tooltip-opacity", "1");
+  }
+});
 
 /**
  * Ensure default cursor is set on dragging is stopped (mouse button up).
@@ -449,14 +457,14 @@ fromEvent<MouseEvent>(document, "mouseup").subscribe(
 /**
  * Clear pattern preview when mouse pointer leaves canvas.
  */
-fromEvent<MouseEvent>(cellCanvas, "mouseleave").subscribe(() =>
+fromEvent<MouseEvent>(dom.cellCanvas, "mouseleave").subscribe(() =>
   gameController?.clearPreview()
 );
 
 /**
  * Update zoom on mouse wheel scroll.
  */
-fromEvent<WheelEvent>(cellCanvas, "mousewheel", {
+fromEvent<WheelEvent>(dom.cellCanvas, "mousewheel", {
   passive: true
 })
   .pipe(
@@ -481,7 +489,7 @@ fromEvent<WheelEvent>(cellCanvas, "mousewheel", {
 /**
  * Update zoom on canvas pinch gesture.
  */
-fromEvent<TouchEvent>(cellCanvas, "touchstart")
+fromEvent<TouchEvent>(dom.cellCanvas, "touchstart")
   .pipe(
     pluck("touches"),
     filter(({length}) => length === 2),
@@ -512,7 +520,7 @@ fromEvent<TouchEvent>(cellCanvas, "touchstart")
   });
 
 /** Set a new selected pattern on button click. */
-fromEvent<MouseEvent>(patternDropdown, "click")
+fromEvent<MouseEvent>(dom.patternDropdown, "click")
   .pipe(
     pluck<Event, string>("target", "dataset", "pattern"),
     filter(pattern => typeof pattern === "string")

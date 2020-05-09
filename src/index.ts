@@ -14,15 +14,6 @@ import {
 import * as patternLibrary from "./patternLibrary";
 import * as observables from "./observables";
 
-/** Stores refrences to used DOM elements with JSDoc type casting */
-const dom = {
-  main: document.getElementById("main") as HTMLDivElement,
-  gridCanvas: document.getElementById("grid-canvas") as HTMLCanvasElement,
-  cellCanvas: document.getElementById("cell-canvas") as HTMLCanvasElement,
-  patternBtn: document.getElementById("pattern-btn") as HTMLButtonElement,
-  patternDropdown: document.getElementById("pattern-dropdown") as HTMLDivElement
-};
-
 const isWasm = true;
 
 /**
@@ -43,7 +34,7 @@ document.documentElement.dataset.theme =
     // Initialize pattern library object and related DOM elements.
     // Placed after game init to prevent any noticible delay in page load.
     await patternLibrary.loadDataFromFiles();
-    dom.patternDropdown.innerHTML = patternLibrary.generateDropdownHTML();
+    patternLibrary.generateDropdownHTML("pattern-dropdown");
     // @ts-ignore
     M.AutoInit();
   } catch (err) {
@@ -61,8 +52,14 @@ export function initializeGame() {
   const worker = new Worker("./worker.js");
 
   /** Get rendering contexts for all canvases. */
-  const gridCtx = dom.gridCanvas.getContext("2d") as CanvasRenderingContext2D;
-  const cellCtx = dom.cellCanvas.getContext("2d") as CanvasRenderingContext2D;
+  const gridCanvas = document.getElementById(
+    "grid-canvas"
+  ) as HTMLCanvasElement;
+  const cellCanvas = document.getElementById(
+    "cell-canvas"
+  ) as HTMLCanvasElement;
+  const gridCtx = gridCanvas.getContext("2d") as CanvasRenderingContext2D;
+  const cellCtx = cellCanvas.getContext("2d") as CanvasRenderingContext2D;
 
   /** Factory function for GameRenderer object. */
   createCanvasController(
@@ -102,14 +99,3 @@ export function terminateGame() {
   /** Hide all UI elements. */
   document.body.hidden = true;
 }
-
-/** Terminate game after any unhandled errors. */
-window.addEventListener("error", terminateGame);
-
-/** Disable all scrolling (except on modal). */
-dom.main.addEventListener("wheel", e => e.preventDefault(), {
-  passive: false
-});
-
-dom.patternBtn.addEventListener("mousedown", e => e.preventDefault());
-dom.patternDropdown.addEventListener("mousedown", e => e.preventDefault());
