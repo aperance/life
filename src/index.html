@@ -94,9 +94,10 @@
           </a>
           <a
             id="help-btn"
-            class="waves-effect waves-light btn-flat"
+            class="waves-effect waves-light btn-flat modal-trigger"
             data-tooltip-content="Help"
             data-tooltip-direction="down"
+            href="#help-modal"
           >
             <svg>
               <use xlink:href="icons.svg#question"></use>
@@ -132,20 +133,20 @@
   </body>
 </html>
 
-<div class="modal" id="pattern-modal">
+<!-- Modal Structure -->
+<div id="help-modal" class="modal modal-fixed-footer">
   <div class="modal-content">
-    <h5 class="modal-title" id="exampleModalLabel">Pattern Library</h5>
-    <!-- <button type="button" class="modal-close" data-dismiss="modal">
-      <span aria-hidden="true">&times;</span>
-    </button> -->
-    <div class="modal-body">
-      <div id="pattern-list"></div>
-      <div id="pattern-details"></div>
-    </div>
+    <h4>Modal Header</h4>
+    <p>A bunch of text</p>
+  </div>
+  <div class="modal-footer">
+    <p>
+      <label>
+        <input id="modal-checkbox" type="checkbox" class="filled-in" />
+        <span>Show at startup</span>
+      </label>
+    </p>
   </div>
 </div>
-
-<!-- Compiled and minified JavaScript -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
 <script src="index.js"></script>

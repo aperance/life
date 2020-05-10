@@ -1,3 +1,4 @@
+import M from "materialize-css";
 import {
   Subject,
   BehaviorSubject,
@@ -6,7 +7,6 @@ import {
   merge,
   interval
 } from "rxjs";
-
 import {
   map,
   switchMap,
@@ -19,7 +19,8 @@ import {
   mapTo,
   tap,
   bufferTime,
-  scan
+  scan,
+  delay
 } from "rxjs/operators";
 
 import {canvasController} from "./canvasController";
@@ -46,7 +47,9 @@ const dom = {
     "pattern-dropdown"
   ) as HTMLDivElement,
   speedSlider: document.getElementById("speed-slider") as HTMLInputElement,
-  zoomSlider: document.getElementById("zoom-slider") as HTMLInputElement
+  zoomSlider: document.getElementById("zoom-slider") as HTMLInputElement,
+  modal: document.getElementById("help-modal") as HTMLDivElement,
+  modalCheckbox: document.getElementById("modal-checkbox") as HTMLInputElement
 };
 
 interface ControllerState {
@@ -147,6 +150,25 @@ merge(
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   });
+});
+
+/**
+ *
+ */
+fromEvent(window, "DOMContentLoaded")
+  .pipe(delay(1000))
+  .subscribe(() => {
+    if (localStorage.getItem("showModal") === "true") {
+      M.Modal.getInstance(dom.modal).open();
+      dom.modalCheckbox.checked = true;
+    }
+  });
+
+/**
+ *
+ */
+fromEvent(dom.modalCheckbox, "click").subscribe(() => {
+  localStorage.setItem("showModal", dom.modalCheckbox.checked.toString());
 });
 
 /**

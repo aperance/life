@@ -1,3 +1,4 @@
+import M from "materialize-css";
 import "materialize-css/sass/materialize.scss";
 import "./styles.scss";
 
@@ -31,14 +32,14 @@ document.documentElement.dataset.theme =
 (async () => {
   try {
     initializeGame();
-    // Initialize pattern library object and related DOM elements.
-    // Placed after game init to prevent any noticible delay in page load.
+    // Initialize pattern library object (after initializeGame to not block game load).
     await patternLibrary.loadDataFromFiles();
+    // Generate and insert HTML for pattern library dropdown.
     patternLibrary.generateDropdownHTML("pattern-dropdown");
-    // @ts-ignore
+    // Initialize js components from materialize library.
     M.AutoInit();
   } catch (err) {
-    /** Terminate game on error (most likely from pattern library). */
+    // Terminate game on error (most likely from pattern library).
     console.error(err);
     terminateGame();
   }
