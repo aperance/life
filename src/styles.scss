@@ -278,48 +278,12 @@ nav {
   }
 }
 
-// #pattern-modal {
-//   overflow-y: hidden;
-//   color: var(--text-color);
-//   background-color: var(--menu-color);
-
-//   .modal-body {
-//     display: flex;
-//   }
-
-//   #pattern-list {
-//     flex: 0 0 200px;
-//     padding-right: 8px;
-//     overflow-y: scroll;
-//     height: 72vh;
-
-//     .collapsible {
-//       box-shadow: none;
-//       border: none;
-//     }
-
-//     .collapsible-header {
-//       color: var(--text-color);
-//       background-color: var(--menu-color);
-//       border-bottom: none;
-//     }
-
-//     .collection {
-//       padding: 0;
-//     }
-
-//     .collection-item {
-//       color: var(--text-color);
-//       background-color: var(--menu-color);
-//       border-bottom: none;
-//     }
-//   }
-
-//   #pattern-details {
-//     padding: 8px;
-
-//     button {
-//       margin-top: 8px;
-//     }
-//   }
-// }
+.modal .modal-footer {
+  text-align: left;
+  padding: 4px 20px;
+  span {
+    height: 20px;
+    line-height: 20px;
+    font-size: 14px;
+  }
+}
