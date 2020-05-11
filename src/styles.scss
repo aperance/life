@@ -32,11 +32,6 @@
   }
 }
 
-html {
-  font-family: sans-serif;
-  font-size: 12px;
-}
-
 body {
   margin: 0 0 0 0;
   touch-action: none;
@@ -269,7 +264,6 @@ nav {
 
   span {
     font-family: monospace;
-    font-size: 1.2rem;
     color: var(--text-color);
 
     &:nth-child(2) {
@@ -278,12 +272,16 @@ nav {
   }
 }
 
-.modal .modal-footer {
-  text-align: left;
-  padding: 4px 20px;
-  span {
-    height: 20px;
-    line-height: 20px;
-    font-size: 14px;
+.modal {
+  .modal-content {
+    padding: 32px;
+  }
+  .modal-footer {
+    text-align: left;
+    padding: 18px 32px;
+    height: fit-content;
+    span {
+      line-height: 20px;
+    }
   }
 }
