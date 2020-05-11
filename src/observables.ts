@@ -160,7 +160,7 @@ fromEvent(window, "DOMContentLoaded")
   .subscribe(() => {
     M.Modal.init(dom.modal);
 
-    if (localStorage.getItem("showModal") === "true") {
+    if (localStorage.getItem("showModal") !== "false") {
       M.Modal.getInstance(dom.modal).open();
       dom.modalCheckbox.checked = true;
     }
