@@ -158,6 +158,8 @@ merge(
 fromEvent(window, "DOMContentLoaded")
   .pipe(delay(1000))
   .subscribe(() => {
+    M.Modal.init(dom.modal);
+
     if (localStorage.getItem("showModal") === "true") {
       M.Modal.getInstance(dom.modal).open();
       dom.modalCheckbox.checked = true;

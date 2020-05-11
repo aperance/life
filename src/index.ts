@@ -1,4 +1,4 @@
-import M from "materialize-css";
+import "materialize-css";
 import "materialize-css/sass/materialize.scss";
 import "./styles.scss";
 
@@ -36,8 +36,6 @@ document.documentElement.dataset.theme =
     await patternLibrary.loadDataFromFiles();
     // Generate and insert HTML for pattern library dropdown.
     patternLibrary.generateDropdownHTML("pattern-dropdown");
-    // Initialize js components from materialize library.
-    M.AutoInit();
   } catch (err) {
     // Terminate game on error (most likely from pattern library).
     console.error(err);
