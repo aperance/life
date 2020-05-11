@@ -274,12 +274,23 @@ nav {
 
 .modal {
   .modal-content {
-    padding: 32px;
+    padding: 42px;
+
+    h5 {
+      margin-top: 1.8rem;
+    }
+
+    svg {
+      height: 0.8rem;
+      width: 0.8rem;
+    }
   }
+
   .modal-footer {
     text-align: left;
-    padding: 18px 32px;
+    padding: 20px 42px;
     height: fit-content;
+
     span {
       line-height: 20px;
     }
