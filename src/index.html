@@ -136,8 +136,47 @@
 <!-- Modal Structure -->
 <div id="help-modal" class="modal modal-fixed-footer">
   <div class="modal-content">
-    <h4>Modal Header</h4>
-    <p>A bunch of text</p>
+    <h4>Conway's Game of Life</h4>
+    <p>
+      This is an implementation of
+      <a
+        href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life"
+        target="_blank"
+      >
+        Conway's Game of Life
+      </a>
+      written in Javascript and Rust (WebAssembly). The game universe is 5000
+      cells by 5000 cells, where the edges wrap around.
+    </p>
+    <h5>How to Play</h5>
+    <p>
+      The initial state of the game (generation 0) can be set through two modes:
+    </p>
+    <p>
+      Toggle Cells - Click on an individual cell to toggle between alive and
+      dead states.
+    </p>
+    <p>
+      Pattern Library - Choose from the included collection of common patterns.
+      The selected pattern can be placed one or more times by clicking on the
+      desired locations.
+    </p>
+    <p>
+      Once the initial state is set press Play to begin. Use the Speed slider to
+      adjust the game speed. Editing is disabled once the game has started.
+      Press Reset to start over.
+    </p>
+    <p>
+      Pan across the game area by using the arrow keys on your keyboard or by
+      clicking and dragging on the game area.
+    </p>
+    <p>
+      Adjust the zoom level using the zoom slider or by scrolling using your
+      mouse or touchpad.
+    </p>
+    <p>
+      Use Sun/Moon button to switch beteen light and dark modes.
+    </p>
   </div>
   <div class="modal-footer">
     <p>
