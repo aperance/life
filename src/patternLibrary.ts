@@ -74,20 +74,20 @@ const categories = {
  *
  * @param {string?} id
  */
-export function setSelected(id: string | null) {
+export function setSelected(id: string | null): void {
   patternSubject.next(id ? getData(id).array : null);
 }
 
 /**
  *
  */
-export function rotateSelected() {
+export function rotateSelected(): void {
   if (!patternSubject.value) return;
 
   const width = patternSubject.value.length;
   const height = patternSubject.value[0].length;
 
-  let newArray = new Array(height);
+  const newArray = new Array(height);
   for (let row = 0; row < height; row++) {
     newArray[row] = new Array(width);
     for (let col = 0; col < width; col++) {
@@ -101,9 +101,9 @@ export function rotateSelected() {
 /**
  *
  */
-export function flipSelected() {
+export function flipSelected(): void {
   if (!patternSubject.value) return;
-  let newArr = patternSubject.value;
+  const newArr = patternSubject.value;
 
   for (let i = 0; i < newArr.length; i++) {
     newArr[i].reverse();
@@ -125,9 +125,8 @@ function getData(id: string): PatternData {
 
 /**
  * @async
- * @returns {Promise<void>}
  */
-export async function loadDataFromFiles() {
+export async function loadDataFromFiles(): Promise<void> {
   const patternList = Object.values(categories).flat();
 
   await Promise.all(
@@ -174,7 +173,7 @@ async function readPatternFile(id: string): Promise<PatternData> {
  * @throws {Error}
  */
 function rleParser(rle: string, width: number, height: number): number[][] {
-  let array: number[][] = [...Array(height)].map(() => Array(width).fill(0));
+  const array: number[][] = [...Array(height)].map(() => Array(width).fill(0));
 
   let rowIndex = 0;
   let colIndex = 0;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 /**
  * CanvasController is the object reponsible for modifying the HTML canvas elements
  * used to visualize the game area. Three canvas elements are used for drawing
@@ -389,7 +390,7 @@ export function createCanvasController(
   };
 }
 
-export function destroyCanvasController() {
+export function destroyCanvasController(): void {
   canvasController?.clearCanvases();
   canvasController = null;
 }

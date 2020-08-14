@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import M from "materialize-css";
 import {
   Subject,
@@ -366,8 +367,8 @@ const canvasDragging$ = merge(
 
       return fromEvent<MouseEvent>(document, "mousemove").pipe(
         map(moveEvent => {
-          let deltaX = prevEvent.clientX - moveEvent.clientX;
-          let deltaY = prevEvent.clientY - moveEvent.clientY;
+          const deltaX = prevEvent.clientX - moveEvent.clientX;
+          const deltaY = prevEvent.clientY - moveEvent.clientY;
 
           prevEvent = moveEvent;
 

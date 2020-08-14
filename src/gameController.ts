@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 /**
  * GameController is responsible for managing the game state. If not yet
  * started, the game state is updated based on user actions. If started, the
@@ -67,10 +68,8 @@ export function createGameController(
   viewController: CanvasController,
   cellCount: number,
   wasm: boolean,
-  // @ts-ignore
-  //observer: any
   subject: Subject<object>
-) {
+): void {
   gameController = {
     /**
      * Set containing the indices of the currently alive cells.
@@ -328,8 +327,8 @@ export function createGameController(
             born = result.born;
             died = result.died;
 
-            for (let cellIndex of born) this.aliveCells.add(cellIndex);
-            for (let cellIndex of died) this.aliveCells.delete(cellIndex);
+            for (const cellIndex of born) this.aliveCells.add(cellIndex);
+            for (const cellIndex of died) this.aliveCells.delete(cellIndex);
 
             this.didCellsChange = true;
             this.generation++;
@@ -407,7 +406,7 @@ export function createGameController(
   gameController.animationCycle();
 }
 
-export function destroyGameController() {
+export function destroyGameController(): void {
   gameController?.terminate();
   gameController = null;
 }

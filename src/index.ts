@@ -46,7 +46,7 @@ document.documentElement.dataset.theme =
 /**
  * Perform all actions necessary to initialize a new game.
  */
-export function initializeGame() {
+export function initializeGame(): void {
   /** Initialize web worker which calculates game results. */
   const worker = new Worker("./worker.js");
 
@@ -87,7 +87,7 @@ export function initializeGame() {
 /**
  * Perform all actions necessary to terminate the current game.
  */
-export function terminateGame() {
+export function terminateGame(): void {
   /** Call methods necessary to stop game fumctionality. */
   destroyCanvasController();
   destroyGameController();
