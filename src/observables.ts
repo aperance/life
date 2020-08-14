@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import M from "materialize-css";
 import {
@@ -393,8 +394,8 @@ const canvasDragging$ = merge(
         pluck("touches"),
         filter(({length}) => length === 1),
         map(([currentTouch]) => {
-          let deltaX = prevTouch.clientX - currentTouch.clientX;
-          let deltaY = prevTouch.clientY - currentTouch.clientY;
+          const deltaX = prevTouch.clientX - currentTouch.clientX;
+          const deltaY = prevTouch.clientY - currentTouch.clientY;
 
           prevTouch = currentTouch;
 
@@ -534,9 +535,9 @@ fromEvent<TouchEvent>(dom.cellCanvas, "touchstart")
       return fromEvent<TouchEvent>(document, "touchmove").pipe(
         map(e => {
           //@ts-ignore
-          let scale = e.scale / prevScale;
-          let centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-          let centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+          const scale = e.scale / prevScale;
+          const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+          const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
           // @ts-ignore
           prevScale = e.scale;
           return {scale, centerX, centerY};
