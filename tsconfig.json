@@ -64,5 +64,9 @@
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
   },
   "include": ["src/**/*"],
-  "exclude": ["src/wasm", "src/tests"]
+  "exclude": ["src/wasm", "src/tests"],
+  "typedocOptions": {
+    "mode": "modules",
+    "out": "docs"
+  }
 }
