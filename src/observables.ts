@@ -25,10 +25,9 @@ import {
   delay
 } from "rxjs/operators";
 
-import {canvasController} from "./canvasController";
 import {gameController} from "./gameController";
 import * as patternLibrary from "./patternLibrary";
-import {initializeGame, terminateGame} from "./index";
+import {initializeGame, terminateGame, canvasController} from "./index";
 
 /** Stores refrences to used DOM elements with type casting */
 const dom = {
@@ -54,7 +53,7 @@ const dom = {
   modalCheckbox: document.getElementById("modal-checkbox") as HTMLInputElement
 };
 
-interface ControllerState {
+export interface ControllerState {
   zoom?: number;
   row?: number;
   col?: number;

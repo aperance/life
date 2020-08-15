@@ -2,11 +2,7 @@ import "materialize-css";
 import "materialize-css/sass/materialize.scss";
 import "./styles.scss";
 
-import {
-  canvasController,
-  createCanvasController,
-  destroyCanvasController
-} from "./canvasController";
+import {CanvasController} from "./canvasController";
 import {
   gameController,
   createGameController,
@@ -16,6 +12,8 @@ import * as patternLibrary from "./patternLibrary";
 import {controllerSubject} from "./observables";
 
 const isWasm = true;
+
+export let canvasController: CanvasController | null = null;
 
 /**
  *  Get color theme from local storage. If not set use prefrence from client os.
@@ -61,7 +59,7 @@ export function initializeGame(): void {
   const cellCtx = cellCanvas.getContext("2d") as CanvasRenderingContext2D;
 
   /** Factory function for CanvasController object. */
-  createCanvasController(
+  canvasController = new CanvasController(
     gridCtx,
     cellCtx,
     5000,
@@ -89,7 +87,8 @@ export function initializeGame(): void {
  */
 export function terminateGame(): void {
   /** Call methods necessary to stop game fumctionality. */
-  destroyCanvasController();
+  canvasController?.clearCanvases();
+  canvasController = null;
   destroyGameController();
 
   /** Clear selected pattern. */
