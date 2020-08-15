@@ -7,6 +7,10 @@ interface Result {
 
 let generator: GameEngine | Generator<Result>;
 
+/** Workaround for TypeScript compiler error */
+const postMessage = (message: unknown) =>
+  ((self as unknown) as Worker).postMessage(message);
+
 /**
  *
  */
