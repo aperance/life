@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-undef */
-// @ts-nocheck
 
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -55,9 +55,14 @@ const appConfig = {
       {
         test: /\.ts$/,
         exclude: /(node_modules)/,
-        use: {
-          loader: "babel-loader"
-        }
+        use: [
+          {
+            loader: "babel-loader"
+          },
+          {
+            loader: "ts-loader"
+          }
+        ]
       },
       {
         test: /\.rle$/,
@@ -73,7 +78,7 @@ const appConfig = {
 const workerConfig = {
   mode: "development",
   target: "webworker",
-  entry: "./src/worker.js",
+  entry: "./src/worker.ts",
   output: {
     filename: "worker.js",
     path: path.resolve(__dirname, "dist"),
@@ -81,6 +86,22 @@ const workerConfig = {
   },
   devServer: {
     contentBase: "./dist"
+  },
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        exclude: /(node_modules)/,
+        use: [
+          {
+            loader: "babel-loader"
+          },
+          {
+            loader: "ts-loader"
+          }
+        ]
+      }
+    ]
   },
   resolve: {
     extensions: [".js", ".wasm"]

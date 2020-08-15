@@ -387,13 +387,14 @@ const canvasDragging$ = merge(
   fromEvent<TouchEvent>(dom.cellCanvas, "touchstart").pipe(
     pluck("touches"),
     filter(({length}) => length === 1),
-    switchMap(([initialTouch]) => {
-      let prevTouch = initialTouch;
+    switchMap(touches => {
+      let prevTouch = touches[0];
 
       return fromEvent<TouchEvent>(document, "touchmove").pipe(
         pluck("touches"),
         filter(({length}) => length === 1),
-        map(([currentTouch]) => {
+        map(touches => {
+          const currentTouch = touches[0];
           const deltaX = prevTouch.clientX - currentTouch.clientX;
           const deltaY = prevTouch.clientY - currentTouch.clientY;
 

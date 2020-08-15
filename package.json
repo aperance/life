@@ -50,6 +50,7 @@
     "sass": "^1.26.10",
     "sass-loader": "^8.0.2",
     "style-loader": "^1.2.1",
+    "ts-loader": "^8.0.2",
     "typedoc": "^0.18.0",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12",

@@ -1,72 +1,57 @@
-/* eslint-disable */
+import {GameEngine} from "life-wasm";
 
-/** @namespace worker */
+interface Result {
+  born: number[];
+  died: number[];
+}
 
-/**
- * @memberof worker
- * @type {Object|Generator}
- */
-let generator;
-
-/**
- * @memberof worker
- * @function
- */
-onmessage = messageHandler;
+let generator: GameEngine | Generator<Result>;
 
 /**
  *
- * @async
- * @memberof worker
- * @param {MessageEvent} e
  */
-async function messageHandler(e) {
+onmessage = async (e: MessageEvent) => {
   const {action, payload} = e.data;
   switch (action) {
     case "start":
       if (payload.wasm)
         try {
-          // @ts-ignore
           const {GameEngine} = await import("life-wasm");
           generator = new GameEngine(payload.size, payload.initialAlive);
         } catch (e) {
           console.error("Error importing wasm:", e);
         }
       else generator = createGenerator(payload.size, payload.initialAlive);
-      // @ts-ignore
       postMessage("started");
       break;
     case "requestResults":
-      // @ts-ignore
       if (generator) postMessage(batchResults(payload.count));
       break;
     default:
       break;
   }
-}
+};
 
 /**
  *
- * @memberof worker
- * @param {number} count
- * @returns {Object}
  */
-function batchResults(count) {
+function batchResults(count: number): {results: Result[]; duration: number} {
   performance.mark("Batch Start");
 
-  let arr = [];
+  const arr: Result[] = [];
 
   for (let i = 0; i < count; i++) {
-    // @ts-ignore
-    const {born, died} = generator.next().value;
+    const {born, died}: Result = generator.next().value;
     arr[i] = {born: [...born], died: [...died]};
   }
 
   performance.mark("Batch End");
   performance.measure("Batch Duration", "Batch Start", "Batch End");
+
   const duration = performance
     .getEntriesByName("Batch Duration")
     .map(x => x.duration)[0];
+
   performance.clearMeasures();
 
   return {results: arr, duration};
@@ -74,22 +59,17 @@ function batchResults(count) {
 
 /**
  *
- * @memberof worker
- * @param {number} size
- * @param {Array<number>} initialAlive
- * @returns {Generator}
  */
-function* createGenerator(size, initialAlive) {
+function* createGenerator(size: number, initial: number[]): Generator<Result> {
+  const alive = new Set(initial);
+  let checkNextTime = new Set<number>();
+  let cellsToCheck: IterableIterator<number>;
   let born, died;
-  let generation = 0;
-  let cellsToCheck;
-  let checkNextTime = new Set();
-  let alive = new Set(initialAlive);
 
-  for (let cellIndex of initialAlive) {
+  for (const cellIndex of alive) {
     const neighbors = getNeighbors(cellIndex, size);
     checkNextTime.add(cellIndex);
-    for (let n of neighbors) checkNextTime.add(n);
+    for (const n of neighbors) checkNextTime.add(n);
   }
 
   while (true) {
@@ -98,15 +78,14 @@ function* createGenerator(size, initialAlive) {
 
     born = [];
     died = [];
-    generation++;
 
     for (const cellIndex of cellsToCheck) {
       let isAlive, isChanged;
-      let wasAlive = alive.has(cellIndex);
+      const wasAlive = alive.has(cellIndex);
       let aliveNeighborCount = 0;
       const neighbors = getNeighbors(cellIndex, size);
 
-      for (let neighborIndex of neighbors)
+      for (const neighborIndex of neighbors)
         if (alive.has(neighborIndex)) aliveNeighborCount++;
 
       switch (aliveNeighborCount) {
@@ -129,25 +108,21 @@ function* createGenerator(size, initialAlive) {
         else died.push(cellIndex);
 
         checkNextTime.add(cellIndex);
-        for (let n of neighbors) checkNextTime.add(n);
+        for (const n of neighbors) checkNextTime.add(n);
       }
     }
 
-    for (let cellIndex of born) alive.add(cellIndex);
-    for (let cellIndex of died) alive.delete(cellIndex);
+    for (const cellIndex of born) alive.add(cellIndex);
+    for (const cellIndex of died) alive.delete(cellIndex);
 
-    yield {born, died, generation};
+    yield {born, died};
   }
 }
 
 /**
  *
- * @memberof worker
- * @param {number} index
- * @param {number} size
- * @returns {Array<number>}
  */
-function getNeighbors(index, size) {
+function getNeighbors(index: number, size: number): number[] {
   const wrap = true;
   const row = Math.floor(index / size);
   const col = index % size;
@@ -158,7 +133,7 @@ function getNeighbors(index, size) {
   const colBack = col === 0 ? max : -1;
   const colFwd = col === max ? -max : 1;
 
-  let arr = [];
+  const arr = [];
 
   if (wrap || (row !== 0 && col !== 0)) arr.push(index + rowBack + colBack);
   if (wrap || row !== 0) arr.push(index + rowBack);
