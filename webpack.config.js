@@ -19,7 +19,7 @@ const appConfig = {
     port: 1234
   },
   plugins: [
-    new CopyWebpackPlugin(["./src/index.html", "./src/icons.svg"]),
+    new CopyWebpackPlugin({patterns: ["./src/index.html", "./src/icons.svg"]}),
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // both options are optional
