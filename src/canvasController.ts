@@ -9,7 +9,6 @@ export class CanvasController {
   cellCount: number;
   isDarkMode: boolean;
   subject: ControllerSubject;
-  window?: {width: number; height: number};
   pan?: {x: number; y: number};
   zoom = 10;
   isRedrawNeeded = true;
@@ -29,70 +28,45 @@ export class CanvasController {
   }
 
   /**
+   *
+   */
+  private get window(): {width: number; height: number} {
+    const {width, height} = this.gridCtx.canvas;
+    return {width, height};
+  }
+
+  /**
    * The minimum zoom value where the game area is not smaller than the window.
    */
   private get minZoom(): number {
-    if (!this.window) throw Error("Canvas not initialized");
-
     return Math.ceil(
       Math.max(this.window.width, this.window.height) / this.cellCount
     );
   }
 
   /**
-   * The maximum pan value in the x direction that dosen't extend off the game area.
+   * The maximum pan values that dosen't extend off the game area.
    */
-  private get maxPanX(): number {
-    if (!this.window) throw Error("Canvas not initialized");
-
-    return this.cellCount * this.zoom - this.window.width;
+  private get maxPan(): {x: number; y: number} {
+    return {
+      x: this.cellCount * this.zoom - this.window.width,
+      y: this.cellCount * this.zoom - this.window.height
+    };
   }
 
   /**
-   * The maximum pan value in the y direction that dosen't extend off the game area.
+   * Ensures the values are within acceptable bounds. Sets default values if undefined.
    */
-  private get maxPanY(): number {
-    if (!this.window) throw Error("Canvas not initialized");
-
-    return this.cellCount * this.zoom - this.window.height;
-  }
-
-  /**
-   * The row and column on the game area at the current center of the window. Adjusted
-   * so that the center of the game area is 0,0 (internally 0,0 is the top left corner).
-   */
-  private get centerRowCol(): {row: number; col: number} {
-    if (!this.window) throw Error("Canvas not initialized");
-
-    const {row, col} = this.xyToRowColIndex(
-      this.window.width / 2,
-      this.window.height / 2
-    );
-    return {row: row - this.cellCount / 2, col: col - this.cellCount / 2};
-  }
-
-  /**
-   * Receives the current window dimensions and stores it in object state. Triggers
-   * setView method to calculate view parameters using updated window dimensions.
-   * @param width Current window width in pixels
-   * @param height Current height width in pixels
-   */
-  setWindow(width: number, height: number): void {
-    this.window = {width, height};
-    this.validateView();
-  }
-
-  /**
-   *
-   */
-  shiftPan(deltaX: number, deltaY: number): void {
-    if (!this.pan) throw Error("Canvas not initialized");
+  initializeView(): void {
+    this.zoom = this.clamp(this.zoom, this.minZoom, 100);
 
     this.pan = {
-      x: this.pan.x + deltaX,
-      y: this.pan.y + deltaY
+      x: this.clamp(this.pan?.x ?? this.maxPan.x / 2, 0, this.maxPan.x),
+      y: this.clamp(this.pan?.y ?? this.maxPan.y / 2, 0, this.maxPan.y)
     };
-    this.validateView();
+
+    this.updateSubject();
+    this.isRedrawNeeded = true;
   }
 
   /**
@@ -102,39 +76,39 @@ export class CanvasController {
    * @param x x-coordinate of point to keep stationary
    * @param y y-coordinate of point to keep stationary
    */
-  zoomAtPoint(zoom: number, x: number, y: number): void {
+  zoomAtPoint(newZoom: number, x: number, y: number): void {
     if (!this.pan) throw Error("Canvas not initialized");
 
-    const newZoom = this.clamp(zoom, this.minZoom, 100);
-    const scale = newZoom / this.zoom - 1;
-    this.zoom = newZoom;
-    this.pan = {
-      x: this.pan.x + scale * (this.pan.x + x),
-      y: this.pan.y + scale * (this.pan.y + y)
-    };
-    this.validateView();
-  }
+    const prevZoom = this.zoom;
+    this.zoom = this.clamp(newZoom, this.minZoom, 100);
+    const scale = this.zoom / prevZoom - 1;
+    this.shiftPan(scale * (this.pan.x + x), scale * (this.pan.y + y));
 
-  /**
-   * Updates the zoom and panning properties with the provided object, and ensures the values are
-   * within acceptable bounds. If parameter is null, current zoom and panning properties are rechecked.
-   */
-  validateView(): void {
-    if (!this.window) throw Error("Canvas not initialized");
-
-    this.zoom = this.clamp(this.zoom, this.minZoom, 100);
-
-    this.pan = {
-      x: this.clamp(this.pan?.x ?? this.maxPanX / 2, 0, this.maxPanX),
-      y: this.clamp(this.pan?.y ?? this.maxPanY / 2, 0, this.maxPanY)
-    };
-
-    const {row, col} = this.centerRowCol;
-    this.subject.next({zoom: this.zoom, row, col});
-
+    this.updateSubject();
     this.isRedrawNeeded = true;
   }
 
+  /**
+   *
+   * @param deltaX
+   * @param deltaY
+   */
+  shiftPan(deltaX: number, deltaY: number): void {
+    if (!this.pan) throw Error("Canvas not initialized");
+
+    this.pan = {
+      x: this.clamp(this.pan?.x + deltaX, 0, this.maxPan.x),
+      y: this.clamp(this.pan?.y + deltaY, 0, this.maxPan.y)
+    };
+
+    this.updateSubject();
+    this.isRedrawNeeded = true;
+  }
+
+  /**
+   *
+   * @param theme
+   */
   setColorTheme(theme: string): void {
     this.isDarkMode = theme === "dark" ? true : false;
     this.isRedrawNeeded = true;
@@ -169,8 +143,6 @@ export class CanvasController {
     preview: number[],
     didCellsChange: boolean
   ): void {
-    if (!this.window || !this.pan) return;
-
     if (born && died && !this.isRedrawNeeded)
       this.renderChangedCells(born, died);
     else if (didCellsChange || this.isRedrawNeeded) {
@@ -185,7 +157,7 @@ export class CanvasController {
    * Redraws all grid lines based on the current zoom and panning properties.
    */
   private renderGrid(): void {
-    if (!this.pan) throw Error("Canvas not initialized");
+    if (!this.pan) return;
 
     const {width, height} = this.gridCtx.canvas;
     const {row: startRow, col: startCol} = this.xyToRowColIndex(0, 0);
@@ -234,7 +206,7 @@ export class CanvasController {
    * @param preview Indices of cells in pattern being previewed
    */
   private renderAllCells(alive: number[], preview: number[]): void {
-    if (!this.pan) throw Error("Canvas not initialized");
+    if (!this.pan) return;
 
     const {x: panX, y: panY} = this.pan;
     this.cellCtx.setTransform(this.zoom, 0, 0, this.zoom, -panX, -panY);
@@ -275,6 +247,23 @@ export class CanvasController {
       const {row, col} = this.indexToRowCol(died[i]);
       this.cellCtx.clearRect(col, row, 1, 1);
     }
+  }
+
+  /**
+   * Updates RxJS subject with the current zoom and the row and column on
+   * the game area at the current center of the window. Adjusted so that the
+   * center of the game area is 0,0 (internally 0,0 is the top left corner).
+   */
+  private updateSubject(): void {
+    const {row, col} = this.xyToRowColIndex(
+      this.window.width / 2,
+      this.window.height / 2
+    );
+    this.subject.next({
+      zoom: this.zoom,
+      row: row - this.cellCount / 2,
+      col: col - this.cellCount / 2
+    });
   }
 
   /**

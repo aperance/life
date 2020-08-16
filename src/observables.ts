@@ -152,13 +152,13 @@ merge(
   fromEvent(window, "resize"),
   fromEvent(window, "DOMContentLoaded")
 ).subscribe(() => {
-  /** Updates game state with current window dimensions. */
-  canvasController?.setWindow(window.innerWidth, window.innerHeight);
   /** Adjust all canvas dimensions to match window dimensions. */
   [dom.gridCanvas, dom.cellCanvas].forEach(canvas => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   });
+  /** Initialize game state with current window dimensions. */
+  canvasController?.initializeView();
 });
 
 /**
@@ -269,7 +269,7 @@ fromEvent<MouseEvent>(dom.nav, "click")
       case "reset-btn":
         terminateGame();
         initializeGame();
-        canvasController?.setWindow(window.innerWidth, window.innerHeight);
+        canvasController?.initializeView();
         dom.defaultBtn.classList.remove("disabled");
         dom.patternBtn.classList.remove("disabled");
         break;
