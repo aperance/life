@@ -4,14 +4,14 @@ import {ControllerSubject} from "./observables";
  *
  */
 export class CanvasController {
-  gridCtx: CanvasRenderingContext2D;
-  cellCtx: CanvasRenderingContext2D;
-  cellCount: number;
-  isDarkMode: boolean;
-  subject: ControllerSubject;
-  pan?: {x: number; y: number};
-  zoom = 10;
-  isRedrawNeeded = true;
+  readonly #gridCtx: CanvasRenderingContext2D;
+  readonly #cellCtx: CanvasRenderingContext2D;
+  readonly #cellCount: number;
+  readonly #subject: ControllerSubject;
+  #isDarkMode: boolean;
+  #pan?: {x: number; y: number};
+  #zoom = 10;
+  #isRedrawNeeded = true;
 
   constructor(
     gridCtx: CanvasRenderingContext2D,
@@ -20,18 +20,18 @@ export class CanvasController {
     initialTheme: string | undefined,
     subject: ControllerSubject
   ) {
-    this.gridCtx = gridCtx;
-    this.cellCtx = cellCtx;
-    this.cellCount = cellCount;
-    this.isDarkMode = initialTheme === "dark";
-    this.subject = subject;
+    this.#gridCtx = gridCtx;
+    this.#cellCtx = cellCtx;
+    this.#cellCount = cellCount;
+    this.#isDarkMode = initialTheme === "dark";
+    this.#subject = subject;
   }
 
   /**
    *
    */
   private get window(): {width: number; height: number} {
-    const {width, height} = this.gridCtx.canvas;
+    const {width, height} = this.#gridCtx.canvas;
     return {width, height};
   }
 
@@ -40,7 +40,7 @@ export class CanvasController {
    */
   private get minZoom(): number {
     return Math.ceil(
-      Math.max(this.window.width, this.window.height) / this.cellCount
+      Math.max(this.window.width, this.window.height) / this.#cellCount
     );
   }
 
@@ -49,24 +49,31 @@ export class CanvasController {
    */
   private get maxPan(): {x: number; y: number} {
     return {
-      x: this.cellCount * this.zoom - this.window.width,
-      y: this.cellCount * this.zoom - this.window.height
+      x: this.#cellCount * this.#zoom - this.window.width,
+      y: this.#cellCount * this.#zoom - this.window.height
     };
+  }
+
+  /**
+   * The current zoom value.
+   */
+  get zoom(): number {
+    return this.#zoom;
   }
 
   /**
    * Ensures the values are within acceptable bounds. Sets default values if undefined.
    */
   initializeView(): void {
-    this.zoom = this.clamp(this.zoom, this.minZoom, 100);
+    this.#zoom = this.clamp(this.#zoom, this.minZoom, 100);
 
-    this.pan = {
-      x: this.clamp(this.pan?.x ?? this.maxPan.x / 2, 0, this.maxPan.x),
-      y: this.clamp(this.pan?.y ?? this.maxPan.y / 2, 0, this.maxPan.y)
+    this.#pan = {
+      x: this.clamp(this.#pan?.x ?? this.maxPan.x / 2, 0, this.maxPan.x),
+      y: this.clamp(this.#pan?.y ?? this.maxPan.y / 2, 0, this.maxPan.y)
     };
 
     this.updateSubject();
-    this.isRedrawNeeded = true;
+    this.#isRedrawNeeded = true;
   }
 
   /**
@@ -77,15 +84,15 @@ export class CanvasController {
    * @param y y-coordinate of point to keep stationary
    */
   zoomAtPoint(newZoom: number, x: number, y: number): void {
-    if (!this.pan) throw Error("Canvas not initialized");
+    if (!this.#pan) throw Error("Canvas not initialized");
 
-    const prevZoom = this.zoom;
-    this.zoom = this.clamp(newZoom, this.minZoom, 100);
-    const scale = this.zoom / prevZoom - 1;
-    this.shiftPan(scale * (this.pan.x + x), scale * (this.pan.y + y));
+    const prevZoom = this.#zoom;
+    this.#zoom = this.clamp(newZoom, this.minZoom, 100);
+    const scale = this.#zoom / prevZoom - 1;
+    this.shiftPan(scale * (this.#pan.x + x), scale * (this.#pan.y + y));
 
     this.updateSubject();
-    this.isRedrawNeeded = true;
+    this.#isRedrawNeeded = true;
   }
 
   /**
@@ -94,15 +101,15 @@ export class CanvasController {
    * @param deltaY
    */
   shiftPan(deltaX: number, deltaY: number): void {
-    if (!this.pan) throw Error("Canvas not initialized");
+    if (!this.#pan) throw Error("Canvas not initialized");
 
-    this.pan = {
-      x: this.clamp(this.pan?.x + deltaX, 0, this.maxPan.x),
-      y: this.clamp(this.pan?.y + deltaY, 0, this.maxPan.y)
+    this.#pan = {
+      x: this.clamp(this.#pan?.x + deltaX, 0, this.maxPan.x),
+      y: this.clamp(this.#pan?.y + deltaY, 0, this.maxPan.y)
     };
 
     this.updateSubject();
-    this.isRedrawNeeded = true;
+    this.#isRedrawNeeded = true;
   }
 
   /**
@@ -110,15 +117,15 @@ export class CanvasController {
    * @param theme
    */
   setColorTheme(theme: string): void {
-    this.isDarkMode = theme === "dark" ? true : false;
-    this.isRedrawNeeded = true;
+    this.#isDarkMode = theme === "dark" ? true : false;
+    this.#isRedrawNeeded = true;
   }
 
   /**
    * Clears any drawing on all canvases.
    */
   clearCanvases(): void {
-    [this.gridCtx, this.cellCtx].forEach(ctx => {
+    [this.#gridCtx, this.#cellCtx].forEach(ctx => {
       ctx.save();
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -143,13 +150,13 @@ export class CanvasController {
     preview: number[],
     didCellsChange: boolean
   ): void {
-    if (born && died && !this.isRedrawNeeded)
+    if (born && died && !this.#isRedrawNeeded)
       this.renderChangedCells(born, died);
-    else if (didCellsChange || this.isRedrawNeeded) {
+    else if (didCellsChange || this.#isRedrawNeeded) {
       this.clearCanvases();
       this.renderGrid();
       this.renderAllCells(alive, preview);
-      this.isRedrawNeeded = false;
+      this.#isRedrawNeeded = false;
     }
   }
 
@@ -157,46 +164,46 @@ export class CanvasController {
    * Redraws all grid lines based on the current zoom and panning properties.
    */
   private renderGrid(): void {
-    if (!this.pan) return;
+    if (!this.#pan) return;
 
-    const {width, height} = this.gridCtx.canvas;
+    const {width, height} = this.#gridCtx.canvas;
     const {row: startRow, col: startCol} = this.xyToRowColIndex(0, 0);
     const {row: endRow, col: endCol} = this.xyToRowColIndex(width, height);
 
-    const {x: panX, y: panY} = this.pan;
-    this.gridCtx.setTransform(this.zoom, 0, 0, this.zoom, -panX, -panY);
+    const {x: panX, y: panY} = this.#pan;
+    this.#gridCtx.setTransform(this.#zoom, 0, 0, this.#zoom, -panX, -panY);
 
-    if (this.zoom < 5) return;
+    if (this.#zoom < 5) return;
 
-    this.gridCtx.lineWidth = 0.025;
+    this.#gridCtx.lineWidth = 0.025;
 
-    this.gridCtx.strokeStyle = "lightgrey";
-    this.gridCtx.beginPath();
+    this.#gridCtx.strokeStyle = "lightgrey";
+    this.#gridCtx.beginPath();
     for (let col = startCol + 1; col <= endCol; col++) {
-      this.gridCtx.moveTo(col, startRow);
-      this.gridCtx.lineTo(col, endRow + 1);
+      this.#gridCtx.moveTo(col, startRow);
+      this.#gridCtx.lineTo(col, endRow + 1);
     }
     for (let row = startRow + 1; row <= endRow; row++) {
-      this.gridCtx.moveTo(startCol, row);
-      this.gridCtx.lineTo(endCol + 1, row);
+      this.#gridCtx.moveTo(startCol, row);
+      this.#gridCtx.lineTo(endCol + 1, row);
     }
-    this.gridCtx.stroke();
+    this.#gridCtx.stroke();
 
-    this.gridCtx.strokeStyle = this.isDarkMode ? "white" : "darkgray";
-    this.gridCtx.beginPath();
+    this.#gridCtx.strokeStyle = this.#isDarkMode ? "white" : "darkgray";
+    this.#gridCtx.beginPath();
     for (let col = startCol + 1; col <= endCol; col++) {
       if (col % 10 === 0) {
-        this.gridCtx.moveTo(col, startRow);
-        this.gridCtx.lineTo(col, endRow + 1);
+        this.#gridCtx.moveTo(col, startRow);
+        this.#gridCtx.lineTo(col, endRow + 1);
       }
     }
     for (let row = startRow + 1; row <= endRow; row++) {
       if (row % 10 === 0) {
-        this.gridCtx.moveTo(startCol, row);
-        this.gridCtx.lineTo(endCol + 1, row);
+        this.#gridCtx.moveTo(startCol, row);
+        this.#gridCtx.lineTo(endCol + 1, row);
       }
     }
-    this.gridCtx.stroke();
+    this.#gridCtx.stroke();
   }
 
   /**
@@ -206,25 +213,25 @@ export class CanvasController {
    * @param preview Indices of cells in pattern being previewed
    */
   private renderAllCells(alive: number[], preview: number[]): void {
-    if (!this.pan) return;
+    if (!this.#pan) return;
 
-    const {x: panX, y: panY} = this.pan;
-    this.cellCtx.setTransform(this.zoom, 0, 0, this.zoom, -panX, -panY);
+    const {x: panX, y: panY} = this.#pan;
+    this.#cellCtx.setTransform(this.#zoom, 0, 0, this.#zoom, -panX, -panY);
 
-    this.cellCtx.fillStyle = this.isDarkMode
+    this.#cellCtx.fillStyle = this.#isDarkMode
       ? "rgba(255, 255, 255, 1)"
       : "rgba(0, 0, 0, 1)";
     for (let i = 0; i < alive.length; ++i) {
       const {row, col} = this.indexToRowCol(alive[i]);
-      this.cellCtx.fillRect(col, row, 1, 1);
+      this.#cellCtx.fillRect(col, row, 1, 1);
     }
 
-    this.cellCtx.fillStyle = this.isDarkMode
+    this.#cellCtx.fillStyle = this.#isDarkMode
       ? "rgba(255, 255, 255, 0.5)"
       : "rgba(0, 0, 0, 0.5)";
     for (let i = 0; i < preview.length; ++i) {
       const {row, col} = this.indexToRowCol(preview[i]);
-      this.cellCtx.fillRect(col, row, 1, 1);
+      this.#cellCtx.fillRect(col, row, 1, 1);
     }
   }
 
@@ -234,18 +241,18 @@ export class CanvasController {
    * @param died Indices of all cells died this generation
    */
   private renderChangedCells(born: number[], died: number[]): void {
-    this.cellCtx.fillStyle = this.isDarkMode
+    this.#cellCtx.fillStyle = this.#isDarkMode
       ? "rgba(255, 255, 255, 1)"
       : "rgba(0, 0, 0, 1)";
 
     for (let i = 0; i < born.length; ++i) {
       const {row, col} = this.indexToRowCol(born[i]);
-      this.cellCtx.fillRect(col, row, 1, 1);
+      this.#cellCtx.fillRect(col, row, 1, 1);
     }
 
     for (let i = 0; i < died.length; ++i) {
       const {row, col} = this.indexToRowCol(died[i]);
-      this.cellCtx.clearRect(col, row, 1, 1);
+      this.#cellCtx.clearRect(col, row, 1, 1);
     }
   }
 
@@ -259,10 +266,10 @@ export class CanvasController {
       this.window.width / 2,
       this.window.height / 2
     );
-    this.subject.next({
-      zoom: this.zoom,
-      row: row - this.cellCount / 2,
-      col: col - this.cellCount / 2
+    this.#subject.next({
+      zoom: this.#zoom,
+      row: row - this.#cellCount / 2,
+      col: col - this.#cellCount / 2
     });
   }
 
@@ -270,7 +277,7 @@ export class CanvasController {
    * Converts an index from the game area to the equivilant row and column.
    */
   indexToRowCol(i: number): {row: number; col: number} {
-    return {row: Math.floor(i / this.cellCount), col: i % this.cellCount};
+    return {row: Math.floor(i / this.#cellCount), col: i % this.#cellCount};
   }
 
   /**
@@ -282,11 +289,11 @@ export class CanvasController {
     x: number,
     y: number
   ): {row: number; col: number; index: number} {
-    if (!this.pan) throw Error("Canvas not initialized");
+    if (!this.#pan) throw Error("Canvas not initialized");
 
-    const row = Math.floor((y + this.pan.y) / this.zoom);
-    const col = Math.floor((x + this.pan.x) / this.zoom);
-    const index = this.cellCount * row + col;
+    const row = Math.floor((y + this.#pan.y) / this.#zoom);
+    const col = Math.floor((x + this.#pan.x) / this.#zoom);
+    const index = this.#cellCount * row + col;
     return {row, col, index};
   }
 
