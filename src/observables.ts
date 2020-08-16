@@ -225,23 +225,22 @@ fromEvent<KeyboardEvent>(document, "keydown")
     )
   )
   .subscribe(key => {
-    if (canvasController?.view?.panX && canvasController?.view?.panY)
-      switch (key) {
-        case "ArrowUp":
-          canvasController.setView({panY: canvasController.view.panY - 2});
-          break;
-        case "ArrowDown":
-          canvasController.setView({panY: canvasController.view.panY + 2});
-          break;
-        case "ArrowLeft":
-          canvasController.setView({panX: canvasController.view.panX - 2});
-          break;
-        case "ArrowRight":
-          canvasController.setView({panX: canvasController.view.panX + 2});
-          break;
-        default:
-          break;
-      }
+    switch (key) {
+      case "ArrowUp":
+        canvasController?.shiftPan(0, -2);
+        break;
+      case "ArrowDown":
+        canvasController?.shiftPan(0, 2);
+        break;
+      case "ArrowLeft":
+        canvasController?.shiftPan(-2, 0);
+        break;
+      case "ArrowRight":
+        canvasController?.shiftPan(2, 0);
+        break;
+      default:
+        break;
+    }
   });
 
 /**
@@ -427,11 +426,7 @@ const canvasDragging$ = merge(
 );
 
 canvasDragging$.subscribe(({deltaX, deltaY}) => {
-  if (canvasController?.view?.panX && canvasController?.view?.panY)
-    canvasController.setView({
-      panX: Math.round(canvasController.view.panX + deltaX),
-      panY: Math.round(canvasController.view.panY + deltaY)
-    });
+  canvasController?.shiftPan(deltaX, deltaY);
   gameController?.clearPreview();
   document.body.style.cursor = "all-scroll";
 });
@@ -516,7 +511,7 @@ fromEvent<WheelEvent>(dom.cellCanvas, "mousewheel", {
     filter(arr => arr.length !== 0)
   )
   .subscribe((arr: WheelEvent[]) => {
-    const currentZoom = canvasController?.view?.zoom;
+    const currentZoom = canvasController?.zoom;
     if (!canvasController || !currentZoom) return;
 
     const zoomFactor = arr
@@ -555,9 +550,9 @@ fromEvent<TouchEvent>(dom.cellCanvas, "touchstart")
     })
   )
   .subscribe(({scale, centerX, centerY}) => {
-    if (canvasController?.view?.zoom)
+    if (canvasController?.zoom)
       canvasController.zoomAtPoint(
-        canvasController.view.zoom * scale,
+        canvasController.zoom * scale,
         Math.round(centerX),
         Math.round(centerY)
       );

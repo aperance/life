@@ -1,16 +1,5 @@
 import {ControllerSubject} from "./observables";
 
-export interface Window {
-  width: number;
-  height: number;
-}
-
-export interface View {
-  zoom?: number;
-  panX?: number;
-  panY?: number;
-}
-
 /**
  *
  */
@@ -20,8 +9,9 @@ export class CanvasController {
   cellCount: number;
   isDarkMode: boolean;
   subject: ControllerSubject;
-  window?: Window;
-  view: View = {};
+  window?: {width: number; height: number};
+  pan?: {x: number; y: number};
+  zoom = 10;
   isRedrawNeeded = true;
 
   constructor(
@@ -41,8 +31,8 @@ export class CanvasController {
   /**
    * The minimum zoom value where the game area is not smaller than the window.
    */
-  get minZoom(): number {
-    if (!this.window || !this.view) throw Error("Canvas not initialized");
+  private get minZoom(): number {
+    if (!this.window) throw Error("Canvas not initialized");
 
     return Math.ceil(
       Math.max(this.window.width, this.window.height) / this.cellCount
@@ -52,27 +42,27 @@ export class CanvasController {
   /**
    * The maximum pan value in the x direction that dosen't extend off the game area.
    */
-  get maxPanX(): number {
-    if (!this.window || !this.view?.zoom) throw Error("Canvas not initialized");
+  private get maxPanX(): number {
+    if (!this.window) throw Error("Canvas not initialized");
 
-    return this.cellCount * this.view.zoom - this.window.width;
+    return this.cellCount * this.zoom - this.window.width;
   }
 
   /**
    * The maximum pan value in the y direction that dosen't extend off the game area.
    */
-  get maxPanY(): number {
-    if (!this.window || !this.view?.zoom) throw Error("Canvas not initialized");
+  private get maxPanY(): number {
+    if (!this.window) throw Error("Canvas not initialized");
 
-    return this.cellCount * this.view.zoom - this.window.height;
+    return this.cellCount * this.zoom - this.window.height;
   }
 
   /**
    * The row and column on the game area at the current center of the window. Adjusted
    * so that the center of the game area is 0,0 (internally 0,0 is the top left corner).
    */
-  get centerRowCol(): {row: number; col: number} {
-    if (!this.window || !this.view) throw Error("Canvas not initialized");
+  private get centerRowCol(): {row: number; col: number} {
+    if (!this.window) throw Error("Canvas not initialized");
 
     const {row, col} = this.xyToRowColIndex(
       this.window.width / 2,
@@ -89,45 +79,20 @@ export class CanvasController {
    */
   setWindow(width: number, height: number): void {
     this.window = {width, height};
-    this.setView(null);
+    this.validateView();
   }
 
   /**
-   * Updates the zoom and panning properties with the provided object, and ensures the values are
-   * within acceptable bounds. If parameter is null, current zoom and panning properties are rechecked.
-   * @param newView Object containing updated zoom and pan parameters
+   *
    */
-  setView(newView: View | null): void {
-    if (!this.window) throw Error("Canvas not initialized");
+  shiftPan(deltaX: number, deltaY: number): void {
+    if (!this.pan) throw Error("Canvas not initialized");
 
-    // if (typeof this.view === "undefined") {
-    //   this.view = {};
-    //   this.view.zoom = 10;
-    //   this.view.panX = Math.round(this.maxPanX / 2);
-    //   this.view.panY = Math.round(this.maxPanY / 2);
-    // }
-
-    if (newView) this.view = {...this.view, ...newView};
-
-    this.view.zoom = this.clamp(this.view.zoom ?? 10, this.minZoom, 100);
-
-    this.view.panX = this.clamp(
-      this.view.panX ?? Math.round(this.maxPanX / 2),
-      0,
-      this.maxPanX
-    );
-
-    this.view.panY = this.clamp(
-      this.view.panY ?? Math.round(this.maxPanY / 2),
-      0,
-      this.maxPanY
-    );
-
-    this.isRedrawNeeded = true;
-
-    const {row, col} = this.centerRowCol;
-
-    this.subject.next({zoom: this.view.zoom, row, col});
+    this.pan = {
+      x: this.pan.x + deltaX,
+      y: this.pan.y + deltaY
+    };
+    this.validateView();
   }
 
   /**
@@ -138,15 +103,36 @@ export class CanvasController {
    * @param y y-coordinate of point to keep stationary
    */
   zoomAtPoint(zoom: number, x: number, y: number): void {
-    if (!this.view?.zoom || !this.view?.panX || !this.view?.panY)
-      throw Error("Canvas not initialized");
+    if (!this.pan) throw Error("Canvas not initialized");
 
-    const {zoom: oldZoom, panX: oldPanX, panY: oldPanY} = this.view;
     const newZoom = this.clamp(zoom, this.minZoom, 100);
-    const scale = newZoom / oldZoom - 1;
-    const newPanX = Math.round(oldPanX + scale * (oldPanX + x));
-    const newPanY = Math.round(oldPanY + scale * (oldPanY + y));
-    this.setView({zoom: newZoom, panX: newPanX, panY: newPanY});
+    const scale = newZoom / this.zoom - 1;
+    this.zoom = newZoom;
+    this.pan = {
+      x: this.pan.x + scale * (this.pan.x + x),
+      y: this.pan.y + scale * (this.pan.y + y)
+    };
+    this.validateView();
+  }
+
+  /**
+   * Updates the zoom and panning properties with the provided object, and ensures the values are
+   * within acceptable bounds. If parameter is null, current zoom and panning properties are rechecked.
+   */
+  validateView(): void {
+    if (!this.window) throw Error("Canvas not initialized");
+
+    this.zoom = this.clamp(this.zoom, this.minZoom, 100);
+
+    this.pan = {
+      x: this.clamp(this.pan?.x ?? this.maxPanX / 2, 0, this.maxPanX),
+      y: this.clamp(this.pan?.y ?? this.maxPanY / 2, 0, this.maxPanY)
+    };
+
+    const {row, col} = this.centerRowCol;
+    this.subject.next({zoom: this.zoom, row, col});
+
+    this.isRedrawNeeded = true;
   }
 
   setColorTheme(theme: string): void {
@@ -183,7 +169,7 @@ export class CanvasController {
     preview: number[],
     didCellsChange: boolean
   ): void {
-    if (!this.window) return;
+    if (!this.window || !this.pan) return;
 
     if (born && died && !this.isRedrawNeeded)
       this.renderChangedCells(born, died);
@@ -198,18 +184,17 @@ export class CanvasController {
   /**
    * Redraws all grid lines based on the current zoom and panning properties.
    */
-  renderGrid(): void {
-    if (!this.view?.zoom || !this.view?.panX || !this.view?.panY)
-      throw Error("Canvas not initialized");
+  private renderGrid(): void {
+    if (!this.pan) throw Error("Canvas not initialized");
 
     const {width, height} = this.gridCtx.canvas;
     const {row: startRow, col: startCol} = this.xyToRowColIndex(0, 0);
     const {row: endRow, col: endCol} = this.xyToRowColIndex(width, height);
 
-    const {zoom, panX, panY} = this.view;
-    this.gridCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
+    const {x: panX, y: panY} = this.pan;
+    this.gridCtx.setTransform(this.zoom, 0, 0, this.zoom, -panX, -panY);
 
-    if (zoom < 5) return;
+    if (this.zoom < 5) return;
 
     this.gridCtx.lineWidth = 0.025;
 
@@ -248,12 +233,11 @@ export class CanvasController {
    * @param alive Indices of all alive cells in game
    * @param preview Indices of cells in pattern being previewed
    */
-  renderAllCells(alive: number[], preview: number[]): void {
-    if (!this.view?.zoom || !this.view?.panX || !this.view?.panY)
-      throw Error("Canvas not initialized");
+  private renderAllCells(alive: number[], preview: number[]): void {
+    if (!this.pan) throw Error("Canvas not initialized");
 
-    const {zoom, panX, panY} = this.view;
-    this.cellCtx.setTransform(zoom, 0, 0, zoom, -panX, -panY);
+    const {x: panX, y: panY} = this.pan;
+    this.cellCtx.setTransform(this.zoom, 0, 0, this.zoom, -panX, -panY);
 
     this.cellCtx.fillStyle = this.isDarkMode
       ? "rgba(255, 255, 255, 1)"
@@ -277,7 +261,7 @@ export class CanvasController {
    * @param born Indices of all cells born this generation
    * @param died Indices of all cells died this generation
    */
-  renderChangedCells(born: number[], died: number[]): void {
+  private renderChangedCells(born: number[], died: number[]): void {
     this.cellCtx.fillStyle = this.isDarkMode
       ? "rgba(255, 255, 255, 1)"
       : "rgba(0, 0, 0, 1)";
@@ -309,22 +293,21 @@ export class CanvasController {
     x: number,
     y: number
   ): {row: number; col: number; index: number} {
-    if (!this.view?.zoom || !this.view?.panX || !this.view?.panY)
-      throw Error("Canvas not initialized");
+    if (!this.pan) throw Error("Canvas not initialized");
 
-    const row = Math.floor((y + this.view.panY) / this.view.zoom);
-    const col = Math.floor((x + this.view.panX) / this.view.zoom);
+    const row = Math.floor((y + this.pan.y) / this.zoom);
+    const col = Math.floor((x + this.pan.x) / this.zoom);
     const index = this.cellCount * row + col;
     return {row, col, index};
   }
 
   /**
-   * Restricts a value between a minimum and maximum.
+   * Restricts a value between a given range and rounds to whole number.
    * @param val Value to be clamped
    * @param min Minimum value to be returned
    * @param max Maximum value to be returned
    */
-  clamp(val: number, min: number, max: number): number {
-    return val > max ? max : val < min ? min : val;
+  private clamp(val: number, min: number, max: number): number {
+    return Math.round(val > max ? max : val < min ? min : val);
   }
 }
