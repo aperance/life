@@ -25,9 +25,13 @@ import {
   delay
 } from "rxjs/operators";
 
-import {gameController} from "./gameController";
+import {
+  initializeGame,
+  terminateGame,
+  canvasController,
+  gameController
+} from "./index";
 import * as patternLibrary from "./patternLibrary";
-import {initializeGame, terminateGame, canvasController} from "./index";
 
 /** Stores refrences to used DOM elements with type casting */
 const dom = {

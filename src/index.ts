@@ -3,17 +3,14 @@ import "materialize-css/sass/materialize.scss";
 import "./styles.scss";
 
 import {CanvasController} from "./canvasController";
-import {
-  gameController,
-  createGameController,
-  destroyGameController
-} from "./gameController";
+import {GameController} from "./gameController";
 import * as patternLibrary from "./patternLibrary";
 import {controllerSubject} from "./observables";
 
 const isWasm = true;
 
 export let canvasController: CanvasController | null = null;
+export let gameController: GameController | null = null;
 
 /**
  *  Get color theme from local storage. If not set use prefrence from client os.
@@ -66,17 +63,15 @@ export function initializeGame(): void {
     document.documentElement.dataset.theme,
     controllerSubject
   );
-  if (canvasController === null) throw Error("");
 
   /** Factory function for GameController object. */
-  createGameController(
+  gameController = new GameController(
     worker,
     canvasController,
     5000,
     isWasm,
     controllerSubject
   );
-  if (gameController === null) throw Error("");
 
   /** Ensure all UI elements are visible */
   document.body.hidden = false;
@@ -89,7 +84,8 @@ export function terminateGame(): void {
   /** Call methods necessary to stop game fumctionality. */
   canvasController?.clearCanvases();
   canvasController = null;
-  destroyGameController();
+  gameController?.terminate();
+  gameController = null;
 
   /** Clear selected pattern. */
   patternLibrary.setSelected(null);
