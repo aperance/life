@@ -1,13 +1,16 @@
 import {GameEngine} from "life-wasm";
 
-interface Result {
+export interface WorkerResult {
   born: number[];
   died: number[];
 }
 
-let generator: GameEngine | Generator<Result>;
+let generator: GameEngine | Generator<WorkerResult>;
 
-/** Workaround for TypeScript compiler error */
+/**
+ * Workaround for TypeScript compiler error
+ * @hidden
+ */
 const postMessage = (message: unknown) =>
   ((self as unknown) as Worker).postMessage(message);
 
@@ -39,13 +42,15 @@ onmessage = async (e: MessageEvent) => {
 /**
  *
  */
-function batchResults(count: number): {results: Result[]; duration: number} {
+function batchResults(
+  count: number
+): {results: WorkerResult[]; duration: number} {
   performance.mark("Batch Start");
 
-  const arr: Result[] = [];
+  const arr: WorkerResult[] = [];
 
   for (let i = 0; i < count; i++) {
-    const {born, died}: Result = generator.next().value;
+    const {born, died}: WorkerResult = generator.next().value;
     arr[i] = {born: [...born], died: [...died]};
   }
 
@@ -64,7 +69,10 @@ function batchResults(count: number): {results: Result[]; duration: number} {
 /**
  *
  */
-function* createGenerator(size: number, initial: number[]): Generator<Result> {
+function* createGenerator(
+  size: number,
+  initial: number[]
+): Generator<WorkerResult> {
   const alive = new Set(initial);
   let checkNextTime = new Set<number>();
   let cellsToCheck: IterableIterator<number>;

@@ -57,7 +57,7 @@ const dom = {
   modalCheckbox: document.getElementById("modal-checkbox") as HTMLInputElement
 };
 
-export interface ControllerState {
+interface ControllerState {
   zoom?: number;
   row?: number;
   col?: number;
@@ -70,7 +70,11 @@ export interface ControllerState {
   changedCount?: number;
 }
 
-export const controllerSubject = new Subject<ControllerState>();
+export type ControllerSubject = Subject<ControllerState>;
+
+export const controllerSubject: ControllerSubject = new Subject<
+  ControllerState
+>();
 export const controllerUpdate$: Observable<ControllerState> = controllerSubject
   .asObservable()
   .pipe(

@@ -1,14 +1,9 @@
-import {Subject} from "rxjs";
 import {CanvasController} from "./canvasController";
-import {ControllerState} from "./observables";
+import {ControllerSubject} from "./observables";
+import {WorkerResult} from "./worker";
 
 const batchSize = 25;
 const bufferSize = 50;
-
-interface WorkerResult {
-  born: Array<number>;
-  died: Array<number>;
-}
 
 /**
  * GameController is responsible for managing the game state. If not yet
@@ -26,7 +21,7 @@ export class GameController {
   /** If true worker will use wasm module to generate results.*/
   wasm: boolean;
   /** RxJS subject used to communicate state changes to UI. */
-  subject: Subject<ControllerState>;
+  subject: ControllerSubject;
   /** Set containing the indices of the currently alive cells. */
   aliveCells = new Set<number>();
   /** Set containing the indices of the pattern being previewed. */
@@ -58,7 +53,7 @@ export class GameController {
     canvasController: CanvasController,
     cellCount: number,
     wasm: boolean,
-    subject: Subject<ControllerState>
+    subject: ControllerSubject
   ) {
     this.worker = worker;
     this.canvasController = canvasController;

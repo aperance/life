@@ -1,9 +1,4 @@
-/**
- *
- */
-
-import {Subject} from "rxjs";
-import {ControllerState} from "./observables";
+import {ControllerSubject} from "./observables";
 
 export interface Window {
   width: number;
@@ -24,7 +19,7 @@ export class CanvasController {
   cellCtx: CanvasRenderingContext2D;
   cellCount: number;
   isDarkMode: boolean;
-  subject: Subject<ControllerState>;
+  subject: ControllerSubject;
   window?: Window;
   view: View = {};
   isRedrawNeeded = true;
@@ -34,7 +29,7 @@ export class CanvasController {
     cellCtx: CanvasRenderingContext2D,
     cellCount: number,
     initialTheme: string | undefined,
-    subject: Subject<ControllerState>
+    subject: ControllerSubject
   ) {
     this.gridCtx = gridCtx;
     this.cellCtx = cellCtx;
