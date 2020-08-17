@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>&quot;worker&quot; | Conway&#x27;s Game of Life</title>
-	<meta name="description" content="Documentation for Conway&#x27;s Game of Life">
+	<title>worker | Conway&#x27;s Game of Life</title>
+	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 </head>
@@ -13,7 +13,7 @@
 	<div class="tsd-page-toolbar">
 		<div class="container">
 			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
 					<div class="field">
 						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
 						<input id="tsd-search-field" type="text" />
@@ -21,6 +21,8 @@
 					<ul class="results">
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
+					</ul>
+					<ul class="results-priority" style="display:none">
 					</ul>
 					<a href="../index.html" class="title">Conway&#x27;s Game of Life</a>
 				</div>
@@ -53,27 +55,31 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="../globals.html">Globals</a>
-				</li>
-				<li>
-					<a href="_worker_.html">&quot;worker&quot;</a>
+					<a href="_worker_.html">worker</a>
 				</li>
 			</ul>
-			<h1>Module &quot;worker&quot;</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
-		<div class="col-8 col-content">
+		<div class="col-3 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation outline primary">
+				<a style="margin-left:0em" href="../globals.html">Globals</a>
+				<ul style="display:none">
+					{&quot;Modules&quot;:{&quot;index&quot;:&quot;_index_&quot;,&quot;canvasController&quot;:&quot;_canvasController_&quot;,&quot;gameController&quot;:&quot;_gameController_&quot;,&quot;worker&quot;:&quot;_worker_&quot;,&quot;patternLibrary&quot;:&quot;_patternLibrary_&quot;,&quot;observables&quot;:&quot;_observables_&quot;}}
+				</ul>
+			</nav>
+		</div>
+		<div class="col-7 offset-3 col-content">
+			<h1>Module worker</h1>
 			<section class="tsd-panel-group tsd-index-group">
-				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
 							<h3>Interfaces</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_worker_.workerresult.html" class="tsd-kind-icon">Worker<wbr>Result</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_worker_.workerresult.html" class="tsd-kind-icon">WorkerResult</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section tsd-is-not-exported">
@@ -86,9 +92,9 @@
 						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-not-exported"><a href="_worker_.html#batchresults" class="tsd-kind-icon">batch<wbr>Results</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_worker_.html#creategenerator" class="tsd-kind-icon">create<wbr>Generator</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-not-exported"><a href="_worker_.html#getneighbors" class="tsd-kind-icon">get<wbr>Neighbors</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-not-exported"><a href="_worker_.html#batchresults" class="tsd-kind-icon">batchResults</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_worker_.html#creategenerator" class="tsd-kind-icon">createGenerator</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-not-exported"><a href="_worker_.html#getneighbors" class="tsd-kind-icon">getNeighbors</a></li>
 							</ul>
 						</section>
 					</div>
@@ -99,10 +105,10 @@
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported">
 					<a name="config" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagLet">Let</span> config</h3>
-					<div class="tsd-signature tsd-kind-icon">config<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>isWasm<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>size<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></div>
+					<div class="tsd-signature tsd-kind-icon">config<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/worker.ts#L9">worker.ts:9</a></li>
+							<li>Defined in worker.ts:9</li>
 						</ul>
 					</aside>
 				</section>
@@ -112,7 +118,7 @@
 					<div class="tsd-signature tsd-kind-icon">generator<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">GameEngine</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Generator</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_worker_.workerresult.html" class="tsd-signature-type">WorkerResult</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/worker.ts#L8">worker.ts:8</a></li>
+							<li>Defined in worker.ts:8</li>
 						</ul>
 					</aside>
 				</section>
@@ -123,13 +129,13 @@
 					<a name="batchresults" class="tsd-anchor"></a>
 					<h3>batch<wbr>Results</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">batch<wbr>Results<span class="tsd-signature-symbol">(</span>count<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>duration<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>results<span class="tsd-signature-symbol">: </span><a href="../interfaces/_worker_.workerresult.html" class="tsd-signature-type">WorkerResult</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> }</span></li>
+						<li class="tsd-signature tsd-kind-icon">batch<wbr>Results<span class="tsd-signature-symbol">(</span>count<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/worker.ts#L58">worker.ts:58</a></li>
+									<li>Defined in worker.ts:58</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -138,7 +144,7 @@
 									<h5>count: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>duration<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>results<span class="tsd-signature-symbol">: </span><a href="../interfaces/_worker_.workerresult.html" class="tsd-signature-type">WorkerResult</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> }</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
 							<ul class="tsd-parameters">
 								<li class="tsd-parameter">
 									<h5>duration<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
@@ -160,7 +166,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/worker.ts#L85">worker.ts:85</a></li>
+									<li>Defined in worker.ts:85</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -186,7 +192,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/worker.ts#L150">worker.ts:150</a></li>
+									<li>Defined in worker.ts:150</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -203,51 +209,27 @@
 					</ul>
 				</section>
 			</section>
+			<!--{&quot;options&quot;:&quot;/Users/bill/Development/life&quot;,&quot;tsconfig&quot;:&quot;/Users/bill/Development/life&quot;,&quot;inputFiles&quot;:[&quot;/Users/bill/Development/life/src/canvasController.ts&quot;,&quot;/Users/bill/Development/life/src/gameController.ts&quot;,&quot;/Users/bill/Development/life/src/index.ts&quot;,&quot;/Users/bill/Development/life/src/observables.ts&quot;,&quot;/Users/bill/Development/life/src/patternLibrary.ts&quot;,&quot;/Users/bill/Development/life/src/worker.ts&quot;],&quot;mode&quot;:1,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:false,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;./node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;Conway&#x27;s Game of Life&quot;,&quot;includeVersion&quot;:false,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:false,&quot;toc&quot;:[],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[&quot;typedoc-neo-theme&quot;],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;outline&quot;:[{&quot;Modules&quot;:{&quot;index&quot;:&quot;_index_&quot;,&quot;canvasController&quot;:&quot;_canvasController_&quot;,&quot;gameController&quot;:&quot;_gameController_&quot;,&quot;worker&quot;:&quot;_worker_&quot;,&quot;patternLibrary&quot;:&quot;_patternLibrary_&quot;,&quot;observables&quot;:&quot;_observables_&quot;}}]}-->
 		</div>
-		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
-			<nav class="tsd-navigation primary">
-				<ul>
-					<li class="globals  ">
-						<a href="../globals.html"><em>Globals</em></a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="_canvascontroller_.html">&quot;canvas<wbr>Controller&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="_gamecontroller_.html">&quot;game<wbr>Controller&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="_index_.html">&quot;index&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="_observables_.html">&quot;observables&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="_patternlibrary_.html">&quot;pattern<wbr>Library&quot;</a>
-					</li>
-					<li class="current tsd-kind-module">
-						<a href="_worker_.html">&quot;worker&quot;</a>
-					</li>
-				</ul>
-			</nav>
+		<div class="col-2 col-menu secondary-menu">
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
+					<li class=" tsd-kind-interface tsd-parent-kind-module root">
 						<a href="../interfaces/_worker_.workerresult.html" class="tsd-kind-icon">Worker<wbr>Result</a>
 					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported">
+					<li class=" tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported root">
 						<a href="_worker_.html#config" class="tsd-kind-icon">config</a>
 					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported">
+					<li class=" tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported root">
 						<a href="_worker_.html#generator" class="tsd-kind-icon">generator</a>
 					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-not-exported root">
 						<a href="_worker_.html#batchresults" class="tsd-kind-icon">batch<wbr>Results</a>
 					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
+					<li class=" tsd-kind-function tsd-parent-kind-module root">
 						<a href="_worker_.html#creategenerator" class="tsd-kind-icon">create<wbr>Generator</a>
 					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-not-exported root">
 						<a href="_worker_.html#getneighbors" class="tsd-kind-icon">get<wbr>Neighbors</a>
 					</li>
 				</ul>
@@ -256,28 +238,12 @@
 	</div>
 </div>
 <footer class="with-border-bottom">
-	<div class="container">
-		<h2>Legend</h2>
-		<div class="tsd-legend-group">
-			<ul class="tsd-legend">
-				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
-				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
-				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
-				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
-			</ul>
-		</div>
-	</div>
 </footer>
 <div class="container tsd-generator">
-	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
 </div>
 <div class="overlay"></div>
 <script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
 </body>
 </html>

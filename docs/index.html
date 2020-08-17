@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>Conway&#x27;s Game of Life</title>
-	<meta name="description" content="Documentation for Conway&#x27;s Game of Life">
+	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
 </head>
@@ -13,7 +13,7 @@
 	<div class="tsd-page-toolbar">
 		<div class="container">
 			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
 					<div class="field">
 						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
 						<input id="tsd-search-field" type="text" />
@@ -21,6 +21,8 @@
 					<ul class="results">
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
+					</ul>
+					<ul class="results-priority" style="display:none">
 					</ul>
 					<a href="index.html" class="title">Conway&#x27;s Game of Life</a>
 				</div>
@@ -52,17 +54,22 @@
 	<div class="tsd-page-title">
 		<div class="container">
 			<ul class="tsd-breadcrumb">
-				<li>
-					<a href="globals.html">Globals</a>
-				</li>
 			</ul>
-			<h1>Conway&#x27;s Game of Life</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
-		<div class="col-8 col-content">
+		<div class="col-3 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation outline primary">
+				<a style="margin-left:0em" href="globals.html">Globals</a>
+				<ul style="display:none">
+					{&quot;Modules&quot;:{&quot;index&quot;:&quot;_index_&quot;,&quot;canvasController&quot;:&quot;_canvasController_&quot;,&quot;gameController&quot;:&quot;_gameController_&quot;,&quot;worker&quot;:&quot;_worker_&quot;,&quot;patternLibrary&quot;:&quot;_patternLibrary_&quot;,&quot;observables&quot;:&quot;_observables_&quot;}}
+				</ul>
+			</nav>
+		</div>
+		<div class="col-7 offset-3 col-content">
+			<h1>Conway&#x27;s Game of Life</h1>
 			<div class="tsd-panel tsd-typography">
 				<a href="#conway39s-game-of-life" id="conway39s-game-of-life" style="color: inherit; text-decoration: none;">
 					<h1>Conway&#39;s Game of Life</h1>
@@ -74,33 +81,9 @@
 				<p>RxJS is used to manage mouse and keyboard events by the user.</p>
 				<p>A live version is available at <a href="http://life.aperance.dev">http://life.aperance.dev</a>.</p>
 			</div>
+			<!--{&quot;options&quot;:&quot;/Users/bill/Development/life&quot;,&quot;tsconfig&quot;:&quot;/Users/bill/Development/life&quot;,&quot;inputFiles&quot;:[&quot;/Users/bill/Development/life/src/canvasController.ts&quot;,&quot;/Users/bill/Development/life/src/gameController.ts&quot;,&quot;/Users/bill/Development/life/src/index.ts&quot;,&quot;/Users/bill/Development/life/src/observables.ts&quot;,&quot;/Users/bill/Development/life/src/patternLibrary.ts&quot;,&quot;/Users/bill/Development/life/src/worker.ts&quot;],&quot;mode&quot;:1,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:false,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;./node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;Conway&#x27;s Game of Life&quot;,&quot;includeVersion&quot;:false,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:false,&quot;toc&quot;:[],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[&quot;typedoc-neo-theme&quot;],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;outline&quot;:[{&quot;Modules&quot;:{&quot;index&quot;:&quot;_index_&quot;,&quot;canvasController&quot;:&quot;_canvasController_&quot;,&quot;gameController&quot;:&quot;_gameController_&quot;,&quot;worker&quot;:&quot;_worker_&quot;,&quot;patternLibrary&quot;:&quot;_patternLibrary_&quot;,&quot;observables&quot;:&quot;_observables_&quot;}}]}-->
 		</div>
-		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
-			<nav class="tsd-navigation primary">
-				<ul>
-					<li class="globals  ">
-						<a href="globals.html"><em>Globals</em></a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/_canvascontroller_.html">&quot;canvas<wbr>Controller&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/_gamecontroller_.html">&quot;game<wbr>Controller&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/_index_.html">&quot;index&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/_observables_.html">&quot;observables&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/_patternlibrary_.html">&quot;pattern<wbr>Library&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/_worker_.html">&quot;worker&quot;</a>
-					</li>
-				</ul>
-			</nav>
+		<div class="col-2 col-menu secondary-menu">
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 				</ul>
@@ -109,28 +92,12 @@
 	</div>
 </div>
 <footer class="with-border-bottom">
-	<div class="container">
-		<h2>Legend</h2>
-		<div class="tsd-legend-group">
-			<ul class="tsd-legend">
-				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
-				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
-				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
-				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
-			</ul>
-		</div>
-	</div>
 </footer>
 <div class="container tsd-generator">
-	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
 </div>
 <div class="overlay"></div>
 <script src="assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
 </body>
 </html>

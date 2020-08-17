@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>GameController | Conway&#x27;s Game of Life</title>
-	<meta name="description" content="Documentation for Conway&#x27;s Game of Life">
+	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 </head>
@@ -13,7 +13,7 @@
 	<div class="tsd-page-toolbar">
 		<div class="container">
 			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
 					<div class="field">
 						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
 						<input id="tsd-search-field" type="text" />
@@ -21,6 +21,8 @@
 					<ul class="results">
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
+					</ul>
+					<ul class="results-priority" style="display:none">
 					</ul>
 					<a href="../index.html" class="title">Conway&#x27;s Game of Life</a>
 				</div>
@@ -53,32 +55,35 @@
 		<div class="container">
 			<ul class="tsd-breadcrumb">
 				<li>
-					<a href="../globals.html">Globals</a>
-				</li>
-				<li>
-					<a href="../modules/_gamecontroller_.html">&quot;gameController&quot;</a>
+					<a href="../modules/_gamecontroller_.html">gameController</a>
 				</li>
 				<li>
 					<a href="_gamecontroller_.gamecontroller.html">GameController</a>
 				</li>
 			</ul>
-			<h1>Class GameController</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
-		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-comment">
-				<div class="tsd-comment tsd-typography">
+		<div class="col-3 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation outline primary">
+				<a style="margin-left:0em" href="../globals.html">Globals</a>
+				<ul style="display:none">
+					{&quot;Modules&quot;:{&quot;index&quot;:&quot;_index_&quot;,&quot;canvasController&quot;:&quot;_canvasController_&quot;,&quot;gameController&quot;:&quot;_gameController_&quot;,&quot;worker&quot;:&quot;_worker_&quot;,&quot;patternLibrary&quot;:&quot;_patternLibrary_&quot;,&quot;observables&quot;:&quot;_observables_&quot;}}
+				</ul>
+			</nav>
+		</div>
+		<div class="col-7 offset-3 col-content">
+			<h1>Class GameController</h1>
+			<section class="tsd-panel tsd-comment"><div class="tsd-comment tsd-typography tsd-comment-shorttext">
 					<div class="lead">
 						<p>GameController is responsible for managing the game state. If not yet
 							started, the game state is updated based on user actions. If started, the
 							game state is updated based on results calculated by the web worker. The
 						game state is then passed to the ViewController to be displayed to the user.</p>
 					</div>
-				</div>
-			</section>
+			</div></section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
@@ -88,7 +93,6 @@
 				</ul>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
-				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
@@ -100,41 +104,41 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_alivecells" class="tsd-kind-icon">#alive<wbr>Cells</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_alivepreview" class="tsd-kind-icon">#alive<wbr>Preview</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_canvascontroller" class="tsd-kind-icon">#canvas<wbr>Controller</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_didcellschange" class="tsd-kind-icon">#did<wbr>Cells<wbr>Change</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_alivecells" class="tsd-kind-icon">#aliveCells</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_alivepreview" class="tsd-kind-icon">#alivePreview</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_canvascontroller" class="tsd-kind-icon">#canvasController</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_didcellschange" class="tsd-kind-icon">#didCellsChange</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_generation" class="tsd-kind-icon">#generation</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_haltanimationcycle" class="tsd-kind-icon">#halt<wbr>Animation<wbr>Cycle</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_resultbuffer" class="tsd-kind-icon">#result<wbr>Buffer</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_resultsrequestedat" class="tsd-kind-icon">#results<wbr>Requested<wbr>At</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_haltanimationcycle" class="tsd-kind-icon">#haltAnimationCycle</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_resultbuffer" class="tsd-kind-icon">#resultBuffer</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_resultsrequestedat" class="tsd-kind-icon">#resultsRequestedAt</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_subject" class="tsd-kind-icon">#subject</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#_worker" class="tsd-kind-icon">#worker</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#isgamepaused" class="tsd-kind-icon">is<wbr>Game<wbr>Paused</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#isgamestarted" class="tsd-kind-icon">is<wbr>Game<wbr>Started</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#isgamepaused" class="tsd-kind-icon">isGamePaused</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#isgamestarted" class="tsd-kind-icon">isGameStarted</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#speed" class="tsd-kind-icon">speed</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
 							<h3>Accessors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#nextresult" class="tsd-kind-icon">next<wbr>Result</a></li>
+								<li class="tsd-kind-get-signature tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#nextresult" class="tsd-kind-icon">nextResult</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#animationcycle" class="tsd-kind-icon">animation<wbr>Cycle</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#clearalivecells" class="tsd-kind-icon">clear<wbr>Alive<wbr>Cells</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#clearpreview" class="tsd-kind-icon">clear<wbr>Preview</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#handleworkermessage" class="tsd-kind-icon">handle<wbr>Worker<wbr>Message</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#iterateoverpattern" class="tsd-kind-icon">iterate<wbr>Over<wbr>Pattern</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#animationcycle" class="tsd-kind-icon">animationCycle</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#clearalivecells" class="tsd-kind-icon">clearAliveCells</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#clearpreview" class="tsd-kind-icon">clearPreview</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#handleworkermessage" class="tsd-kind-icon">handleWorkerMessage</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_gamecontroller_.gamecontroller.html#iterateoverpattern" class="tsd-kind-icon">iterateOverPattern</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#pause" class="tsd-kind-icon">pause</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#placepattern" class="tsd-kind-icon">place<wbr>Pattern</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#placepreview" class="tsd-kind-icon">place<wbr>Preview</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#placepattern" class="tsd-kind-icon">placePattern</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#placepreview" class="tsd-kind-icon">placePreview</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#play" class="tsd-kind-icon">play</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#terminate" class="tsd-kind-icon">terminate</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#togglecell" class="tsd-kind-icon">toggle<wbr>Cell</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_gamecontroller_.gamecontroller.html#togglecell" class="tsd-kind-icon">toggleCell</a></li>
 							</ul>
 						</section>
 					</div>
@@ -152,7 +156,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L45">gameController.ts:45</a></li>
+									<li>Defined in gameController.ts:45</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -180,10 +184,10 @@
 					<div class="tsd-signature tsd-kind-icon">#alive<wbr>Cells<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Set</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new Set&lt;number&gt;()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L22">gameController.ts:22</a></li>
+							<li>Defined in gameController.ts:22</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>Set containing the indices of the currently alive cells.</p>
 						</div>
@@ -195,10 +199,10 @@
 					<div class="tsd-signature tsd-kind-icon">#alive<wbr>Preview<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Set</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new Set&lt;number&gt;()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L24">gameController.ts:24</a></li>
+							<li>Defined in gameController.ts:24</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>Set containing the indices of the pattern being previewed.</p>
 						</div>
@@ -210,10 +214,10 @@
 					<div class="tsd-signature tsd-kind-icon">#canvas<wbr>Controller<span class="tsd-signature-symbol">:</span> <a href="_canvascontroller_.canvascontroller.html" class="tsd-signature-type">CanvasController</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L18">gameController.ts:18</a></li>
+							<li>Defined in gameController.ts:18</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>Reference to initialized CanvasController object.</p>
 						</div>
@@ -225,10 +229,10 @@
 					<div class="tsd-signature tsd-kind-icon">#did<wbr>Cells<wbr>Change<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L30">gameController.ts:30</a></li>
+							<li>Defined in gameController.ts:30</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>True if aliveCells was modified since last animation cycle.</p>
 						</div>
@@ -240,10 +244,10 @@
 					<div class="tsd-signature tsd-kind-icon">#generation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L39">gameController.ts:39</a></li>
+							<li>Defined in gameController.ts:39</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>The generation number of the results currently being displayed.</p>
 						</div>
@@ -255,10 +259,10 @@
 					<div class="tsd-signature tsd-kind-icon">#halt<wbr>Animation<wbr>Cycle<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L41">gameController.ts:41</a></li>
+							<li>Defined in gameController.ts:41</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>True if the recursive animationCycle calls should be stopped.</p>
 						</div>
@@ -270,10 +274,10 @@
 					<div class="tsd-signature tsd-kind-icon">#result<wbr>Buffer<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_worker_.workerresult.html" class="tsd-signature-type">WorkerResult</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L26">gameController.ts:26</a></li>
+							<li>Defined in gameController.ts:26</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>Array storing results generated by the worker.</p>
 						</div>
@@ -285,10 +289,10 @@
 					<div class="tsd-signature tsd-kind-icon">#results<wbr>Requested<wbr>At<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> = null</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L28">gameController.ts:28</a></li>
+							<li>Defined in gameController.ts:28</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>Timestamp of pending request sent to worker for game results. Null if no request is pending.</p>
 						</div>
@@ -300,10 +304,10 @@
 					<div class="tsd-signature tsd-kind-icon">#subject<span class="tsd-signature-symbol">:</span> <a href="../modules/_observables_.html#controllersubject" class="tsd-signature-type">ControllerSubject</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L20">gameController.ts:20</a></li>
+							<li>Defined in gameController.ts:20</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>RxJS subject used to communicate state changes to UI.</p>
 						</div>
@@ -315,10 +319,10 @@
 					<div class="tsd-signature tsd-kind-icon">#worker<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Worker</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L16">gameController.ts:16</a></li>
+							<li>Defined in gameController.ts:16</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>Reference to initialized web worker.</p>
 						</div>
@@ -330,10 +334,10 @@
 					<div class="tsd-signature tsd-kind-icon">is<wbr>Game<wbr>Paused<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L45">gameController.ts:45</a></li>
+							<li>Defined in gameController.ts:45</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>True if game has started but results are paused.</p>
 						</div>
@@ -345,10 +349,10 @@
 					<div class="tsd-signature tsd-kind-icon">is<wbr>Game<wbr>Started<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L43">gameController.ts:43</a></li>
+							<li>Defined in gameController.ts:43</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>True if game results have started being generated by worker.</p>
 						</div>
@@ -357,13 +361,13 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="speed" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> speed</h3>
-					<div class="tsd-signature tsd-kind-icon">speed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>currentCycle<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>cyclesPerRender<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>set<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></div>
+					<div class="tsd-signature tsd-kind-icon">speed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L32">gameController.ts:32</a></li>
+							<li>Defined in gameController.ts:32</li>
 						</ul>
 					</aside>
-					<div class="tsd-comment tsd-typography">
+					<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 						<div class="lead">
 							<p>Number of cycles to elapse before rendering next result, and current cycle count.</p>
 						</div>
@@ -389,7 +393,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L36">gameController.ts:36</a></li>
+												<li>Defined in gameController.ts:36</li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -400,8 +404,7 @@
 										</ul>
 										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 									</li>
-								</ul>
-							</li>
+							</ul>        </li>
 						</ul>
 					</div>
 				</section>
@@ -418,16 +421,19 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L76">gameController.ts:76</a></li>
+									<li>Defined in gameController.ts:76</li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
+							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 								<div class="lead">
 									<p>The next game results to be rendered. Includes arrays of cells born and
 									died since previous generation.</p>
 								</div>
 							</div>
-							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_worker_.workerresult.html" class="tsd-signature-type">WorkerResult</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_worker_.workerresult.html" class="tsd-signature-type">WorkerResult</a>
+								<span class="tsd-signature-symbol"> | </span>
+								<span class="tsd-signature-type">null</span>
+							</h4>
 						</li>
 					</ul>
 				</section>
@@ -444,10 +450,10 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L222">gameController.ts:222</a></li>
+									<li>Defined in gameController.ts:222</li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
+							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 								<div class="lead">
 									<p>Gets next game results and passes game state to viewController render
 									method. Called 60 times per second using requestAnimationFrame timer.</p>
@@ -467,10 +473,10 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L174">gameController.ts:174</a></li>
+									<li>Defined in gameController.ts:174</li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
+							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 								<div class="lead">
 									<p>Removes all alive cells and forces canvas redraw.</p>
 								</div>
@@ -489,10 +495,10 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L182">gameController.ts:182</a></li>
+									<li>Defined in gameController.ts:182</li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
+							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 								<div class="lead">
 									<p>Removes all preview cells and forces canvas redraw.</p>
 								</div>
@@ -511,10 +517,10 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L272">gameController.ts:272</a></li>
+									<li>Defined in gameController.ts:272</li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
+							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 								<div class="lead">
 									<p>Parses messages received from worker. Moves received game results to results buffer.</p>
 								</div>
@@ -533,16 +539,16 @@
 					<a name="iterateoverpattern" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> iterate<wbr>Over<wbr>Pattern</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">iterate<wbr>Over<wbr>Pattern<span class="tsd-signature-symbol">(</span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, pattern<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span>, fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, isAlive<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">iterate<wbr>Over<wbr>Pattern<span class="tsd-signature-symbol">(</span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, pattern<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span>, fn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L147">gameController.ts:147</a></li>
+									<li>Defined in gameController.ts:147</li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
+							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 								<div class="lead">
 									<p>Iterates over 2D array of selected pattern and performs function on each cell.</p>
 								</div>
@@ -551,29 +557,29 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>x: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
+									<div class="tsd-comment tsd-typography tsd-comment-text">
 										<p>x coordinate of where pattern should be placed</p>
 									</div>
 								</li>
 								<li>
 									<h5>y: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
+									<div class="tsd-comment tsd-typography tsd-comment-text">
 										<p>y coordinate of where pattern should be placed</p>
 									</div>
 								</li>
 								<li>
 									<h5>pattern: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span></h5>
-									<div class="tsd-comment tsd-typography">
+									<div class="tsd-comment tsd-typography tsd-comment-text">
 										<p>2D array representing the selected pattern</p>
 									</div>
 								</li>
 								<li>
-									<h5>fn: <span class="tsd-signature-symbol">(</span>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, isAlive<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
-									<div class="tsd-comment tsd-typography">
+									<h5>fn: <span class="tsd-signature-type">function</span></h5>
+									<div class="tsd-comment tsd-typography tsd-comment-text">
 										<p>function to be called for each cell</p>
 									</div>
 									<ul class="tsd-parameters">
-										<li class="tsd-parameter-signature">
+										<li class="tsd-parameter-siganture">
 											<ul class="tsd-signatures tsd-kind-type-literal">
 												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, isAlive<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 											</ul>
@@ -609,10 +615,10 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L207">gameController.ts:207</a></li>
+									<li>Defined in gameController.ts:207</li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
+							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 								<div class="lead">
 									<p>Sets flag to pause game at current generation.</p>
 								</div>
@@ -631,10 +637,10 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L114">gameController.ts:114</a></li>
+									<li>Defined in gameController.ts:114</li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
+							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 								<div class="lead">
 									<p>Takes the selected pattern in the pattern library and adds it to
 									aliveCells at the specified window coordinates.</p>
@@ -644,19 +650,19 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>x: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
+									<div class="tsd-comment tsd-typography tsd-comment-text">
 										<p>x coordinate of where pattern should be placed</p>
 									</div>
 								</li>
 								<li>
 									<h5>y: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
+									<div class="tsd-comment tsd-typography tsd-comment-text">
 										<p>y coordinate of where pattern should be placed</p>
 									</div>
 								</li>
 								<li>
 									<h5>pattern: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span></h5>
-									<div class="tsd-comment tsd-typography">
+									<div class="tsd-comment tsd-typography tsd-comment-text">
 										<p>2D array representing the selected pattern</p>
 									</div>
 								</li>
@@ -675,10 +681,10 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L130">gameController.ts:130</a></li>
+									<li>Defined in gameController.ts:130</li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
+							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 								<div class="lead">
 									<p>Takes the selected pattern in the pattern library and adds it to
 									alivePreview at the specified window coordinates.</p>
@@ -688,19 +694,19 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>x: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
+									<div class="tsd-comment tsd-typography tsd-comment-text">
 										<p>x coordinate of where pattern should be placed</p>
 									</div>
 								</li>
 								<li>
 									<h5>y: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
+									<div class="tsd-comment tsd-typography tsd-comment-text">
 										<p>y coordinate of where pattern should be placed</p>
 									</div>
 								</li>
 								<li>
 									<h5>pattern: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span></h5>
-									<div class="tsd-comment tsd-typography">
+									<div class="tsd-comment tsd-typography tsd-comment-text">
 										<p>2D array representing the selected pattern</p>
 									</div>
 								</li>
@@ -719,10 +725,10 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L190">gameController.ts:190</a></li>
+									<li>Defined in gameController.ts:190</li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
+							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 								<div class="lead">
 									<p>Sends message to worker to start generating game results.</p>
 								</div>
@@ -741,10 +747,10 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L214">gameController.ts:214</a></li>
+									<li>Defined in gameController.ts:214</li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
+							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 								<div class="lead">
 									<p>Terminates recursive animationCycle calls to prepare for object deletion.</p>
 								</div>
@@ -763,10 +769,10 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/gameController.ts#L96">gameController.ts:96</a></li>
+									<li>Defined in gameController.ts:96</li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
+							<div class="tsd-comment tsd-typography tsd-comment-shorttext">
 								<div class="lead">
 									<p>Toggles the state of the cell at the specified window coordinates.</p>
 								</div>
@@ -775,13 +781,13 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>x: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
+									<div class="tsd-comment tsd-typography tsd-comment-text">
 										<p>x coordinate of the cell to be toggled</p>
 									</div>
 								</li>
 								<li>
 									<h5>y: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
+									<div class="tsd-comment tsd-typography tsd-comment-text">
 										<p>y coordinate of the cell to be toggled</p>
 									</div>
 								</li>
@@ -791,38 +797,14 @@
 					</ul>
 				</section>
 			</section>
+			<!--{&quot;options&quot;:&quot;/Users/bill/Development/life&quot;,&quot;tsconfig&quot;:&quot;/Users/bill/Development/life&quot;,&quot;inputFiles&quot;:[&quot;/Users/bill/Development/life/src/canvasController.ts&quot;,&quot;/Users/bill/Development/life/src/gameController.ts&quot;,&quot;/Users/bill/Development/life/src/index.ts&quot;,&quot;/Users/bill/Development/life/src/observables.ts&quot;,&quot;/Users/bill/Development/life/src/patternLibrary.ts&quot;,&quot;/Users/bill/Development/life/src/worker.ts&quot;],&quot;mode&quot;:1,&quot;includeDeclarations&quot;:false,&quot;entryPoint&quot;:&quot;&quot;,&quot;exclude&quot;:[],&quot;externalPattern&quot;:[],&quot;excludeExternals&quot;:false,&quot;excludeNotExported&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludePrivate&quot;:false,&quot;excludeProtected&quot;:false,&quot;ignoreCompilerErrors&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;./node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;Conway&#x27;s Game of Life&quot;,&quot;includeVersion&quot;:false,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:false,&quot;toc&quot;:[],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;plugin&quot;:[&quot;typedoc-neo-theme&quot;],&quot;logger&quot;:&quot;console&quot;,&quot;listInvalidSymbolLinks&quot;:false,&quot;outline&quot;:[{&quot;Modules&quot;:{&quot;index&quot;:&quot;_index_&quot;,&quot;canvasController&quot;:&quot;_canvasController_&quot;,&quot;gameController&quot;:&quot;_gameController_&quot;,&quot;worker&quot;:&quot;_worker_&quot;,&quot;patternLibrary&quot;:&quot;_patternLibrary_&quot;,&quot;observables&quot;:&quot;_observables_&quot;}}]}-->
 		</div>
-		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
-			<nav class="tsd-navigation primary">
-				<ul>
-					<li class="globals  ">
-						<a href="../globals.html"><em>Globals</em></a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/_canvascontroller_.html">&quot;canvas<wbr>Controller&quot;</a>
-					</li>
-					<li class="current tsd-kind-module">
-						<a href="../modules/_gamecontroller_.html">&quot;game<wbr>Controller&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/_index_.html">&quot;index&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/_observables_.html">&quot;observables&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/_patternlibrary_.html">&quot;pattern<wbr>Library&quot;</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/_worker_.html">&quot;worker&quot;</a>
-					</li>
-				</ul>
-			</nav>
+		<div class="col-2 col-menu secondary-menu">
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-class tsd-parent-kind-module">
+					<li class="current tsd-kind-class tsd-parent-kind-module root">
 						<a href="_gamecontroller_.gamecontroller.html" class="tsd-kind-icon">Game<wbr>Controller</a>
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
@@ -907,10 +889,10 @@
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported">
+					<li class=" tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported root">
 						<a href="../modules/_gamecontroller_.html#batchsize" class="tsd-kind-icon">batch<wbr>Size</a>
 					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported">
+					<li class=" tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported root">
 						<a href="../modules/_gamecontroller_.html#buffersize" class="tsd-kind-icon">buffer<wbr>Size</a>
 					</li>
 				</ul>
@@ -919,35 +901,12 @@
 	</div>
 </div>
 <footer class="with-border-bottom">
-	<div class="container">
-		<h2>Legend</h2>
-		<div class="tsd-legend-group">
-			<ul class="tsd-legend">
-				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
-				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
-				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
-				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
-				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
-			</ul>
-			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
-			</ul>
-		</div>
-	</div>
 </footer>
 <div class="container tsd-generator">
-	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
 </div>
 <div class="overlay"></div>
 <script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
 </body>
 </html>

@@ -68,6 +68,20 @@
   "typedocOptions": {
     "name": "Conway's Game of Life",
     "mode": "modules",
-    "out": "docs"
+    "out": "docs",
+    "theme": "./node_modules/typedoc-neo-theme/bin/default",
+    "plugin": ["typedoc-neo-theme"],
+    "outline": [
+      {
+        "Modules": {
+          "index": "_index_",
+          "canvasController": "_canvasController_",
+          "gameController": "_gameController_",
+          "worker": "_worker_",
+          "patternLibrary": "_patternLibrary_",
+          "observables": "_observables_"
+        }
+      }
+    ]
   }
 }
