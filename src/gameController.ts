@@ -16,8 +16,6 @@ export class GameController {
   readonly #worker: Worker;
   /** Reference to initialized CanvasController object. */
   readonly #canvasController: CanvasController;
-  /** Number of cells in each dimension of the game universe. */
-  readonly #cellCount: number;
   /** RxJS subject used to communicate state changes to UI. */
   readonly #subject: ControllerSubject;
   /** Set containing the indices of the currently alive cells. */
@@ -49,12 +47,10 @@ export class GameController {
   constructor(
     worker: Worker,
     canvasController: CanvasController,
-    cellCount: number,
     subject: ControllerSubject
   ) {
     this.#worker = worker;
     this.#canvasController = canvasController;
-    this.#cellCount = cellCount;
     this.#subject = subject;
     this.speed = {
       id: 3,
@@ -160,7 +156,8 @@ export class GameController {
     pattern.forEach((rowData, relativeRow) => {
       rowData.forEach((cellState, relativeCol) => {
         const index =
-          this.#cellCount * (startRow + relativeRow) + (startCol + relativeCol);
+          this.#canvasController.cellCount * (startRow + relativeRow) +
+          (startCol + relativeCol);
         const isAlive = cellState === 1 ? true : false;
 
         fn(index, isAlive);

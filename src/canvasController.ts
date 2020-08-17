@@ -4,13 +4,21 @@ import {ControllerSubject} from "./observables";
  *
  */
 export class CanvasController {
+  /** */
   readonly #gridCtx: CanvasRenderingContext2D;
+  /** */
   readonly #cellCtx: CanvasRenderingContext2D;
-  readonly #cellCount: number;
+  /** */
+  readonly cellCount: number;
+  /** */
   readonly #subject: ControllerSubject;
+  /** */
   #isDarkMode: boolean;
+  /** */
   #pan?: {x: number; y: number};
+  /** */
   #zoom = 10;
+  /** */
   #isRedrawNeeded = true;
 
   constructor(
@@ -22,7 +30,7 @@ export class CanvasController {
   ) {
     this.#gridCtx = gridCtx;
     this.#cellCtx = cellCtx;
-    this.#cellCount = cellCount;
+    this.cellCount = cellCount;
     this.#isDarkMode = initialTheme === "dark";
     this.#subject = subject;
   }
@@ -40,7 +48,7 @@ export class CanvasController {
    */
   private get minZoom(): number {
     return Math.ceil(
-      Math.max(this.window.width, this.window.height) / this.#cellCount
+      Math.max(this.window.width, this.window.height) / this.cellCount
     );
   }
 
@@ -49,8 +57,8 @@ export class CanvasController {
    */
   private get maxPan(): {x: number; y: number} {
     return {
-      x: this.#cellCount * this.#zoom - this.window.width,
-      y: this.#cellCount * this.#zoom - this.window.height
+      x: this.cellCount * this.#zoom - this.window.width,
+      y: this.cellCount * this.#zoom - this.window.height
     };
   }
 
@@ -268,8 +276,8 @@ export class CanvasController {
     );
     this.#subject.next({
       zoom: this.#zoom,
-      row: row - this.#cellCount / 2,
-      col: col - this.#cellCount / 2
+      row: row - this.cellCount / 2,
+      col: col - this.cellCount / 2
     });
   }
 
@@ -277,7 +285,7 @@ export class CanvasController {
    * Converts an index from the game area to the equivilant row and column.
    */
   indexToRowCol(i: number): {row: number; col: number} {
-    return {row: Math.floor(i / this.#cellCount), col: i % this.#cellCount};
+    return {row: Math.floor(i / this.cellCount), col: i % this.cellCount};
   }
 
   /**
@@ -293,7 +301,7 @@ export class CanvasController {
 
     const row = Math.floor((y + this.#pan.y) / this.#zoom);
     const col = Math.floor((x + this.#pan.x) / this.#zoom);
-    const index = this.#cellCount * row + col;
+    const index = this.cellCount * row + col;
     return {row, col, index};
   }
 

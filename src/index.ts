@@ -71,7 +71,6 @@ export function initializeGame(): void {
   gameController = new GameController(
     worker,
     canvasController,
-    5000,
     controllerSubject
   );
 
