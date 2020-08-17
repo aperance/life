@@ -71,113 +71,12 @@
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Interfaces</h3>
+							<h3>Classes</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/_canvascontroller_.canvascontroller.html" class="tsd-kind-icon">Canvas<wbr>Controller</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
-							<h3>Variables</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="_canvascontroller_.html#canvascontroller-1" class="tsd-kind-icon">canvas<wbr>Controller</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
-							<h3>Functions</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_canvascontroller_.html#createcanvascontroller" class="tsd-kind-icon">create<wbr>Canvas<wbr>Controller</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_canvascontroller_.html#destroycanvascontroller" class="tsd-kind-icon">destroy<wbr>Canvas<wbr>Controller</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_canvascontroller_.canvascontroller.html" class="tsd-kind-icon">Canvas<wbr>Controller</a></li>
 							</ul>
 						</section>
 					</div>
-				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Variables</h2>
-				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
-					<a name="canvascontroller-1" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagLet">Let</span> canvas<wbr>Controller</h3>
-					<div class="tsd-signature tsd-kind-icon">canvas<wbr>Controller<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_canvascontroller_.canvascontroller.html" class="tsd-signature-type">CanvasController</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> = null</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/canvasController.ts#L56">canvasController.ts:56</a></li>
-						</ul>
-					</aside>
-				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Functions</h2>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="createcanvascontroller" class="tsd-anchor"></a>
-					<h3>create<wbr>Canvas<wbr>Controller</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">create<wbr>Canvas<wbr>Controller<span class="tsd-signature-symbol">(</span>gridCtx<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">CanvasRenderingContext2D</span>, cellCtx<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">CanvasRenderingContext2D</span>, cellCount<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, initialTheme<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span>, subject<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Subject</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/canvasController.ts#L66">canvasController.ts:66</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Factory function to create CanvasController object with dependencies injected.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>gridCtx: <span class="tsd-signature-type">CanvasRenderingContext2D</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Canvas context used for drawing grid lines</p>
-									</div>
-								</li>
-								<li>
-									<h5>cellCtx: <span class="tsd-signature-type">CanvasRenderingContext2D</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Canvas context used for drawing cells</p>
-									</div>
-								</li>
-								<li>
-									<h5>cellCount: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Number of cells per side of the total game area</p>
-									</div>
-								</li>
-								<li>
-									<h5>initialTheme: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Initial color theme. Set dark mode to true if value equals &quot;dark&quot;, false otherwise</p>
-									</div>
-								</li>
-								<li>
-									<h5>subject: <span class="tsd-signature-type">Subject</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Function called when zoom or pan values are modified</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="destroycanvascontroller" class="tsd-anchor"></a>
-					<h3>destroy<wbr>Canvas<wbr>Controller</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">destroy<wbr>Canvas<wbr>Controller<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/canvasController.ts#L393">canvasController.ts:393</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
 				</section>
 			</section>
 		</div>
@@ -209,17 +108,8 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-interface tsd-parent-kind-module">
-						<a href="../interfaces/_canvascontroller_.canvascontroller.html" class="tsd-kind-icon">Canvas<wbr>Controller</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-module">
-						<a href="_canvascontroller_.html#canvascontroller-1" class="tsd-kind-icon">canvas<wbr>Controller</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="_canvascontroller_.html#createcanvascontroller" class="tsd-kind-icon">create<wbr>Canvas<wbr>Controller</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="_canvascontroller_.html#destroycanvascontroller" class="tsd-kind-icon">destroy<wbr>Canvas<wbr>Controller</a>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_canvascontroller_.canvascontroller.html" class="tsd-kind-icon">Canvas<wbr>Controller</a>
 					</li>
 				</ul>
 			</nav>
@@ -234,9 +124,13 @@
 				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
 				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
 				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
 			</ul>
 		</div>
 	</div>

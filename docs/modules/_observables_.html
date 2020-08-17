@@ -77,12 +77,18 @@
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
+							<h3>Type aliases</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="_observables_.html#controllersubject" class="tsd-kind-icon">Controller<wbr>Subject</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
 							<h3>Variables</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported"><a href="_observables_.html#canvasdragging_" class="tsd-kind-icon">canvas<wbr>Dragging$</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported"><a href="_observables_.html#canvashovermoving_" class="tsd-kind-icon">canvas<wbr>Hover<wbr>Moving$</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported"><a href="_observables_.html#canvashoverstationary_" class="tsd-kind-icon">canvas<wbr>Hover<wbr>Stationary$</a></li>
-								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="_observables_.html#controllersubject" class="tsd-kind-icon">controller<wbr>Subject</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="_observables_.html#controllersubject-1" class="tsd-kind-icon">controller<wbr>Subject</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="_observables_.html#controllerupdate_" class="tsd-kind-icon">controller<wbr>Update$</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="_observables_.html#patternselection_" class="tsd-kind-icon">pattern<wbr>Selection$</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="_observables_.html#patternsubject" class="tsd-kind-icon">pattern<wbr>Subject</a></li>
@@ -104,6 +110,19 @@
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Type aliases</h2>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="controllersubject" class="tsd-anchor"></a>
+					<h3>Controller<wbr>Subject</h3>
+					<div class="tsd-signature tsd-kind-icon">Controller<wbr>Subject<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Subject</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_observables_.controllerstate.html" class="tsd-signature-type">ControllerState</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L73">observables.ts:73</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Variables</h2>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported">
 					<a name="canvasdragging_" class="tsd-anchor"></a>
@@ -111,7 +130,7 @@
 					<div class="tsd-signature tsd-kind-icon">canvas<wbr>Dragging$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>deltaX<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>deltaY<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>deltaX<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>deltaY<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = merge(fromEvent&lt;MouseEvent&gt;(dom.cellCanvas, &quot;mousedown&quot;).pipe(switchMap(downEvent &#x3D;&gt; {let prevEvent &#x3D; downEvent;return fromEvent&lt;MouseEvent&gt;(document, &quot;mousemove&quot;).pipe(map(moveEvent &#x3D;&gt; {const deltaX &#x3D; prevEvent.clientX - moveEvent.clientX;const deltaY &#x3D; prevEvent.clientY - moveEvent.clientY;prevEvent &#x3D; moveEvent;return {deltaX, deltaY};}),skipUntil(fromEvent&lt;MouseEvent&gt;(document, &quot;mousemove&quot;).pipe(first(moveEvent &#x3D;&gt; isDragging(downEvent, moveEvent)))),takeUntil(fromEvent&lt;MouseEvent&gt;(document, &quot;mouseup&quot;)));})),fromEvent&lt;TouchEvent&gt;(dom.cellCanvas, &quot;touchstart&quot;).pipe(pluck(&quot;touches&quot;),filter(({length}) &#x3D;&gt; length &#x3D;&#x3D;&#x3D; 1),switchMap(touches &#x3D;&gt; {let prevTouch &#x3D; touches[0];return fromEvent&lt;TouchEvent&gt;(document, &quot;touchmove&quot;).pipe(pluck(&quot;touches&quot;),filter(({length}) &#x3D;&gt; length &#x3D;&#x3D;&#x3D; 1),map(touches &#x3D;&gt; {const currentTouch &#x3D; touches[0];const deltaX &#x3D; prevTouch.clientX - currentTouch.clientX;const deltaY &#x3D; prevTouch.clientY - currentTouch.clientY;prevTouch &#x3D; currentTouch;return {deltaX, deltaY};}),takeUntil(fromEvent&lt;TouchEvent&gt;(document, &quot;touchend&quot;).pipe(pluck(&quot;touches&quot;),filter(({length}) &#x3D;&gt; length &#x3D;&#x3D;&#x3D; 0))),takeUntil(fromEvent&lt;TouchEvent&gt;(document, &quot;touchstart&quot;).pipe(pluck(&quot;touches&quot;),filter(({length}) &#x3D;&gt; length !&#x3D;&#x3D; 1))));})))</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L364">observables.ts:364</a></li>
+							<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L372">observables.ts:372</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -126,7 +145,7 @@
 					<div class="tsd-signature tsd-kind-icon">canvas<wbr>Hover<wbr>Moving$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>e<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">MouseEvent</span><span class="tsd-signature-symbol">; </span>pattern<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = merge(fromEvent&lt;MouseEvent&gt;(dom.cellCanvas, &quot;mousemove&quot;).pipe(filter(e &#x3D;&gt; e.buttons &#x3D;&#x3D;&#x3D; 0)),fromEvent&lt;MouseEvent&gt;(dom.cellCanvas, &quot;mouseup&quot;),fromEvent&lt;MouseEvent&gt;(dom.patternDropdown, &quot;mouseup&quot;)).pipe(switchMap(e &#x3D;&gt; patternSelection$.pipe(map(pattern &#x3D;&gt; ({e, pattern})))))</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L435">observables.ts:435</a></li>
+							<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L439">observables.ts:439</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -136,17 +155,17 @@
 					<div class="tsd-signature tsd-kind-icon">canvas<wbr>Hover<wbr>Stationary$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>e<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">MouseEvent</span><span class="tsd-signature-symbol">; </span>pattern<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = canvasHoverMoving$.pipe(switchMap(({e, pattern}) &#x3D;&gt;interval(1000).pipe(map(() &#x3D;&gt; ({e, pattern})),take(1),takeUntil(fromEvent&lt;MouseEvent&gt;(dom.cellCanvas, &quot;mousemove&quot;)),takeUntil(fromEvent&lt;MouseEvent&gt;(dom.cellCanvas, &quot;mouseleave&quot;)))))</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L450">observables.ts:450</a></li>
+							<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L454">observables.ts:454</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
-					<a name="controllersubject" class="tsd-anchor"></a>
+					<a name="controllersubject-1" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> controller<wbr>Subject</h3>
-					<div class="tsd-signature tsd-kind-icon">controller<wbr>Subject<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Subject</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_observables_.controllerstate.html" class="tsd-signature-type">ControllerState</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new Subject&lt;ControllerState&gt;()</span></div>
+					<div class="tsd-signature tsd-kind-icon">controller<wbr>Subject<span class="tsd-signature-symbol">:</span> <a href="_observables_.html#controllersubject" class="tsd-signature-type">ControllerSubject</a><span class="tsd-signature-symbol"> = new Subject&lt;ControllerState&gt;()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L70">observables.ts:70</a></li>
+							<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L75">observables.ts:75</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -156,7 +175,7 @@
 					<div class="tsd-signature tsd-kind-icon">controller<wbr>Update$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_observables_.controllerstate.html" class="tsd-signature-type">ControllerState</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = controllerSubject.asObservable().pipe(scan((acc, x) &#x3D;&gt; {const next &#x3D; {...acc, ...x};return next;}, {}))</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L71">observables.ts:71</a></li>
+							<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L78">observables.ts:78</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -166,7 +185,7 @@
 					<div class="tsd-signature tsd-kind-icon">pattern<wbr>Selection$<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Observable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = patternSubject.asObservable()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L81">observables.ts:81</a></li>
+							<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L88">observables.ts:88</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -176,7 +195,7 @@
 					<div class="tsd-signature tsd-kind-icon">pattern<wbr>Subject<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">BehaviorSubject</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new BehaviorSubject&lt;number[][] | null&gt;(null)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L80">observables.ts:80</a></li>
+							<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L87">observables.ts:87</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -193,7 +212,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L570">observables.ts:570</a></li>
+									<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L574">observables.ts:574</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -218,7 +237,7 @@
 					<div class="tsd-signature tsd-kind-icon">dom<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L34">observables.ts:34</a></li>
+							<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L37">observables.ts:37</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -232,7 +251,7 @@
 						<div class="tsd-signature tsd-kind-icon">canvas<wbr>Container<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLDivElement</span><span class="tsd-signature-symbol"> = document.getElementById(&quot;canvas-container&quot;) as HTMLDivElement</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L36">observables.ts:36</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L39">observables.ts:39</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -242,7 +261,7 @@
 						<div class="tsd-signature tsd-kind-icon">cell<wbr>Canvas<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLCanvasElement</span><span class="tsd-signature-symbol"> = document.getElementById(&quot;cell-canvas&quot;) as HTMLCanvasElement</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L40">observables.ts:40</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L43">observables.ts:43</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -252,7 +271,7 @@
 						<div class="tsd-signature tsd-kind-icon">default<wbr>Btn<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLButtonElement</span><span class="tsd-signature-symbol"> = document.getElementById(&quot;default-btn&quot;) as HTMLButtonElement</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L46">observables.ts:46</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L49">observables.ts:49</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -262,7 +281,7 @@
 						<div class="tsd-signature tsd-kind-icon">grid<wbr>Canvas<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLCanvasElement</span><span class="tsd-signature-symbol"> = document.getElementById(&quot;grid-canvas&quot;) as HTMLCanvasElement</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L39">observables.ts:39</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L42">observables.ts:42</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -272,7 +291,7 @@
 						<div class="tsd-signature tsd-kind-icon">left<wbr>Status<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLSpanElement</span><span class="tsd-signature-symbol"> = document.getElementById(&quot;left-status&quot;) as HTMLSpanElement</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L41">observables.ts:41</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L44">observables.ts:44</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -282,7 +301,7 @@
 						<div class="tsd-signature tsd-kind-icon">main<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLDivElement</span><span class="tsd-signature-symbol"> = document.getElementById(&quot;main&quot;) as HTMLDivElement</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L35">observables.ts:35</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L38">observables.ts:38</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -292,7 +311,7 @@
 						<div class="tsd-signature tsd-kind-icon">modal<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLDivElement</span><span class="tsd-signature-symbol"> = document.getElementById(&quot;help-modal&quot;) as HTMLDivElement</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L53">observables.ts:53</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L56">observables.ts:56</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -302,7 +321,7 @@
 						<div class="tsd-signature tsd-kind-icon">modal<wbr>Checkbox<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLInputElement</span><span class="tsd-signature-symbol"> = document.getElementById(&quot;modal-checkbox&quot;) as HTMLInputElement</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L54">observables.ts:54</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L57">observables.ts:57</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -312,7 +331,7 @@
 						<div class="tsd-signature tsd-kind-icon">nav<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLElement</span><span class="tsd-signature-symbol"> = document.getElementById(&quot;nav&quot;) as HTMLElement</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L43">observables.ts:43</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L46">observables.ts:46</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -322,7 +341,7 @@
 						<div class="tsd-signature tsd-kind-icon">pattern<wbr>Btn<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLButtonElement</span><span class="tsd-signature-symbol"> = document.getElementById(&quot;pattern-btn&quot;) as HTMLButtonElement</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L47">observables.ts:47</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L50">observables.ts:50</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -332,7 +351,7 @@
 						<div class="tsd-signature tsd-kind-icon">pattern<wbr>Dropdown<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLDivElement</span><span class="tsd-signature-symbol"> = document.getElementById(&quot;pattern-dropdown&quot;) as HTMLDivElement</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L48">observables.ts:48</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L51">observables.ts:51</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -342,7 +361,7 @@
 						<div class="tsd-signature tsd-kind-icon">pause<wbr>Icon<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLElement</span><span class="tsd-signature-symbol"> = document.getElementById(&quot;pause-icon&quot;) as HTMLElement</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L45">observables.ts:45</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L48">observables.ts:48</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -352,7 +371,7 @@
 						<div class="tsd-signature tsd-kind-icon">play<wbr>Icon<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLElement</span><span class="tsd-signature-symbol"> = document.getElementById(&quot;play-icon&quot;) as HTMLElement</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L44">observables.ts:44</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L47">observables.ts:47</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -362,7 +381,7 @@
 						<div class="tsd-signature tsd-kind-icon">right<wbr>Status<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLSpanElement</span><span class="tsd-signature-symbol"> = document.getElementById(&quot;right-status&quot;) as HTMLSpanElement</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L42">observables.ts:42</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L45">observables.ts:45</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -372,7 +391,7 @@
 						<div class="tsd-signature tsd-kind-icon">speed<wbr>Slider<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLInputElement</span><span class="tsd-signature-symbol"> = document.getElementById(&quot;speed-slider&quot;) as HTMLInputElement</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L51">observables.ts:51</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L54">observables.ts:54</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -382,7 +401,7 @@
 						<div class="tsd-signature tsd-kind-icon">zoom<wbr>Slider<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">HTMLInputElement</span><span class="tsd-signature-symbol"> = document.getElementById(&quot;zoom-slider&quot;) as HTMLInputElement</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/432e72b/src/observables.ts#L52">observables.ts:52</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/observables.ts#L55">observables.ts:55</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -420,6 +439,9 @@
 					<li class=" tsd-kind-interface tsd-parent-kind-module tsd-is-not-exported">
 						<a href="../interfaces/_observables_.controllerstate.html" class="tsd-kind-icon">Controller<wbr>State</a>
 					</li>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="_observables_.html#controllersubject" class="tsd-kind-icon">Controller<wbr>Subject</a>
+					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported">
 						<a href="_observables_.html#canvasdragging_" class="tsd-kind-icon">canvas<wbr>Dragging$</a>
 					</li>
@@ -430,7 +452,7 @@
 						<a href="_observables_.html#canvashoverstationary_" class="tsd-kind-icon">canvas<wbr>Hover<wbr>Stationary$</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-module">
-						<a href="_observables_.html#controllersubject" class="tsd-kind-icon">controller<wbr>Subject</a>
+						<a href="_observables_.html#controllersubject-1" class="tsd-kind-icon">controller<wbr>Subject</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-module">
 						<a href="_observables_.html#controllerupdate_" class="tsd-kind-icon">controller<wbr>Update$</a>
@@ -460,9 +482,13 @@
 				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
 				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
 				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
 			</ul>
 		</div>
 	</div>
