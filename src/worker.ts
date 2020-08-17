@@ -6,6 +6,7 @@ export interface WorkerResult {
 }
 
 let generator: GameEngine | Generator<WorkerResult>;
+let config: {isWasm: boolean; size: number} | undefined;
 
 /**
  * Workaround for TypeScript compiler error
@@ -19,21 +20,33 @@ const postMessage = (message: unknown) =>
  */
 onmessage = async (e: MessageEvent) => {
   const {action, payload} = e.data;
+
   switch (action) {
+    case "init":
+      if (config) return;
+      config = {
+        isWasm: payload.wasm,
+        size: payload.size
+      };
+      break;
+
     case "start":
-      if (payload.wasm)
+      if (!config) throw Error("Worker not initialized");
+      if (config.isWasm)
         try {
           const {GameEngine} = await import("life-wasm");
-          generator = new GameEngine(payload.size, payload.initialAlive);
+          generator = new GameEngine(config.size, payload.initialAlive);
         } catch (e) {
           console.error("Error importing wasm:", e);
         }
-      else generator = createGenerator(payload.size, payload.initialAlive);
+      else generator = createGenerator(config.size, payload.initialAlive);
       postMessage("started");
       break;
+
     case "requestResults":
       if (generator) postMessage(batchResults(payload.count));
       break;
+
     default:
       break;
   }

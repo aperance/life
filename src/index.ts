@@ -7,10 +7,9 @@ import {GameController} from "./gameController";
 import * as patternLibrary from "./patternLibrary";
 import {controllerSubject} from "./observables";
 
-const isWasm = true;
-
 export let canvasController: CanvasController | null = null;
 export let gameController: GameController | null = null;
+let worker: Worker;
 
 /**
  *  Get color theme from local storage. If not set use prefrence from client os.
@@ -43,7 +42,11 @@ document.documentElement.dataset.theme =
  */
 export function initializeGame(): void {
   /** Initialize web worker which calculates game results. */
-  const worker = new Worker("./worker.js");
+  worker = new Worker("./worker.js");
+  worker.postMessage({
+    action: "init",
+    payload: {size: 5000, wasm: true}
+  });
 
   /** Get rendering contexts for all canvases. */
   const gridCanvas = document.getElementById(
@@ -69,7 +72,6 @@ export function initializeGame(): void {
     worker,
     canvasController,
     5000,
-    isWasm,
     controllerSubject
   );
 
@@ -86,6 +88,7 @@ export function terminateGame(): void {
   canvasController = null;
   gameController?.terminate();
   gameController = null;
+  worker.terminate();
 
   /** Clear selected pattern. */
   patternLibrary.setSelected(null);

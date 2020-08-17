@@ -18,8 +18,6 @@ export class GameController {
   readonly #canvasController: CanvasController;
   /** Number of cells in each dimension of the game universe. */
   readonly #cellCount: number;
-  /** If true worker will use wasm module to generate results.*/
-  readonly #wasm: boolean;
   /** RxJS subject used to communicate state changes to UI. */
   readonly #subject: ControllerSubject;
   /** Set containing the indices of the currently alive cells. */
@@ -52,13 +50,11 @@ export class GameController {
     worker: Worker,
     canvasController: CanvasController,
     cellCount: number,
-    wasm: boolean,
     subject: ControllerSubject
   ) {
     this.#worker = worker;
     this.#canvasController = canvasController;
     this.#cellCount = cellCount;
-    this.#wasm = wasm;
     this.#subject = subject;
     this.speed = {
       id: 3,
@@ -204,9 +200,7 @@ export class GameController {
       this.#worker.postMessage({
         action: "start",
         payload: {
-          size: this.#cellCount,
-          initialAlive: Array.from(this.#aliveCells),
-          wasm: this.#wasm
+          initialAlive: Array.from(this.#aliveCells)
         }
       });
     }
@@ -226,7 +220,6 @@ export class GameController {
    * @memberof GameController#
    */
   terminate(): void {
-    this.#worker.terminate();
     this.#haltAnimationCycle = true;
   }
 
