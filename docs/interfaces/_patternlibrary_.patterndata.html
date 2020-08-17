@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>PatternData | life</title>
-	<meta name="description" content="Documentation for life">
+	<title>PatternData | Conway&#x27;s Game of Life</title>
+	<meta name="description" content="Documentation for Conway&#x27;s Game of Life">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 </head>
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">life</a>
+					<a href="../index.html" class="title">Conway&#x27;s Game of Life</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -69,6 +69,13 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Object containing the data extracted from a pattern data file.</p>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
@@ -101,9 +108,14 @@
 					<div class="tsd-signature tsd-kind-icon">array<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L7">patternLibrary.ts:7</a></li>
+							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L23">patternLibrary.ts:23</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Pattern shape represented as a 2D array or bits</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
 					<a name="author" class="tsd-anchor"></a>
@@ -111,9 +123,14 @@
 					<div class="tsd-signature tsd-kind-icon">author<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L5">patternLibrary.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L19">patternLibrary.ts:19</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Name of person who discovered pattern</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
 					<a name="description" class="tsd-anchor"></a>
@@ -121,9 +138,14 @@
 					<div class="tsd-signature tsd-kind-icon">description<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L6">patternLibrary.ts:6</a></li>
+							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L21">patternLibrary.ts:21</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Description of pattern</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-not-exported">
 					<a name="name" class="tsd-anchor"></a>
@@ -131,9 +153,14 @@
 					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L4">patternLibrary.ts:4</a></li>
+							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L17">patternLibrary.ts:17</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Properly formatted name of pattern</p>
+						</div>
+					</div>
 				</section>
 			</section>
 		</div>
@@ -187,7 +214,7 @@
 				</ul>
 				<ul class="after-current">
 					<li class=" tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported">
-						<a href="../modules/_patternlibrary_.html#map" class="tsd-kind-icon">map</a>
+						<a href="../modules/_patternlibrary_.html#patternmap" class="tsd-kind-icon">pattern<wbr>Map</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="../modules/_patternlibrary_.html#flipselected" class="tsd-kind-icon">flip<wbr>Selected</a>
@@ -195,14 +222,8 @@
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="../modules/_patternlibrary_.html#generatedropdownhtml" class="tsd-kind-icon">generate<wbr>DropdownHTML</a>
 					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
-						<a href="../modules/_patternlibrary_.html#getdata" class="tsd-kind-icon">get<wbr>Data</a>
-					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="../modules/_patternlibrary_.html#loaddatafromfiles" class="tsd-kind-icon">load<wbr>Data<wbr>From<wbr>Files</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
-						<a href="../modules/_patternlibrary_.html#readpatternfile" class="tsd-kind-icon">read<wbr>Pattern<wbr>File</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
 						<a href="../modules/_patternlibrary_.html#rleparser" class="tsd-kind-icon">rle<wbr>Parser</a>
@@ -214,7 +235,7 @@
 						<a href="../modules/_patternlibrary_.html#setselected" class="tsd-kind-icon">set<wbr>Selected</a>
 					</li>
 					<li class=" tsd-kind-object-literal tsd-parent-kind-module tsd-is-not-exported">
-						<a href="../modules/_patternlibrary_.html#categories" class="tsd-kind-icon">categories</a>
+						<a href="../modules/_patternlibrary_.html#patternlist" class="tsd-kind-icon">pattern<wbr>List</a>
 					</li>
 				</ul>
 			</nav>

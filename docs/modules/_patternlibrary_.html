@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>&quot;patternLibrary&quot; | life</title>
-	<meta name="description" content="Documentation for life">
+	<title>&quot;patternLibrary&quot; | Conway&#x27;s Game of Life</title>
+	<meta name="description" content="Documentation for Conway&#x27;s Game of Life">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 </head>
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">life</a>
+					<a href="../index.html" class="title">Conway&#x27;s Game of Life</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -66,6 +66,17 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Pattern Library is a collection of well known patterns provided to the user.
+							These patterns are imported from &quot;.rle&quot; data files created by the game of
+							life community. These files are located in the &quot;patterns&quot; folder of this
+							repository. An associated dropdown menu is generated listing all available
+						patterns for the user to select from.</p>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
@@ -79,7 +90,7 @@
 						<section class="tsd-index-section tsd-is-not-exported">
 							<h3>Variables</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported"><a href="_patternlibrary_.html#map" class="tsd-kind-icon">map</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported"><a href="_patternlibrary_.html#patternmap" class="tsd-kind-icon">pattern<wbr>Map</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -87,9 +98,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_patternlibrary_.html#flipselected" class="tsd-kind-icon">flip<wbr>Selected</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_patternlibrary_.html#generatedropdownhtml" class="tsd-kind-icon">generate<wbr>DropdownHTML</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-not-exported"><a href="_patternlibrary_.html#getdata" class="tsd-kind-icon">get<wbr>Data</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_patternlibrary_.html#loaddatafromfiles" class="tsd-kind-icon">load<wbr>Data<wbr>From<wbr>Files</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-not-exported"><a href="_patternlibrary_.html#readpatternfile" class="tsd-kind-icon">read<wbr>Pattern<wbr>File</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-not-exported"><a href="_patternlibrary_.html#rleparser" class="tsd-kind-icon">rle<wbr>Parser</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_patternlibrary_.html#rotateselected" class="tsd-kind-icon">rotate<wbr>Selected</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_patternlibrary_.html#setselected" class="tsd-kind-icon">set<wbr>Selected</a></li>
@@ -98,7 +107,7 @@
 						<section class="tsd-index-section tsd-is-not-exported">
 							<h3>Object literals</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-object-literal tsd-parent-kind-module tsd-is-not-exported"><a href="_patternlibrary_.html#categories" class="tsd-kind-icon">categories</a></li>
+								<li class="tsd-kind-object-literal tsd-parent-kind-module tsd-is-not-exported"><a href="_patternlibrary_.html#patternlist" class="tsd-kind-icon">pattern<wbr>List</a></li>
 							</ul>
 						</section>
 					</div>
@@ -107,14 +116,19 @@
 			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
 				<h2>Variables</h2>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported">
-					<a name="map" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagConst">Const</span> map</h3>
-					<div class="tsd-signature tsd-kind-icon">map<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new Map()</span></div>
+					<a name="patternmap" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> pattern<wbr>Map</h3>
+					<div class="tsd-signature tsd-kind-icon">pattern<wbr>Map<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="../interfaces/_patternlibrary_.patterndata.html" class="tsd-signature-type">PatternData</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new Map&lt;string, PatternData&gt;()</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L10">patternLibrary.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L29">patternLibrary.ts:29</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Hash map storing imported pattern data objects.</p>
+						</div>
+					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
@@ -129,9 +143,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L104">patternLibrary.ts:104</a></li>
+									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L132">patternLibrary.ts:132</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Flips the 2D array representing the pattern shape for the currently selected pattern.</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
@@ -146,46 +165,24 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L215">patternLibrary.ts:215</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>targetId: <span class="tsd-signature-type">string</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
-					<a name="getdata" class="tsd-anchor"></a>
-					<h3>get<wbr>Data</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Data<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/_patternlibrary_.patterndata.html" class="tsd-signature-type">PatternData</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L120">patternLibrary.ts:120</a></li>
+									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L224">patternLibrary.ts:224</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
-								<dl class="tsd-comment-tags">
-									<dt>throws</dt>
-									<dd><p>{Error}</p>
-									</dd>
-								</dl>
+								<div class="lead">
+									<p>Dynamically generate HTML for the patter dropdown menu.</p>
+								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>id: <span class="tsd-signature-type">string</span></h5>
+									<h5>targetId: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Node where generated HTML should be attached</p>
+									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="../interfaces/_patternlibrary_.patterndata.html" class="tsd-signature-type">PatternData</a></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -199,45 +196,19 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L129">patternLibrary.ts:129</a></li>
+									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L146">patternLibrary.ts:146</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>For each pattern in patternList, parses associated data file and saves object in hash map.</p>
+								</div>
 								<dl class="tsd-comment-tags">
 									<dt>async</dt>
 									<dd></dd>
 								</dl>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
-					<a name="readpatternfile" class="tsd-anchor"></a>
-					<h3>read<wbr>Pattern<wbr>File</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">read<wbr>Pattern<wbr>File<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_patternlibrary_.patterndata.html" class="tsd-signature-type">PatternData</a><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L151">patternLibrary.ts:151</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<dl class="tsd-comment-tags">
-									<dt>async</dt>
-									<dd></dd>
-								</dl>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>id: <span class="tsd-signature-type">string</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/_patternlibrary_.patterndata.html" class="tsd-signature-type">PatternData</a><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -251,26 +222,33 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L175">patternLibrary.ts:175</a></li>
+									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L183">patternLibrary.ts:183</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
-								<dl class="tsd-comment-tags">
-									<dt>throws</dt>
-									<dd><p>{Error}</p>
-									</dd>
-								</dl>
+								<div class="lead">
+									<p>Converts pattern shape from an RLE string to a 2D array.</p>
+								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>rle: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Pattern shape encoded as an RLE string</p>
+									</div>
 								</li>
 								<li>
 									<h5>width: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Width of pattern</p>
+									</div>
 								</li>
 								<li>
 									<h5>height: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Height of pattern</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -287,9 +265,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L84">patternLibrary.ts:84</a></li>
+									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L112">patternLibrary.ts:112</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Rotates the 2D array representing the pattern shape for the currently selected pattern.</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
@@ -304,17 +287,19 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L77">patternLibrary.ts:77</a></li>
+									<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L100">patternLibrary.ts:100</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Retrieves patternData for provided id and emits the 2D array representing
+									the pattern shape (using RxJS subject). Subject is cleared if id is null.</p>
+								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>id: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
-									<div class="tsd-comment tsd-typography">
-									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -325,71 +310,77 @@
 			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
 				<h2>Object literals</h2>
 				<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-module tsd-is-not-exported">
-					<a name="categories" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagConst">Const</span> categories</h3>
-					<div class="tsd-signature tsd-kind-icon">categories<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<a name="patternlist" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> pattern<wbr>List</h3>
+					<div class="tsd-signature tsd-kind-icon">pattern<wbr>List<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L12">patternLibrary.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L35">patternLibrary.ts:35</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>List of all available pattern organized by category. Used to generate
+							HTML for dropdown and determine which data file to import.</p>
+						</div>
+					</div>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
-						<a name="categories.guns" class="tsd-anchor"></a>
+						<a name="patternlist.guns" class="tsd-anchor"></a>
 						<h3>Guns</h3>
 						<div class="tsd-signature tsd-kind-icon">Guns<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = [&quot;bigun&quot;,&quot;gosperglidergun&quot;,&quot;p41660p5h2v0gun&quot;,&quot;p448dartgun&quot;,&quot;p69060p5h2v0gun&quot;,&quot;p94s&quot;,&quot;simkinglidergun&quot;]</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L52">patternLibrary.ts:52</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L75">patternLibrary.ts:75</a></li>
 							</ul>
 						</aside>
 					</section>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
-						<a name="categories.methuselahs" class="tsd-anchor"></a>
+						<a name="patternlist.methuselahs" class="tsd-anchor"></a>
 						<h3>Methuselahs</h3>
 						<div class="tsd-signature tsd-kind-icon">Methuselahs<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = [&quot;acorn&quot;,&quot;bheptomino&quot;,&quot;bunnies&quot;,&quot;herschel&quot;,&quot;lidka&quot;,&quot;piheptomino&quot;,&quot;rpentomino&quot;,&quot;switchengine&quot;]</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L61">patternLibrary.ts:61</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L84">patternLibrary.ts:84</a></li>
 							</ul>
 						</aside>
 					</section>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
-						<a name="categories.oscillators" class="tsd-anchor"></a>
+						<a name="patternlist.oscillators" class="tsd-anchor"></a>
 						<h3>Oscillators</h3>
 						<div class="tsd-signature tsd-kind-icon">Oscillators<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = [&quot;beacon&quot;,&quot;blinker&quot;,&quot;blocker&quot;,&quot;figureeight&quot;,&quot;pentadecathlon&quot;,&quot;pulsar&quot;,&quot;queenbeeshuttle&quot;,&quot;tannersp46&quot;,&quot;toad&quot;,&quot;twinbeesshuttle&quot;]</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L13">patternLibrary.ts:13</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L36">patternLibrary.ts:36</a></li>
 							</ul>
 						</aside>
 					</section>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
-						<a name="categories.puffers" class="tsd-anchor"></a>
+						<a name="patternlist.puffers" class="tsd-anchor"></a>
 						<h3>Puffers</h3>
 						<div class="tsd-signature tsd-kind-icon">Puffers<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = [&quot;birthdaypuffer&quot;,&quot;blinkerpuffer1&quot;,&quot;blinkerpuffer2&quot;,&quot;blocklayingswitchengine&quot;,&quot;frothingpuffer&quot;,&quot;gliderproducingswitchengine&quot;,&quot;glidertrain&quot;,&quot;hivenudger2&quot;,&quot;noahsark&quot;,&quot;ponyexpress&quot;,&quot;puffer1&quot;,&quot;puffer2&quot;,&quot;pufferfish&quot;,&quot;slowpuffer1&quot;,&quot;slowpuffer2&quot;]</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L26">patternLibrary.ts:26</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L49">patternLibrary.ts:49</a></li>
 							</ul>
 						</aside>
 					</section>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
-						<a name="categories.rakes" class="tsd-anchor"></a>
+						<a name="patternlist.rakes" class="tsd-anchor"></a>
 						<h3>Rakes</h3>
 						<div class="tsd-signature tsd-kind-icon">Rakes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = [&quot;3enginecordershiprake&quot;,&quot;backrake1&quot;,&quot;backrake2&quot;,&quot;backrake3&quot;,&quot;c5diagonalrake&quot;,&quot;spacerake&quot;,&quot;weekenderdistaff&quot;]</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L43">patternLibrary.ts:43</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L66">patternLibrary.ts:66</a></li>
 							</ul>
 						</aside>
 					</section>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
-						<a name="categories.spaceships" class="tsd-anchor"></a>
+						<a name="patternlist.spaceships" class="tsd-anchor"></a>
 						<h3>Spaceships</h3>
 						<div class="tsd-signature tsd-kind-icon">Spaceships<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = [&quot;copperhead&quot;, &quot;glider&quot;, &quot;loafer&quot;, &quot;lwss&quot;, &quot;mwss&quot;, &quot;hwss&quot;]</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/aperance/life/blob/02a1a47/src/patternLibrary.ts#L25">patternLibrary.ts:25</a></li>
+								<li>Defined in <a href="https://github.com/aperance/life/blob/c8fc495/src/patternLibrary.ts#L48">patternLibrary.ts:48</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -428,7 +419,7 @@
 						<a href="../interfaces/_patternlibrary_.patterndata.html" class="tsd-kind-icon">Pattern<wbr>Data</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-module tsd-is-not-exported">
-						<a href="_patternlibrary_.html#map" class="tsd-kind-icon">map</a>
+						<a href="_patternlibrary_.html#patternmap" class="tsd-kind-icon">pattern<wbr>Map</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_patternlibrary_.html#flipselected" class="tsd-kind-icon">flip<wbr>Selected</a>
@@ -436,14 +427,8 @@
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_patternlibrary_.html#generatedropdownhtml" class="tsd-kind-icon">generate<wbr>DropdownHTML</a>
 					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
-						<a href="_patternlibrary_.html#getdata" class="tsd-kind-icon">get<wbr>Data</a>
-					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_patternlibrary_.html#loaddatafromfiles" class="tsd-kind-icon">load<wbr>Data<wbr>From<wbr>Files</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
-						<a href="_patternlibrary_.html#readpatternfile" class="tsd-kind-icon">read<wbr>Pattern<wbr>File</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-not-exported">
 						<a href="_patternlibrary_.html#rleparser" class="tsd-kind-icon">rle<wbr>Parser</a>
@@ -455,7 +440,7 @@
 						<a href="_patternlibrary_.html#setselected" class="tsd-kind-icon">set<wbr>Selected</a>
 					</li>
 					<li class=" tsd-kind-object-literal tsd-parent-kind-module tsd-is-not-exported">
-						<a href="_patternlibrary_.html#categories" class="tsd-kind-icon">categories</a>
+						<a href="_patternlibrary_.html#patternlist" class="tsd-kind-icon">pattern<wbr>List</a>
 					</li>
 				</ul>
 			</nav>

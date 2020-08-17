@@ -66,6 +66,7 @@
   "include": ["src/**/*"],
   "exclude": ["src/wasm", "src/tests"],
   "typedocOptions": {
+    "name": "Conway's Game of Life",
     "mode": "modules",
     "out": "docs"
   }

@@ -1,5 +1,11 @@
+/**
+ * Observables Module.
+ * @packageDocumentation
+ */
+
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import M from "materialize-css";
 import {
   Subject,
@@ -33,7 +39,10 @@ import {
 } from "./index";
 import * as patternLibrary from "./patternLibrary";
 
-/** Stores refrences to used DOM elements with type casting */
+/**
+ * Stores refrences to used DOM elements with type casting
+ * @hidden
+ */
 const dom = {
   main: document.getElementById("main") as HTMLDivElement,
   canvasContainer: document.getElementById(
@@ -162,7 +171,7 @@ merge(
 });
 
 /**
- *
+ * Launch welcome modal on startup.
  */
 fromEvent(window, "DOMContentLoaded")
   .pipe(delay(1000))
@@ -176,7 +185,7 @@ fromEvent(window, "DOMContentLoaded")
   });
 
 /**
- *
+ * Updates local storage when "show on startup" clicked.
  */
 fromEvent(dom.modalCheckbox, "click").subscribe(() => {
   localStorage.setItem("showModal", dom.modalCheckbox.checked.toString());
@@ -244,7 +253,7 @@ fromEvent<KeyboardEvent>(document, "keydown")
   });
 
 /**
- *
+ * Combined event handler for navbar button clicks.
  */
 fromEvent<MouseEvent>(dom.nav, "click")
   .pipe(
@@ -368,6 +377,7 @@ fromEvent<MouseEvent>(dom.cellCanvas, "mousedown")
 
 /**
  * Update canvas position when dragging. Merged observables for mouse and touch.
+ * @category Mouse Event
  */
 const canvasDragging$ = merge(
   fromEvent<MouseEvent>(dom.cellCanvas, "mousedown").pipe(
@@ -571,6 +581,12 @@ fromEvent<MouseEvent>(dom.patternDropdown, "click")
     dom.patternDropdown.hidden = true;
   });
 
+/**
+ *
+ * @param downEvent
+ * @param moveEvent
+ * @hidden
+ */
 function isDragging(downEvent: MouseEvent, moveEvent: MouseEvent): boolean {
   return (
     Math.abs(downEvent.clientX - moveEvent.clientX) > 3 ||

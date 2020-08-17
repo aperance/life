@@ -1,5 +1,10 @@
 /**
- *
+ * Pattern Library is a collection of well known patterns provided to the user.
+ * These patterns are imported from ".rle" data files created by the game of
+ * life community. These files are located in the "patterns" folder of this
+ * repository. An associated dropdown menu is generated listing all available
+ * patterns for the user to select from.
+ * @packageDocumentation
  */
 
 import {patternSubject} from "./observables";
@@ -8,9 +13,13 @@ import {patternSubject} from "./observables";
  * Object containing the data extracted from a pattern data file.
  */
 interface PatternData {
+  /** Properly formatted name of pattern */
   name: string;
+  /** Name of person who discovered pattern */
   author: string;
+  /** Description of pattern */
   description: string[];
+  /** Pattern shape represented as a 2D array or bits */
   array: number[][];
 }
 
@@ -98,7 +107,7 @@ export function setSelected(id: string | null): void {
 }
 
 /**
- * Rotates the pattern shape 2D array for the currently selected pattern.
+ * Rotates the 2D array representing the pattern shape for the currently selected pattern.
  */
 export function rotateSelected(): void {
   if (!patternSubject.value) return;
@@ -118,7 +127,7 @@ export function rotateSelected(): void {
 }
 
 /**
- * Flips the pattern shape 2D array for the currently selected pattern.
+ * Flips the 2D array representing the pattern shape for the currently selected pattern.
  */
 export function flipSelected(): void {
   if (!patternSubject.value) return;

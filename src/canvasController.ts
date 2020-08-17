@@ -1,10 +1,10 @@
 import {ControllerSubject} from "./observables";
 
 /**
- * CanvasController is the object reponsible for modifying the HTML canvas elements
- * used to visualize the game area. Three canvas elements are used for drawing
- * grid lines, alive cells, and translucent pattern preview, respectively. The
- * canvases are transformed based on user specified zoom and pan properties.
+ * CanvasController is reponsible for modifying the HTML canvas elements
+ * used to visualize the game area. Two canvas elements are used for drawing
+ * grid lines, alive cells, and translucent pattern preview. The canvases
+ * are transformed based on user specified zoom and pan properties.
  */
 export class CanvasController {
   /** Number of cells in each dimension of the game universe. */
