@@ -73,6 +73,14 @@ export class CanvasController {
   }
 
   /**
+   * Updates color theme and forces redraw.
+   */
+  set isDarkMode(x: boolean) {
+    this.#isDarkMode = x;
+    this.#isRedrawNeeded = true;
+  }
+
+  /**
    * Ensures the values are within acceptable bounds. Sets default values if undefined.
    */
   initializeView(): void {
@@ -120,14 +128,6 @@ export class CanvasController {
     };
 
     this.updateSubject();
-    this.#isRedrawNeeded = true;
-  }
-
-  /**
-   * Updates color theme and forces redraw.
-   */
-  setColorTheme(theme: "dark" | "light"): void {
-    this.#isDarkMode = theme === "dark" ? true : false;
     this.#isRedrawNeeded = true;
   }
 

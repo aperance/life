@@ -276,7 +276,9 @@ fromEvent<MouseEvent>(dom.nav, "click")
       case "dark-btn":
         document.documentElement.dataset.theme =
           document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-        canvasController?.setColorTheme(document.documentElement.dataset.theme);
+        if (canvasController)
+          canvasController.isDarkMode =
+            document.documentElement.dataset.theme === "dark";
         localStorage.setItem("theme", document.documentElement.dataset.theme);
         break;
       default:
