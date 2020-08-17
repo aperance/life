@@ -1,24 +1,27 @@
 import {ControllerSubject} from "./observables";
 
 /**
- *
+ * CanvasController is the object reponsible for modifying the HTML canvas elements
+ * used to visualize the game area. Three canvas elements are used for drawing
+ * grid lines, alive cells, and translucent pattern preview, respectively. The
+ * canvases are transformed based on user specified zoom and pan properties.
  */
 export class CanvasController {
-  /** */
-  readonly #gridCtx: CanvasRenderingContext2D;
-  /** */
-  readonly #cellCtx: CanvasRenderingContext2D;
-  /** */
+  /** Number of cells in each dimension of the game universe. */
   readonly cellCount: number;
-  /** */
+  /** Context of canvas used to render grid lines. */
+  readonly #gridCtx: CanvasRenderingContext2D;
+  /** Context of canvas used to render cells. */
+  readonly #cellCtx: CanvasRenderingContext2D;
+  /** RxJS subject used to communicate state changes to UI. */
   readonly #subject: ControllerSubject;
-  /** */
+  /** Dark mode if true. */
   #isDarkMode: boolean;
-  /** */
+  /** Offset of the canvas relative to the viewport. */
   #pan?: {x: number; y: number};
-  /** */
+  /** Current zoom level. Equal to cell width in pixels. */
   #zoom = 10;
-  /** */
+  /** Set to true to force all canvases to be redrawn next cycle. */
   #isRedrawNeeded = true;
 
   constructor(
@@ -36,7 +39,7 @@ export class CanvasController {
   }
 
   /**
-   *
+   * Width and height of the canvases, based on the properties of the grid canvas.
    */
   private get window(): {width: number; height: number} {
     const {width, height} = this.#gridCtx.canvas;
@@ -104,9 +107,9 @@ export class CanvasController {
   }
 
   /**
-   *
-   * @param deltaX
-   * @param deltaY
+   * Aleters the pan x and y properties by the specified amounts.
+   * @param deltaX Amount to shift the pan.x property by
+   * @param deltaY Amount to shift the pan.y property by
    */
   shiftPan(deltaX: number, deltaY: number): void {
     if (!this.#pan) throw Error("Canvas not initialized");
@@ -121,10 +124,9 @@ export class CanvasController {
   }
 
   /**
-   *
-   * @param theme
+   * Updates color theme and forces redraw.
    */
-  setColorTheme(theme: string): void {
+  setColorTheme(theme: "dark" | "light"): void {
     this.#isDarkMode = theme === "dark" ? true : false;
     this.#isRedrawNeeded = true;
   }
@@ -290,8 +292,6 @@ export class CanvasController {
 
   /**
    * Converts coordinates from the window to the row, column, and index on the game area.
-   * @param x Window x-coordinate
-   * @param y Window y-coordinate
    */
   xyToRowColIndex(
     x: number,

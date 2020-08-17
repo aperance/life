@@ -65,6 +65,7 @@ export class GameController {
     };
 
     this.#worker.onmessage = this.handleWorkerMessage.bind(this);
+    /** Initiates animation cycle. Runs recursively until terminate method called */
     this.animationCycle();
   }
 
@@ -168,8 +169,7 @@ export class GameController {
   }
 
   /**
-   *
-   * @memberof GameController#
+   * Removes all alive cells and forces canvas redraw.
    */
   clearAliveCells(): void {
     this.#aliveCells.clear();
@@ -177,8 +177,7 @@ export class GameController {
   }
 
   /**
-   *
-   * @memberof GameController#
+   * Removes all preview cells and forces canvas redraw.
    */
   clearPreview(): void {
     this.#alivePreview.clear();
@@ -187,7 +186,6 @@ export class GameController {
 
   /**
    * Sends message to worker to start generating game results.
-   * @memberof GameController#
    */
   play(): void {
     if (this.isGameStarted) this.isGamePaused = false;
@@ -205,16 +203,13 @@ export class GameController {
 
   /**
    * Sets flag to pause game at current generation.
-   * @memberof GameController#
    */
   pause(): void {
     this.isGamePaused = true;
   }
 
   /**
-   * Terminates worker and recursive animationCycle calls, to prepare for
-   * object deletion.
-   * @memberof GameController#
+   * Terminates recursive animationCycle calls to prepare for object deletion.
    */
   terminate(): void {
     this.#haltAnimationCycle = true;
@@ -223,7 +218,6 @@ export class GameController {
   /**
    * Gets next game results and passes game state to viewController render
    * method. Called 60 times per second using requestAnimationFrame timer.
-   * @memberof GameController#
    */
   private animationCycle(): void {
     if (this.#haltAnimationCycle) return;
