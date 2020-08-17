@@ -1,5 +1,12 @@
+/**
+ *
+ */
+
 import {patternSubject} from "./observables";
 
+/**
+ * Object containing the data extracted from a pattern data file.
+ */
 interface PatternData {
   name: string;
   author: string;
@@ -7,9 +14,16 @@ interface PatternData {
   array: number[][];
 }
 
-const map = new Map();
+/**
+ * Hash map storing imported pattern data objects.
+ */
+const patternMap = new Map<string, PatternData>();
 
-const categories = {
+/**
+ * List of all available pattern organized by category. Used to generate
+ * HTML for dropdown and determine which data file to import.
+ */
+const patternList = {
   Oscillators: [
     "beacon",
     "blinker",
@@ -71,15 +85,20 @@ const categories = {
 };
 
 /**
- *
- * @param {string?} id
+ * Retrieves patternData for provided id and emits the 2D array representing
+ * the pattern shape (using RxJS subject). Subject is cleared if id is null.
  */
 export function setSelected(id: string | null): void {
-  patternSubject.next(id ? getData(id).array : null);
+  if (!id) patternSubject.next(null);
+  else {
+    const patternShape = patternMap.get(id)?.array;
+    if (!patternShape) throw new Error(`No pattern data found for '${id}'`);
+    patternSubject.next(patternShape);
+  }
 }
 
 /**
- *
+ * Rotates the pattern shape 2D array for the currently selected pattern.
  */
 export function rotateSelected(): void {
   if (!patternSubject.value) return;
@@ -87,55 +106,59 @@ export function rotateSelected(): void {
   const width = patternSubject.value.length;
   const height = patternSubject.value[0].length;
 
-  const newArray = new Array(height);
+  const newShape = new Array(height);
   for (let row = 0; row < height; row++) {
-    newArray[row] = new Array(width);
+    newShape[row] = new Array(width);
     for (let col = 0; col < width; col++) {
-      newArray[row][col] = patternSubject.value[width - col - 1][row];
+      newShape[row][col] = patternSubject.value[width - col - 1][row];
     }
   }
 
-  patternSubject.next(newArray);
+  patternSubject.next(newShape);
 }
 
 /**
- *
+ * Flips the pattern shape 2D array for the currently selected pattern.
  */
 export function flipSelected(): void {
   if (!patternSubject.value) return;
-  const newArr = patternSubject.value;
+  const newShape = patternSubject.value;
 
-  for (let i = 0; i < newArr.length; i++) {
-    newArr[i].reverse();
+  for (let i = 0; i < newShape.length; i++) {
+    newShape[i].reverse();
   }
-  patternSubject.next(newArr);
+  patternSubject.next(newShape);
 }
 
 /**
- *
- * @param {string} id
- * @returns {PatternData}
- * @throws {Error}
- */
-function getData(id: string): PatternData {
-  const data = map.get(id);
-  if (data) return data;
-  else throw new Error(`No pattern data found for '${id}'`);
-}
-
-/**
+ * For each pattern in patternList, parses associated data file and saves object in hash map.
  * @async
  */
 export async function loadDataFromFiles(): Promise<void> {
-  const patternList = Object.values(categories).flat();
+  const patterns = Object.values(patternList).flat();
 
   await Promise.all(
-    patternList.map(async id => {
+    patterns.map(async id => {
       try {
-        const patternData = await readPatternFile(id);
-        map.set(id, patternData);
+        const data: string = (await import(`../patterns/${id}.rle`)).default;
+
+        const name = data.match(/#N .*/g)?.[0].replace(/#N /, "") ?? "";
+        const author = data.match(/#O .*/g)?.[0].replace(/#O /, "") ?? "";
+        const description =
+          data.match(/#C .*/g)?.map(str => str.replace(/#C /, "")) ?? [];
+        const rle =
+          data.match(/^[^#xX]*!/m)?.[0].replace(/(\r\n|\n|\r)/gm, "") ?? "";
+        const width = parseInt(
+          data.match(/[xX] = [^,]*/)?.[0].replace(/[xX] = /, "") ?? ""
+        );
+        const height = parseInt(
+          data.match(/[yY] = [^,]*/)?.[0].replace(/[yY] = /, "") ?? ""
+        );
+        const array = rleParser(rle, width, height);
+
+        patternMap.set(id, {name, author, description, array});
       } catch (err) {
-        console.error(`Error parsingzzs ${id}.rle`);
+        console.error(`Error parsing ${id}.rle`);
         throw err;
       }
     })
@@ -143,34 +166,10 @@ export async function loadDataFromFiles(): Promise<void> {
 }
 
 /**
- *
- * @async
- * @param {string} id
- * @returns {Promise<PatternData>}
- */
-async function readPatternFile(id: string): Promise<PatternData> {
-  const data = (await import(`../patterns/${id}.rle`)).default as string;
-  const rle = data.match(/^[^#xX]*!/m)?.[0].replace(/(\r\n|\n|\r)/gm, "") ?? "";
-  const width = parseInt(
-    data.match(/[xX] = [^,]*/)?.[0].replace(/[xX] = /, "") ?? ""
-  );
-  const height = parseInt(
-    data.match(/[yY] = [^,]*/)?.[0].replace(/[yY] = /, "") ?? ""
-  );
-
-  return {
-    name: data.match(/#N .*/g)?.[0].replace(/#N /, "") ?? "",
-    author: data.match(/#O .*/g)?.[0].replace(/#O /, "") ?? "",
-    description: data.match(/#C .*/g)?.map(str => str.replace(/#C /, "")) ?? [],
-    array: rleParser(rle, width, height)
-  };
-}
-
-/**
- *
- * @param {string} rle
- * @returns {number[][]}
- * @throws {Error}
+ * Converts pattern shape from an RLE string to a 2D array.
+ * @param rle Pattern shape encoded as an RLE string
+ * @param width Width of pattern
+ * @param height Height of pattern
  */
 function rleParser(rle: string, width: number, height: number): number[][] {
   const array: number[][] = [...Array(height)].map(() => Array(width).fill(0));
@@ -210,13 +209,14 @@ function rleParser(rle: string, width: number, height: number): number[][] {
 }
 
 /**
- *
+ * Dynamically generate HTML for the patter dropdown menu.
+ * @param targetId Node where generated HTML should be attached
  */
 export function generateDropdownHTML(targetId: string): void {
   const target = document.getElementById(targetId) as HTMLDivElement;
 
   target.innerHTML = `<ul>
-    ${Object.entries(categories)
+    ${Object.entries(patternList)
       .map(([category, contents]) => {
         return `<li>
           <a class="btn-flat">${category}
@@ -225,14 +225,18 @@ export function generateDropdownHTML(targetId: string): void {
           <ul class="pattern-list">
           ${contents
             .map(id => {
+              const patternData = patternMap.get(id);
+              if (!patternData)
+                throw new Error(`No pattern data found for '${id}'`);
+
               return `<li>
                 <a
                   class="btn-flat"
                   data-pattern="${id}"
-                  data-tooltip-content="${getData(id).description[0]}"
+                  data-tooltip-content="${patternData.description[0]}"
                   data-tooltip-direction="right"
                 >
-                  ${getData(id).name}
+                  ${patternData.name}
                 </a>
               </li>`;
             })
