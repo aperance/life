@@ -26,12 +26,12 @@ document.documentElement.dataset.theme =
 (async () => {
   try {
     initializeGame();
-    // Initialize pattern library object (after initializeGame to not block game load).
+    /** Initialize pattern library object (after initializeGame to not block game load). */
     await patternLibrary.loadDataFromFiles();
-    // Generate and insert HTML for pattern library dropdown.
+    /** Generate and insert HTML for pattern library dropdown. */
     patternLibrary.generateDropdownHTML("pattern-dropdown");
   } catch (err) {
-    // Terminate game on error (most likely from pattern library).
+    /** Terminate game on error (most likely from pattern library). */
     console.error(err);
     terminateGame();
   }
@@ -58,7 +58,7 @@ export function initializeGame(): void {
   const gridCtx = gridCanvas.getContext("2d") as CanvasRenderingContext2D;
   const cellCtx = cellCanvas.getContext("2d") as CanvasRenderingContext2D;
 
-  /** Factory function for CanvasController object. */
+  /** Instatiate CanvasController */
   canvasController = new CanvasController(
     gridCtx,
     cellCtx,
@@ -67,7 +67,7 @@ export function initializeGame(): void {
     controllerSubject
   );
 
-  /** Factory function for GameController object. */
+  /** Instantiate GameController */
   gameController = new GameController(
     worker,
     canvasController,
