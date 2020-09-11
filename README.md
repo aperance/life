@@ -11,3 +11,9 @@ The game features pan and zoom controls which updates the position and scale of 
 RxJS is used to manage mouse and keyboard events by the user.
 
 A live version is available at http://life.aperance.dev.
+
+## How to Play
+
+Click on a cell to toggle its state between alive and dead. Once the initial patter is set click the play icon to run the game.
+
+![](examples/manual_glider.gif)
