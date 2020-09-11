@@ -16,4 +16,12 @@ A live version is available at http://life.aperance.dev.
 
 Click on a cell to toggle its state between alive and dead. Once the initial patter is set click the play icon to run the game.
 
-![](examples/manual_glider.gif)
+![](examples/manual.gif)
+
+![](examples/pattern.gif)
+
+![](examples/flip_rotate.gif)
+
+![](examples/zoom.gif)
+
+![](examples/p416.gif)
