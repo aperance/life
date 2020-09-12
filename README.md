@@ -14,21 +14,21 @@ A live version is available at http://life.aperance.dev.
 
 ## How to Play
 
-Click on a cell to toggle its state between alive and dead. Once the initial patter is set click the play icon to run the game.
+Click on a cell to toggle its state between alive and dead. Once the initial pattern is set click the play icon to run the game.
 
 ![](examples/manual.gif)
 
-Alternatively, you can select a predefined pattern from the pattern library dropdown menu. The click to place one or more instances of the selected pattern.
+Alternatively, you can select a predefined pattern from the pattern library dropdown menu. You can rotate the pattern by pressing the "R" key and flip the pattern by pressing the "F" key. Click to place one or more instances of the selected pattern. Press the escape key to exit the pattern placement mode.
 
 ![](examples/pattern.gif)
-
-When placing a predefined pattern, you can rotate the pattern by pressing the "R" key and flip the pattern by pressing the "F" key. Press the escape key to exit the pattern placement mode.
-
-![](examples/flip_rotate.gif)
 
 To zoom in or out use either the zoom slider on the top right of the screen, or use a mouse wheel or trackpad scroll gesture.
 
 ![](examples/zoom.gif)
+
+To pan across the game board use the arrow keys or click and drag on the game area.
+
+![](examples/pan.gif)
 
 To test the limits of this game implementation, I recommend trying the p416 gun from the pattern library. 
 
