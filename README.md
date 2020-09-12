@@ -18,10 +18,18 @@ Click on a cell to toggle its state between alive and dead. Once the initial pat
 
 ![](examples/manual.gif)
 
+Alternatively, you can select a predefined pattern from the pattern library dropdown menu. The click to place one or more instances of the selected pattern.
+
 ![](examples/pattern.gif)
+
+When placing a predefined pattern, you can rotate the pattern by pressing the "R" key and flip the pattern by pressing the "F" key. Press the escape key to exit the pattern placement mode.
 
 ![](examples/flip_rotate.gif)
 
+To zoom in or out use either the zoom slider on the top right of the screen, or use a mouse wheel or trackpad scroll gesture.
+
 ![](examples/zoom.gif)
+
+To test the limits of this game implementation, I recommend trying the p416 gun from the pattern library. 
 
 ![](examples/p416.gif)
