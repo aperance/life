@@ -24,7 +24,7 @@ To zoom in or out use either the zoom slider on the top right of the screen, or 
 
 ![](examples/pan.gif)
 
-To test the limits of this game implementation, I recommend trying the p416 gun from the pattern library. 
+To test the limits of this game implementation, I recommend trying the P416 60P5H2V0 gun from the pattern library. Many computers will struggle running this at full speed due to there being over 10,000 state changes per generation.
 
 ![](examples/p416.gif)
 
