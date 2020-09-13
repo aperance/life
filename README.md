@@ -32,3 +32,5 @@ To pan across the game board use the arrow keys or click and drag on the game ar
 
 To test the limits of this game implementation, I recommend trying the p416 gun from the pattern library. 
 
+![](examples/p416.gif)
+
