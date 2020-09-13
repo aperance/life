@@ -24,7 +24,7 @@ Alternatively, you can select a predefined pattern from the pattern library drop
 
 To zoom in or out use either the zoom slider on the top right of the screen, or use a mouse wheel or trackpad scroll gesture.
 
-![](examples/zoom.gif)
+
 
 To pan across the game board use the arrow keys or click and drag on the game area.
 
@@ -32,4 +32,3 @@ To pan across the game board use the arrow keys or click and drag on the game ar
 
 To test the limits of this game implementation, I recommend trying the p416 gun from the pattern library. 
 
-![](examples/p416.gif)
