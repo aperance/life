@@ -1,3 +1,4 @@
+/** Light mode styling */
 :root {
   --text-color: #000000;
   --canvas-color: #ffffff;
@@ -6,6 +7,8 @@
   --btn-active-color: #f4f4f4;
   --btn-hover-color: #e7e7e7;
   --menu-color: #ffffff;
+  --border-color: #0000001a;
+  --wave-color: #ffffff73;
 
   .dark-only {
     display: none;
@@ -15,6 +18,7 @@
   }
 }
 
+/** Dark mode styling */
 [data-theme="dark"] {
   --text-color: #eeeeee;
   --canvas-color: #333333;
@@ -23,6 +27,8 @@
   --btn-active-color: #333333;
   --btn-hover-color: #3f3f3f;
   --menu-color: #3f3f3f;
+  --border-color: #ffffff1a;
+  --wave-color: #00000033;
 
   .dark-only {
     display: inline-block;
@@ -45,7 +51,9 @@ a > span {
   pointer-events: none;
 }
 
+/** Pure CSS tooltips */
 a[data-tooltip-content],
+span[data-tooltip-content],
 canvas[data-tooltip-content],
 div[data-tooltip-content] {
   position: relative;
@@ -109,6 +117,7 @@ div[data-tooltip-content] {
   }
 }
 
+/** Dropdown menu for pattern library */
 #pattern-dropdown {
   position: relative;
   top: 100%;
@@ -165,6 +174,7 @@ div[data-tooltip-content] {
     0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
 }
 
+/** HTML5 Canvases */
 #canvas-container {
   height: 100vh;
   width: 100vw;
@@ -185,6 +195,7 @@ div[data-tooltip-content] {
   }
 }
 
+/** Top navigation bar */
 nav {
   position: absolute;
   display: flex;
@@ -197,6 +208,10 @@ nav {
 
   & > div {
     display: flex;
+  }
+
+  .waves-effect .waves-ripple {
+    background-color: var(--wave-color);
   }
 
   .btn-flat {
@@ -227,10 +242,6 @@ nav {
     }
   }
 
-  #pattern-dropdown:not([hidden]) + .btn-flat {
-    background-color: var(--btn-hover-color);
-  }
-
   .slider-group {
     display: flex;
     margin: 0 32px 0 42px;
@@ -255,8 +266,13 @@ nav {
       }
     }
   }
+
+  #pattern-dropdown:not([hidden]) + .btn-flat {
+    background-color: var(--btn-hover-color);
+  }
 }
 
+/** Bottom status bar */
 #bottom-bar {
   position: absolute;
   bottom: 0;
@@ -273,9 +289,12 @@ nav {
   }
 }
 
-.modal {
+/** Help Modal */
+.modal.modal-fixed-footer {
   .modal-content {
     padding: 42px;
+    background-color: var(--navbar-color);
+    color: var(--text-color);
 
     h5 {
       margin-top: 1.8rem;
@@ -291,6 +310,10 @@ nav {
     text-align: left;
     padding: 20px 42px;
     height: fit-content;
+    background-color: var(--navbar-color);
+    border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: var(--border-color);
 
     span {
       line-height: 20px;

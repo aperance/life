@@ -4,48 +4,42 @@
     <title>Game of Life</title>
     <link rel="stylesheet" type="text/css" href="main.css" />
   </head>
+
   <body hidden>
     <div id="main">
       <nav id="nav">
         <div>
-          <a
-            id="play-btn"
-            class="waves-effect waves-light btn-flat"
-            data-tooltip-content="Run"
-            data-tooltip-direction="down"
-          >
-            <span id="play-icon">
-              <svg><use xlink:href="icons.svg#play"></use></svg>
-            </span>
-            <span id="pause-icon" hidden>
-              <svg><use xlink:href="icons.svg#pause"></use></svg>
-            </span>
-          </a>
-          <a
-            id="default-btn"
-            class="active waves-effect waves-light btn-flat"
+          <span data-tooltip-content="Run" data-tooltip-direction="down">
+            <a id="play-btn" class="waves-effect btn-flat">
+              <span id="play-icon">
+                <svg><use xlink:href="icons.svg#play"></use></svg>
+              </span>
+              <span id="pause-icon" hidden>
+                <svg><use xlink:href="icons.svg#pause"></use></svg>
+              </span>
+            </a>
+          </span>
+
+          <span
             data-tooltip-content="Toggle Cells"
             data-tooltip-direction="down"
           >
-            <svg>
-              <use xlink:href="icons.svg#pen"></use>
-            </svg>
-          </a>
+            <a id="default-btn" class="active waves-effect btn-flat">
+              <svg><use xlink:href="icons.svg#pen"></use></svg>
+            </a>
+          </span>
 
-          <div>
+          <span>
             <div id="pattern-dropdown" hidden></div>
-            <a
-              id="pattern-btn"
-              class="waves-effect waves-light btn-flat"
-              tabindex="-1"
+            <div
               data-tooltip-content="Pattern Library"
               data-tooltip-direction="down"
             >
-              <svg>
-                <use xlink:href="icons.svg#glider"></use>
-              </svg>
-            </a>
-          </div>
+              <a id="pattern-btn" class="waves-effect btn-flat" tabindex="-1">
+                <svg><use xlink:href="icons.svg#glider"></use></svg>
+              </a>
+            </div>
+          </span>
 
           <div
             class="slider-group"
@@ -69,54 +63,50 @@
             </svg>
             <input id="zoom-slider" type="range" min="1" max="10" step="0.1" />
           </div>
-          <a
-            id="reset-btn"
-            class="waves-effect waves-light btn-flat"
-            data-tooltip-content="Reset Game"
-            data-tooltip-direction="down"
-          >
-            <svg>
-              <use xlink:href="icons.svg#redo"></use>
-            </svg>
-          </a>
-          <a
-            id="dark-btn"
-            class="waves-effect waves-light btn-flat"
-            data-tooltip-content="Dark Mode"
-            data-tooltip-direction="down"
-          >
-            <svg class="dark-only">
-              <use xlink:href="icons.svg#sun"></use>
-            </svg>
-            <svg class="light-only">
-              <use xlink:href="icons.svg#moon"></use>
-            </svg>
-          </a>
-          <a
-            id="help-btn"
-            class="waves-effect waves-light btn-flat modal-trigger"
-            data-tooltip-content="Help"
-            data-tooltip-direction="down"
-            href="#help-modal"
-          >
-            <svg>
-              <use xlink:href="icons.svg#question"></use>
-            </svg>
-          </a>
-          <a
-            id="github-btn"
-            href="http://www.github.com/aperance/life"
-            target="_blank"
-            class="waves-effect waves-light btn-flat"
+
+          <span data-tooltip-content="Reset Game" data-tooltip-direction="down">
+            <a id="reset-btn" class="waves-effect btn-flat">
+              <svg><use xlink:href="icons.svg#redo"></use></svg>
+            </a>
+          </span>
+
+          <span data-tooltip-content="Dark Mode" data-tooltip-direction="down">
+            <a id="dark-btn" class="waves-effect btn-flat">
+              <svg class="dark-only">
+                <use xlink:href="icons.svg#sun"></use>
+              </svg>
+              <svg class="light-only">
+                <use xlink:href="icons.svg#moon"></use>
+              </svg>
+            </a>
+          </span>
+
+          <span data-tooltip-content="Help" data-tooltip-direction="down">
+            <a
+              id="help-btn"
+              class="waves-effect btn-flat modal-trigger"
+              href="#help-modal"
+            >
+              <svg><use xlink:href="icons.svg#question"></use></svg>
+            </a>
+          </span>
+
+          <span
             data-tooltip-content="GitHub Repo"
             data-tooltip-direction="down"
           >
-            <svg>
-              <use xlink:href="icons.svg#github"></use>
-            </svg>
-          </a>
+            <a
+              id="github-btn"
+              href="http://www.github.com/aperance/life"
+              target="_blank"
+              class="waves-effect btn-flat"
+            >
+              <svg><use xlink:href="icons.svg#github"></use></svg>
+            </a>
+          </span>
         </div>
       </nav>
+
       <div
         id="canvas-container"
         data-tooltip-content="Press R to rotate, F to flip, or ESC to exit"
@@ -125,6 +115,7 @@
         <canvas id="grid-canvas"></canvas>
         <canvas id="cell-canvas"></canvas>
       </div>
+
       <div id="bottom-bar">
         <span id="left-status"></span>
         <span id="right-status"></span>
